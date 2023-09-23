@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 
-class PrimaryButton extends StatelessWidget {
+class RedButton extends StatelessWidget {
 
   final String text;
   final VoidCallback? onPressed;
   final bool active;
 
-  const PrimaryButton(this.text, {
+  const RedButton(this.text, {
     this.onPressed,
     this.active = true,
-    Key? key
-  }) : super(key: key);
+    Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -22,11 +21,11 @@ class PrimaryButton extends StatelessWidget {
         }
       },
       style: ElevatedButton.styleFrom(
-          backgroundColor: active ? AppColor.secondary : AppColor.secondaryInactive
-      ),
-      child: Text(text, style: const TextStyle(
-          color: AppColor.secondaryContrast
-      ))
+      backgroundColor: active ? AppColor.red : AppColor.redInactive
+    ),
+    child: Text(text, style: const TextStyle(
+    color: AppColor.redContrast
+    )),
     );
   }
 }

@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/presentation/components/controls/primary_button.dart';
-import 'package:flutter_map_toy/presentation/components/controls/secondary_button.dart';
+import 'package:flutter_map_toy/presentation/components/controls/red_button.dart';
+import 'package:flutter_map_toy/presentation/components/controls/blue_button.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 import 'package:flutter_map_toy/presentation/views/map_screen.dart';
 
@@ -14,7 +15,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      appBar: AppBar(title: const Text('Home'),),
+      appBar: AppBar(title: const Text('Home')),
 
       body: Padding(
         padding: AppStyle.defaultPadding,
@@ -28,7 +29,16 @@ class HomeScreen extends StatelessWidget {
             ),
 
             AppStyle.verticalDefaultDistance,
-            SecondaryButton('secondary button',
+            BlueButton('blue button',
+              onPressed: () {
+                if (kDebugMode) {
+                  print('xx');
+                }
+              },
+            ),
+
+            AppStyle.verticalDefaultDistance,
+            RedButton('red button',
               onPressed: () {
                 if (kDebugMode) {
                   print('xx');
