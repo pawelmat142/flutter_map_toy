@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
+import 'package:flutter_map_toy/presentation/styles/app_fonts.dart';
 
 class BlueButton extends StatelessWidget {
 
@@ -24,6 +25,7 @@ class BlueButton extends StatelessWidget {
         backgroundColor: active ? AppColor.blue : AppColor.blueInactive
       ),
       child: Text(text, style: TextStyle(
+        fontFamily: AppFont.robotoMono,
           color: active ? AppColor.blueContrast : AppColor.primaryDark
       )),
     );

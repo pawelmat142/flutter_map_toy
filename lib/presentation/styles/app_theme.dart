@@ -19,7 +19,16 @@ abstract class AppTheme {
       titleTextStyle: titleLargeTextStyle
     ),
 
-    fontFamily: AppFonts.robotoMono,
+    elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ButtonStyle(
+            textStyle: MaterialStateProperty.all<TextStyle>(const TextStyle(
+              fontFamily: AppFont.robotoMono,
+              fontWeight: FontWeight.w500
+            ))
+        )
+    ),
+
+    fontFamily: AppFont.robotoMono,
 
     textTheme: const TextTheme(
       titleLarge: titleLargeTextStyle
