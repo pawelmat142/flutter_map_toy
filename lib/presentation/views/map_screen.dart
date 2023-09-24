@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/presentation/components/toolbar.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
@@ -54,14 +55,14 @@ class _MapScreenState extends State<MapScreen> {
             barLabel: 'clean',
             menuLabel: 'clean',
             icon: AppIcon.cleanPoint,
-            onTap: (){}
+            onTap: _onClean
         ),
         ToolBarItem(
             label: 'save_map',
             barLabel: 'save',
             menuLabel: 'save',
             icon: AppIcon.save,
-            onTap: (){}
+            onTap: _onSave
         ),
         ToolBarItem(
             label: Toolbar.menuLabel,
@@ -75,15 +76,21 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   _onAddPoint() {
-    print('todo');
+    if (kDebugMode) {
+      print('todo');
+    }
   }
 
   _onClean() {
-    print('onclean');
+    if (kDebugMode) {
+      print('onclean');
+    }
   }
 
   _onSave() {
-    print('onsave');
+    if (kDebugMode) {
+      print('onsave');
+    }
   }
 
   _onMapCreated(GoogleMapController controller) async {

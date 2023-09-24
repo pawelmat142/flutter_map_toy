@@ -28,20 +28,24 @@ abstract class AppTheme {
         )
     ),
 
-    bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      backgroundColor: AppColor.primaryDark
-    ),
-
     fontFamily: AppFont.robotoMono,
 
     textTheme: const TextTheme(
-      titleLarge: titleLargeTextStyle
-    ),
+
+      titleLarge: titleLargeTextStyle,
+
+      labelMedium: TextStyle(
+        fontSize: AppFontSize.medium,
+        fontWeight: FontWeight.w500,
+        color: AppColor.white80,
+        letterSpacing: 1.1
+      ),
+    )
 
   );
 
   static const titleLargeTextStyle = TextStyle(
-      fontSize: 24,
+      fontSize: AppFontSize.big,
       fontWeight: FontWeight.w500,
       color: AppColor.secondary,
       letterSpacing: 1.3

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map_toy/global/extensions.dart';
+import 'package:flutter_map_toy/presentation/dialogs/app_modal.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 
 class ToolBarItem {
@@ -39,9 +41,9 @@ class Toolbar extends StatelessWidget {
       onTap: (i) => _onItemTap(i, context),
       items: onlyToolbarItems
           .map((i) => BottomNavigationBarItem(
-          icon: Icon(i.icon),
-          label: i.barLabel!))
-          .toList(),
+            icon: Icon(i.icon),
+            label: i.barLabel!.capitalize())
+      ).toList(),
     );
   }
 
@@ -59,16 +61,15 @@ class Toolbar extends StatelessWidget {
       .toList();
 
   _onToolbarMenu(BuildContext context) {
-    print('todo');
-    // FlareModal.show(context, showBack: false, children: toolbarItems
-    //     .where((i) => i.menuKey != null)
-    //     .map((i) => _toolbarItemToTile(i, context))
-    //     .toList());
+    AppModal.show(context, showBack: false, children: toolbarItems
+        .where((i) => i.menuLabel != null)
+        .map((i) => _toolbarItemToTile(i, context))
+        .toList());
   }
 
   ListTile _toolbarItemToTile(ToolBarItem item, BuildContext context) {
-    return ListTile(title: Text(item.menuLabel!),
-        leading: Icon(item.icon, size: 35, color: AppColor.green),
+    return ListTile(title: Text(item.menuLabel!.capitalize(), style: Theme.of(context).textTheme.labelMedium,),
+        leading: Icon(item.icon, size: 32, color: AppColor.secondary),
         onTap: () {
           Navigator.pop(context);
           item.onTap();
