@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/presentation/views/home_screen.dart';
 import 'package:flutter_map_toy/presentation/styles/app_theme.dart';
-import 'package:flutter_map_toy/presentation/views/map_screen.dart';
+import 'package:flutter_map_toy/services/get_it.dart';
 
 void main() {
+
+  AppGetIt.init();
+
   runApp(const MyApp());
 }
 
@@ -28,7 +31,7 @@ class _MyAppState extends State<MyApp> {
       initialRoute: HomeScreen.id,
       routes: {
         HomeScreen.id: (context) => const HomeScreen(),
-        MapScreen.id: (context) => const MapScreen(),
+        // MapScreen.id: (context) => const MapScreen(),
       },
     );
   }

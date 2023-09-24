@@ -5,6 +5,10 @@ import 'package:flutter_map_toy/presentation/components/controls/red_button.dart
 import 'package:flutter_map_toy/presentation/components/controls/blue_button.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 import 'package:flutter_map_toy/presentation/views/map_screen.dart';
+import 'package:flutter_map_toy/services/get_it.dart';
+import 'package:flutter_map_toy/services/location_service.dart';
+import 'package:flutter_map_toy/utils/map_util.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HomeScreen extends StatelessWidget {
   static const String id = 'home_screen';
@@ -25,7 +29,21 @@ class HomeScreen extends StatelessWidget {
           children: [
 
             PrimaryButton('go to map',
-              onPressed: () => Navigator.pushNamed(context, MapScreen.id),
+              onPressed: () async {
+                final myLocation = await getIt.get<LocationService>().getMyLocation();
+                if (myLocation.latitude is double && myLocation.longitude is double) {
+                  final initialCameraPosition = CameraPosition(
+                    target: LatLng(myLocation.latitude!, myLocation.longitude!),
+                    zoom: MapUtil.kZoomInitial
+                  );
+                  // ignore: use_build_context_synchronously
+                  MapScreen.push(context, initialCameraPosition);
+                }
+                if (kDebugMode) {
+                  print(myLocation);
+                }
+
+              }
             ),
 
             AppStyle.verticalDefaultDistance,
