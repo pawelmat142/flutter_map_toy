@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/presentation/components/controls/primary_button.dart';
 import 'package:flutter_map_toy/presentation/components/controls/red_button.dart';
 import 'package:flutter_map_toy/presentation/components/controls/blue_button.dart';
+import 'package:flutter_map_toy/presentation/dialogs/icon_craft.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 import 'package:flutter_map_toy/presentation/views/map_screen.dart';
 import 'package:flutter_map_toy/services/get_it.dart';
@@ -51,7 +52,9 @@ class HomeScreen extends StatelessWidget {
             BlueButton('blue button',
               onPressed: () {
                 if (kDebugMode) {
-                  print('xx');
+                  final craft = IconCraft();
+                  craft.create(context);
+                  // print('xx');
                 }
               },
             ),

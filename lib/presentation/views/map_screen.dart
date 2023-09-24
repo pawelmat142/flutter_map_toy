@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/presentation/components/toolbar.dart';
+import 'package:flutter_map_toy/presentation/dialogs/icon_craft.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
 import 'package:flutter_map_toy/services/log.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -75,9 +76,14 @@ class _MapScreenState extends State<MapScreen> {
 
   }
 
-  _onAddPoint() {
-    if (kDebugMode) {
-      print('todo');
+  _onAddPoint() async {
+    final craft = IconCraft();
+    await craft.create(context);
+
+    if (craft.complete) {
+      if (kDebugMode) {
+        print('TODO - add to map!');
+      }
     }
   }
 

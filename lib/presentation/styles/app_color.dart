@@ -23,6 +23,21 @@ abstract class AppColor {
   static const Color redInactive = Color(0x74AD3922);
   static const Color redContrast = primaryDark;
 
-  static const Color green = Color(0xFF56D98C);
+  static const Color green = Color(0xFF00FF00);
+
+  static const Color lightBlue = Color(0xFF00CCFF);
+
+  static const Color purple = Color(0xFFCC00FF);
+
+  static List<Color> mapFlutterIconColors = [
+    secondary,
+    blue,
+    red,
+    green,
+    lightBlue,
+    purple,
+    Colors.black,
+    Colors.white,
+  ];
 
 }

@@ -39,7 +39,7 @@ class AppModal extends StatelessWidget {
         children: [
 
           Container(
-            padding: AppStyle.defaultPadding,
+            padding: AppStyle.defaultPaddingAll,
             decoration: const BoxDecoration(
                 color: AppColor.primaryDark,
                 borderRadius: BorderRadius.vertical(top: AppStyle.defaultRadius),
