@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map_toy/presentation/components/toolbar.dart';
+import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
 import 'package:flutter_map_toy/services/log.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -38,15 +40,56 @@ class _MapScreenState extends State<MapScreen> {
         mapType: MapType.normal,
         onMapCreated: _onMapCreated
       ),
+
+      bottomNavigationBar: Toolbar(toolbarItems: [
+        ToolBarItem(
+          label: 'add_point',
+          barLabel: 'add point',
+          menuLabel: 'add point',
+          icon: AppIcon.addPoint,
+          onTap: _onAddPoint,
+        ),
+        ToolBarItem(
+            label: 'clean_map',
+            barLabel: 'clean',
+            menuLabel: 'clean',
+            icon: AppIcon.cleanPoint,
+            onTap: (){}
+        ),
+        ToolBarItem(
+            label: 'save_map',
+            barLabel: 'save',
+            menuLabel: 'save',
+            icon: AppIcon.save,
+            onTap: (){}
+        ),
+        ToolBarItem(
+            label: Toolbar.menuLabel,
+            barLabel: 'menu',
+            icon: AppIcon.menu,
+            onTap: (){}
+        ),
+      ],),
     );
 
   }
 
+  _onAddPoint() {
+    print('todo');
+  }
+
+  _onClean() {
+    print('onclean');
+  }
+
+  _onSave() {
+    print('onsave');
+  }
+
   _onMapCreated(GoogleMapController controller) async {
-    print('on map created');
     _controllerFuture.complete(controller);
     _controller = await _controllerFuture.future;
-    Log.log('GoogleMapController created', source: widget.runtimeType.toString());
+    Log.log('GoogleMap created', source: widget.runtimeType.toString());
   }
 
 }

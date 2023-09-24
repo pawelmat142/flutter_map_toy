@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_config/flutter_config.dart';
 import 'package:flutter_map_toy/presentation/views/home_screen.dart';
 import 'package:flutter_map_toy/presentation/styles/app_theme.dart';
 import 'package:flutter_map_toy/services/get_it.dart';
 
-void main() {
+void main() async {
+
+  WidgetsFlutterBinding.ensureInitialized(); // Required by FlutterConfig
+
+  await FlutterConfig.loadEnvVariables();
 
   AppGetIt.init();
 

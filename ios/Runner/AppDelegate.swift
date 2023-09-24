@@ -1,5 +1,7 @@
 import UIKit
 import Flutter
+import flutter_config
+FlutterConfigPlugin.env(for: "GOOGLE_MAPS_API_KEY")
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {

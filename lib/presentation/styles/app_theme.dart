@@ -28,6 +28,10 @@ abstract class AppTheme {
         )
     ),
 
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      backgroundColor: AppColor.primaryDark
+    ),
+
     fontFamily: AppFont.robotoMono,
 
     textTheme: const TextTheme(

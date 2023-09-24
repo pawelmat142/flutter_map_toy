@@ -1,6 +1,19 @@
 import 'package:flutter/material.dart';
 
-abstract class AppIcons {
+abstract class AppIcon {
+
+  static const menu = Icons.menu;
+
+  static const save = Icons.playlist_add_check;
+  static const remove = Icons.playlist_remove_outlined;
+  static const edit = Icons.edit_note;
+  static const add = Icons.playlist_add;
+
+  static const addPoint = Icons.add_location_alt_outlined;
+  static const editPoint = Icons.edit_location_alt_outlined;
+  static const cleanPoint = Icons.wrong_location_outlined;
+  static const targetPoint = Icons.location_searching_outlined;
+
 
   static List<IconData> mapFlutterIcons = [
     Icons.cottage_outlined,
