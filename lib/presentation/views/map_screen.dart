@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map_toy/models/map_icon_point.dart';
+import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/presentation/components/toolbar.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_craft.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
@@ -31,17 +34,22 @@ class _MapScreenState extends State<MapScreen> {
   final Completer<GoogleMapController> _controllerFuture = Completer<GoogleMapController>();
   late GoogleMapController _controller;
 
+  MapCubit get mapCubit => BlocProvider.of<MapCubit>(context);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
 
       appBar: AppBar(title: const Text('Map'),),
 
-      body: GoogleMap(
-        initialCameraPosition: widget.initialCameraPosition,
-        mapType: MapType.normal,
-        onMapCreated: _onMapCreated
-      ),
+      body: BlocBuilder<MapCubit, MapState>(builder: (ctx, state) {
+        return GoogleMap(
+          initialCameraPosition: widget.initialCameraPosition,
+          mapType: MapType.normal,
+          markers: state.markers,
+          onMapCreated: _onMapCreated
+        );
+      }),
 
       bottomNavigationBar: Toolbar(toolbarItems: [
         ToolBarItem(
@@ -81,9 +89,8 @@ class _MapScreenState extends State<MapScreen> {
     await craft.create(context);
 
     if (craft.complete) {
-      if (kDebugMode) {
-        print('TODO - add to map!');
-      }
+      final mapIconPoint = MapIconPoint.create(craft, await mapViewCenter);
+      await mapCubit.addEventMapPointAsMarker(mapIconPoint, 1);
     }
   }
 
@@ -97,6 +104,15 @@ class _MapScreenState extends State<MapScreen> {
     if (kDebugMode) {
       print('onsave');
     }
+  }
+
+  Future<LatLng> get mapViewCenter async {
+    LatLngBounds visibleRegion = await _controller.getVisibleRegion();
+    LatLng centerLatLng = LatLng(
+      (visibleRegion.northeast.latitude + visibleRegion.southwest.latitude) / 2,
+      (visibleRegion.northeast.longitude + visibleRegion.southwest.longitude) / 2,
+    );
+    return centerLatLng;
   }
 
   _onMapCreated(GoogleMapController controller) async {

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
+import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/presentation/views/home_screen.dart';
 import 'package:flutter_map_toy/presentation/styles/app_theme.dart';
 import 'package:flutter_map_toy/services/get_it.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 
 void main() async {
 
@@ -12,7 +15,18 @@ void main() async {
 
   AppGetIt.init();
 
-  runApp(const MyApp());
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider<MapCubit>(create: (_) => MapCubit())
+      ],
+      child: const MyApp(),
+    ),
+  );
+
+
+
+  // runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {

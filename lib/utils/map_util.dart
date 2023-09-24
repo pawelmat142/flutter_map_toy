@@ -1,5 +1,9 @@
 import 'dart:math';
+import 'dart:ui';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_map_toy/global/extensions.dart';
+import 'package:flutter_map_toy/models/map_icon_point.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 abstract class MapUtil {
@@ -27,6 +31,47 @@ abstract class MapUtil {
   static Future<double> calcMapViewDiagonalDistance(GoogleMapController googleMapController) async {
     final viewPort = await googleMapController.getVisibleRegion();
     return distanceBetweenPoints(viewPort.southwest, viewPort.northeast);
+  }
+
+  static Future<Marker> getMarkerFromIcon(MapIconPoint mapIconPoint) async {
+    // if (!craft.complete) throw 'IconCraft is incomplete!';
+    final iconData = IconData(mapIconPoint.iconDataPoint, fontFamily: 'MaterialIcons');
+    final iconStr = String.fromCharCode(iconData.codePoint);
+
+    final pictureRecorder = PictureRecorder();
+    final canvas = Canvas(pictureRecorder);
+
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
+
+    final fontSize = mapIconPoint.size * 2;
+
+    textPainter.text = TextSpan(
+        text: iconStr,
+        style: TextStyle(
+          letterSpacing: 0.0,
+          fontSize: fontSize,
+          fontWeight: FontWeight.w200,
+          fontFamily: iconData.fontFamily,
+          color: Color(mapIconPoint.colorInt),
+        )
+    );
+    textPainter.layout();
+    textPainter.paint(canvas, const Offset(0.0, 0.0));
+
+    final picture = pictureRecorder.endRecording();
+    final image = await picture.toImage(fontSize.toInt(), fontSize.toInt());
+    final bytes = await image.toByteData(format: ImageByteFormat.png);
+
+    if (bytes == null) throw "bytes == null";
+
+    final bitmapDescriptor = BitmapDescriptor.fromBytes(bytes.buffer.asUint8List());
+    final marker = Marker(
+      markerId: MarkerId(mapIconPoint.id),
+      position: LatLngExtension.fromCoordinates(mapIconPoint.coordinates),
+      icon: bitmapDescriptor,
+    );
+
+    return marker;
   }
 
 }
