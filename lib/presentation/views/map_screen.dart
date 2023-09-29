@@ -9,6 +9,8 @@ import 'package:flutter_map_toy/presentation/components/toolbar.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_craft.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
 import 'package:flutter_map_toy/services/log.dart';
+import 'package:flutter_map_toy/utils/map_util.dart';
+import 'package:flutter_map_toy/utils/timer_handler.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapScreen extends StatefulWidget {
@@ -31,10 +33,13 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
 
+  MapCubit get mapCubit => BlocProvider.of<MapCubit>(context);
+
   final Completer<GoogleMapController> _controllerFuture = Completer<GoogleMapController>();
   late GoogleMapController _controller;
+  final cameraMoveHandler = TimerHandler(milliseconds: 50);
 
-  MapCubit get mapCubit => BlocProvider.of<MapCubit>(context);
+  double _initialViewDiagonalDistance = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +52,7 @@ class _MapScreenState extends State<MapScreen> {
           initialCameraPosition: widget.initialCameraPosition,
           mapType: MapType.normal,
           markers: state.markers,
+          onCameraMove: _onCameraMove,
           onMapCreated: _onMapCreated
         );
       }),
@@ -90,7 +96,7 @@ class _MapScreenState extends State<MapScreen> {
 
     if (craft.complete) {
       final mapIconPoint = MapIconPoint.create(craft, await mapViewCenter);
-      await mapCubit.addEventMapPointAsMarker(mapIconPoint, 1);
+      mapCubit.addEventMapPointAsMarker(mapIconPoint, await rescaleFactor);
     }
   }
 
@@ -115,10 +121,35 @@ class _MapScreenState extends State<MapScreen> {
     return centerLatLng;
   }
 
+  Future<double> get rescaleFactor async {
+    final distance = await MapUtil.calcMapViewDiagonalDistance(_controller);
+    Log.log('Calculated diagonal distance: ${distance.toString()}');
+    return _initialViewDiagonalDistance / distance;
+  }
+
+  _onCameraMove(CameraPosition cameraPosition) {
+    cameraMoveHandler.handle(() async {
+      mapCubit.resizeEventMap(await rescaleFactor);
+      Log.log('CameraPosition changed - zoom: ${cameraPosition.zoom.toString()}');
+    });
+  }
+
   _onMapCreated(GoogleMapController controller) async {
     _controllerFuture.complete(controller);
     _controller = await _controllerFuture.future;
+    await _getInitialDiagonalDistance();
     Log.log('GoogleMap created', source: widget.runtimeType.toString());
+  }
+
+  _getInitialDiagonalDistance() {
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      _initialViewDiagonalDistance = await MapUtil.calcMapViewDiagonalDistance(_controller);
+      if (_initialViewDiagonalDistance == 0) {
+        _getInitialDiagonalDistance();
+      } else {
+        Log.log('Initial diagonal distance: $_initialViewDiagonalDistance', source: widget.runtimeType.toString());
+      }
+    });
   }
 
 }

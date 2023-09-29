@@ -43,7 +43,7 @@ abstract class MapUtil {
 
     final textPainter = TextPainter(textDirection: TextDirection.ltr);
 
-    final fontSize = mapIconPoint.size * 2;
+    final fontSize = mapIconPoint.size * 1;
 
     textPainter.text = TextSpan(
         text: iconStr,

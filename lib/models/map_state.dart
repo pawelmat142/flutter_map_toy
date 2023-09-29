@@ -43,7 +43,7 @@ class MapCubit extends Cubit<MapState> {
     final mapIconPoints = state.mapIconPoints;
     mapIconPoints.add(mapIconPoint);
 
-    final marker = await MapUtil.getMarkerFromIcon(mapIconPoint.rescale(1));
+    final marker = await MapUtil.getMarkerFromIcon(mapIconPoint.rescale(rescaleFactor));
     final markers = state.markers;
     markers.add(marker);
     emit(state.copyWith(
@@ -59,6 +59,22 @@ class MapCubit extends Cubit<MapState> {
         markers: {}
     ));
     Log.log('EventMap is cleaned');
+  }
+
+  resizeEventMap(double rescaleFactor) async {
+
+    if (state.mapIconPoints.isEmpty) return;
+
+    final futures = state.mapIconPoints.map((mapIconPoint) {
+      return MapUtil.getMarkerFromIcon(mapIconPoint.rescale(rescaleFactor));
+    }).toList();
+
+    final List<Marker> markers = await Future.wait(futures);
+
+    emit(state.copyWith(
+        markers: markers.toSet(),
+    ));
+    Log.log('MapIconPoint markers rescaled with factor: $rescaleFactor', source: runtimeType.toString());
   }
 
 }
