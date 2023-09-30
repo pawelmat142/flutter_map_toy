@@ -64,7 +64,10 @@ class MapCubit extends Cubit<MapState> {
     Log.log('Selected: ${mapType.toString()}', source: state.runtimeType.toString());
   }
 
-  addMarker(BuildContext context, LatLng mapViewCenter, double rescaleFactor) async {
+  addMarker(BuildContext context, {
+    required LatLng mapViewCenter,
+    required double rescaleFactor
+  }) async {
     final craft = IconCraft();
     await craft.create(context);
 

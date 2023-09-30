@@ -24,6 +24,8 @@ class IconCraft {
     return iconData is IconData && color is Color && size is double;
   }
 
+  //TODO: create modal steps wizard abstract class and implement here
+
   Future create(BuildContext context) async {
     await _setIconData(context);
     _generateId();
@@ -45,6 +47,7 @@ class IconCraft {
             icon: icon,
             onPressed: () => Navigator.pop(context, AppIcon.mapFlutterIcons[index]),
             size: tileSize,
+            color: color,
           ))).values.toList()
       )]);
 

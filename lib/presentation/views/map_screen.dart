@@ -40,6 +40,11 @@ class _MapScreenState extends State<MapScreen> {
 
   double _initialViewDiagonalDistance = 0;
   double zoom = MapUtil.kZoomInitial;
+  double _rescaleFactor = 1;
+  late LatLngBounds _visibleRegion;
+
+  double get rescaleFactor => _rescaleFactor;
+  LatLngBounds get visibleRegion => _visibleRegion;
 
   @override
   void dispose() {
@@ -134,11 +139,14 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   _onAddMarker() async {
-    mapCubit.addMarker(context, await mapViewCenter, await rescaleFactor);
+    mapCubit.addMarker(context,
+      mapViewCenter: await mapViewCenter,
+      rescaleFactor: rescaleFactor
+    );
   }
 
   _onEditMarker() async {
-    mapCubit.updateMarker(context, rescaleFactor: await rescaleFactor);
+    mapCubit.updateMarker(context, rescaleFactor: rescaleFactor);
   }
 
   _onClean() {
@@ -152,18 +160,12 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<LatLng> get mapViewCenter async {
-    LatLngBounds visibleRegion = await _controller.getVisibleRegion();
+    LatLngBounds visibleRegion = this.visibleRegion;
     LatLng centerLatLng = LatLng(
       (visibleRegion.northeast.latitude + visibleRegion.southwest.latitude) / 2,
       (visibleRegion.northeast.longitude + visibleRegion.southwest.longitude) / 2,
     );
     return centerLatLng;
-  }
-
-  Future<double> get rescaleFactor async {
-    final distance = await MapUtil.calcMapViewDiagonalDistance(_controller);
-    Log.log('Calculated diagonal distance: ${distance.toString()}', source: widget.runtimeType.toString());
-    return _initialViewDiagonalDistance / distance;
   }
 
   _onCameraMove(CameraPosition cameraPosition) {
@@ -174,20 +176,21 @@ class _MapScreenState extends State<MapScreen> {
   _onCameraMoveEnd(CameraPosition cameraPosition) async {
     final newZoom = cameraPosition.zoom;
     if (newZoom != zoom) {
+      await _updateRescaleFactor();
+      mapCubit.resizeMarker(rescaleFactor);
       zoom = newZoom;
-      mapCubit.resizeMarker(await rescaleFactor);
       Log.log('CameraPosition zoom changed: ${newZoom.toString()}', source: widget.runtimeType.toString());
     }
+    await _updateVisibleRegion();
     _unselectMarkerIfOutOfView();
   }
 
-  _unselectMarkerIfOutOfView() async {
+  _unselectMarkerIfOutOfView() {
     if (mapState.selectedMarker != null) {
       //workaround solution, also in _onMarkerTap
       //GoogleMaps API doesn't share info about selected marker id or something
       //this solution should integrate google maps marker selection with this app marker selection
       //its not perfect so marker selection may be not synchronized
-      final visibleRegion = await _controller.getVisibleRegion();
       final markerVisible = visibleRegion.contains(mapState.selectedMarker!.position);
       if (!markerVisible) {
         mapCubit.selectMarker(null);
@@ -199,6 +202,7 @@ class _MapScreenState extends State<MapScreen> {
     _controllerFuture.complete(controller);
     _controller = await _controllerFuture.future;
     await _getInitialDiagonalDistance();
+    await _updateVisibleRegion();
     mapCubit.selectMarker(null);
     Log.log('GoogleMap created', source: widget.runtimeType.toString());
   }
@@ -222,9 +226,21 @@ class _MapScreenState extends State<MapScreen> {
         onTap: () => _onMarkerTap(marker),
         draggable: true,
         onDragEnd: (point) async {
-            mapCubit.replaceMarker(point, rescaleFactor: await rescaleFactor, markerId: marker.markerId.value);
+            mapCubit.replaceMarker(point, rescaleFactor: rescaleFactor, markerId: marker.markerId.value);
         },
     )).toSet();
   }
+
+  _updateRescaleFactor() async {
+    final distance = await MapUtil.calcMapViewDiagonalDistance(_controller);
+    Log.log('Calculated diagonal distance: ${distance.toString()}', source: widget.runtimeType.toString());
+    _rescaleFactor = _initialViewDiagonalDistance / distance;
+  }
+
+  _updateVisibleRegion() async {
+    _visibleRegion = await _controller.getVisibleRegion();
+    Log.log('Visible region updated', source: widget.runtimeType.toString());
+  }
+
 
 }
