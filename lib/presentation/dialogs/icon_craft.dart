@@ -16,9 +16,9 @@ class IconCraft {
   double? size;
   String? id;
 
-  bool get complete {
-    return dialogComplete && id is String;
-  }
+  bool get complete => dialogComplete && id is String;
+
+  bool get incomplete => !complete;
 
   bool get dialogComplete {
     return iconData is IconData && color is Color && size is double;
@@ -28,6 +28,11 @@ class IconCraft {
     await _setIconData(context);
     _generateId();
     Log.log('creator finished, craft is ${complete ? 'complete' : 'UNCOMPLETED'}', source: runtimeType.toString());
+  }
+
+  startEditDialog(BuildContext context) async {
+    if (!dialogComplete) throw 'craft incomplete!';
+    await _setIconSize(context);
   }
 
   _setIconData(BuildContext context) async {
@@ -81,7 +86,6 @@ class IconCraft {
     final result = await AppModal.show(context,
         onBack: () => isBacked = true,
         children: [IconCraftSizeDialogContent(craft: this)]);
-
     if (result is double) {
       size = result;
     }
@@ -121,22 +125,35 @@ class IconCraftSizeDialogContent extends StatefulWidget {
 
 class _IconCraftSizeDialogContentState extends State<IconCraftSizeDialogContent> {
 
-  final double initialSize = 70;
-  final double maxSize = 100;
-  final double minSize = 40;
+  static const double initialSize = 70;
+  static const double maxSize = 100;
+  static const double minSize = 40;
 
-  late double size;
+  static const IconData defaultIcon = Icons.question_mark_rounded;
+  static const Color defaultIconColor = AppColor.white30;
+
+  double get size => widget.craft.size ?? initialSize;
+  IconData get iconData => widget.craft.iconData ?? defaultIcon;
+  Color get color => widget.craft.color ?? defaultIconColor;
+
+  late double _size;
 
   @override
   void initState() {
-    size = widget.craft.size ?? initialSize;
+    _size = size;
     super.initState();
   }
 
   @override
   void dispose() {
+    widget.craft.size = _size;
     super.dispose();
-    widget.craft.size = size;
+  }
+
+  _setSize(double value) {
+    setState(() {
+      _size = value;
+    });
   }
 
   @override
@@ -149,17 +166,17 @@ class _IconCraftSizeDialogContentState extends State<IconCraftSizeDialogContent>
             width: 100,
             height: 100,
             child: Center(
-              child: Icon(widget.craft.iconData,
-                color: widget.craft.color,
-                size: size,
+              child: Icon(iconData,
+              color: color,
+              size: _size,
               ),
             ),
           ),
           AppStyle.verticalDefaultDistance,
 
           Slider(
-            value: size,
-            onChanged: (val) => setState(() => size = val),
+            value: _size,
+            onChanged: _setSize,
             min: minSize,
             max: maxSize,
           ),
@@ -169,7 +186,7 @@ class _IconCraftSizeDialogContentState extends State<IconCraftSizeDialogContent>
               height: 48,
               width: MediaQuery.of(context).size.width,
               child: PrimaryButton('submit',
-                onPressed: () => Navigator.pop(context, size),
+                onPressed: () => Navigator.pop(context, _size),
               )
           ),
         ]);

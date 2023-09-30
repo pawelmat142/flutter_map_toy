@@ -2,8 +2,8 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/models/map_icon_point.dart';
+import 'package:flutter_map_toy/utils/icon_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 abstract class MapUtil {
@@ -69,7 +69,7 @@ abstract class MapUtil {
     final bitmapDescriptor = BitmapDescriptor.fromBytes(bytes.buffer.asUint8List());
     final marker = Marker(
       markerId: MarkerId(mapIconPoint.id),
-      position: LatLngExtension.fromCoordinates(mapIconPoint.coordinates),
+      position: IconUtil.pointFromCoordinates(mapIconPoint.coordinates),
       icon: bitmapDescriptor,
     );
 

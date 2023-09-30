@@ -3,10 +3,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_map_toy/models/map_icon_point.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/presentation/components/toolbar.dart';
-import 'package:flutter_map_toy/presentation/dialogs/icon_craft.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
 import 'package:flutter_map_toy/services/log.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
@@ -53,6 +51,8 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<MapCubit, MapState>(builder: (ctx, state) {
 
+      Log.log('Build MapState, markers: ${state.markers.length}', source: mapState.runtimeType.toString());
+
       return Scaffold(
 
         appBar: AppBar(title: Text(state.selectedMarkerId.toString()),),
@@ -75,9 +75,15 @@ class _MapScreenState extends State<MapScreen> {
             onTap: _onAddMarker,
           ),
           ToolBarItem(
+            label: 'edit_marker',
+            barLabel: 'edit',
+            icon: AppIcon.editPoint,
+            disabled: state.selectedMarkerId.isEmpty,
+            onTap: _onEditMarker,
+          ),
+          ToolBarItem(
               label: 'clean_map',
-              barLabel: 'clean',
-              menuLabel: 'clean',
+              menuLabel: 'clean markers',
               icon: AppIcon.cleanPoint,
               onTap: _onClean
           ),
@@ -119,25 +125,20 @@ class _MapScreenState extends State<MapScreen> {
 
   _onMapTap(LatLng point) async {
     if (mapState.selectedMarkerId.isEmpty) return;
-    mapCubit.selectMarker('');
+    mapCubit.selectMarker(null);
     // mapCubit.replaceMarker(point, rescaleFactor: await rescaleFactor);
   }
 
   _onMarkerTap(Marker marker) {
-    final selectedId = marker.markerId.value;
-    if (mapState.selectedMarkerId != selectedId) {
-      mapCubit.selectMarker(selectedId);
-    }
+    mapCubit.selectMarker(marker);
   }
 
   _onAddMarker() async {
-    final craft = IconCraft();
-    await craft.create(context);
+    mapCubit.addMarker(context, await mapViewCenter, await rescaleFactor);
+  }
 
-    if (craft.complete) {
-      final mapIconPoint = MapIconPoint.create(craft, await mapViewCenter);
-      mapCubit.addEventMapPointAsMarker(mapIconPoint, await rescaleFactor);
-    }
+  _onEditMarker() async {
+    mapCubit.updateMarker(context, rescaleFactor: await rescaleFactor);
   }
 
   _onClean() {
@@ -166,6 +167,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   _onCameraMove(CameraPosition cameraPosition) {
+    //workaround
     cameraMoveHandler.handle(() => _onCameraMoveEnd(cameraPosition));
   }
 
@@ -181,10 +183,14 @@ class _MapScreenState extends State<MapScreen> {
 
   _unselectMarkerIfOutOfView() async {
     if (mapState.selectedMarker != null) {
+      //workaround solution, also in _onMarkerTap
+      //GoogleMaps API doesn't share info about selected marker id or something
+      //this solution should integrate google maps marker selection with this app marker selection
+      //its not perfect so marker selection may be not synchronized
       final visibleRegion = await _controller.getVisibleRegion();
       final markerVisible = visibleRegion.contains(mapState.selectedMarker!.position);
       if (!markerVisible) {
-        mapCubit.selectMarker('');
+        mapCubit.selectMarker(null);
       }
     }
   }
@@ -193,7 +199,7 @@ class _MapScreenState extends State<MapScreen> {
     _controllerFuture.complete(controller);
     _controller = await _controllerFuture.future;
     await _getInitialDiagonalDistance();
-    mapCubit.selectMarker('');
+    mapCubit.selectMarker(null);
     Log.log('GoogleMap created', source: widget.runtimeType.toString());
   }
 

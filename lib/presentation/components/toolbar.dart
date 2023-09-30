@@ -9,12 +9,14 @@ class ToolBarItem {
     this.barLabel,
     this.menuLabel,
     required this.icon,
+    this.disabled = false,
     required this.onTap
   });
   String label;
   String? barLabel;
   String? menuLabel;
   IconData icon;
+  bool disabled;
   VoidCallback onTap;
 }
 
@@ -41,8 +43,9 @@ class Toolbar extends StatelessWidget {
       onTap: (i) => _onItemTap(i, context),
       items: onlyToolbarItems
           .map((i) => BottomNavigationBarItem(
-            icon: Icon(i.icon),
-            label: i.barLabel!.capitalize())
+            icon: Icon(i.icon, color: i.disabled ? AppColor.primary : null,),
+            label: i.barLabel!.capitalize(),
+      )
       ).toList(),
     );
   }
@@ -52,7 +55,9 @@ class Toolbar extends StatelessWidget {
     if (item.label == menuLabel) {
       _onToolbarMenu(context);
     } else {
-      onlyToolbarItems[i].onTap();
+      final ToolBarItem tappedItem = onlyToolbarItems[i];
+      if (tappedItem.disabled) return;
+      tappedItem.onTap();
     }
   }
 

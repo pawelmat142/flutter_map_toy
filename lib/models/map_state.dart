@@ -1,7 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/models/map_icon_point.dart';
+import 'package:flutter_map_toy/presentation/dialogs/icon_craft.dart';
 import 'package:flutter_map_toy/services/log.dart';
+import 'package:flutter_map_toy/utils/icon_util.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -47,6 +50,9 @@ class MapState {
   Marker? get selectedMarker => selectedMarkerId.isEmpty ? null
       : markers.firstWhere((marker) => marker.markerId.value == selectedMarkerId);
 
+  MapIconPoint? get selectedMapIconPoint => selectedMarkerId.isEmpty ? null
+      : mapIconPoints.firstWhere((point) => point.id == selectedMarkerId);
+
 }
 
 class MapCubit extends Cubit<MapState> {
@@ -58,17 +64,19 @@ class MapCubit extends Cubit<MapState> {
     Log.log('Selected: ${mapType.toString()}', source: state.runtimeType.toString());
   }
 
-  addEventMapPointAsMarker(MapIconPoint mapIconPoint, double rescaleFactor) async {
-    final mapIconPoints = state.mapIconPoints;
-    mapIconPoints.add(mapIconPoint);
+  addMarker(BuildContext context, LatLng mapViewCenter, double rescaleFactor) async {
+    final craft = IconCraft();
+    await craft.create(context);
 
-    final marker = await MapUtil.getMarkerFromIcon(mapIconPoint.rescale(rescaleFactor));
-    final markers = state.markers;
-    markers.add(marker);
+    if (craft.incomplete) throw 'addMarker: craft.incomplete';
+
+    final mapIconPoint = IconUtil.mapIconPointFromCraft(craft, mapViewCenter);
+    state.mapIconPoints.add(mapIconPoint);
+
     emit(state.copyWith(
-      selectedMarkerId: '',
-      mapIconPoints: mapIconPoints,
-      markers: markers
+        selectedMarkerId: '',
+        mapIconPoints: state.mapIconPoints,
+        markers: await _markersFromPoints(state.mapIconPoints, rescaleFactor: rescaleFactor)
     ));
     Log.log('Added marker with id: ${mapIconPoint.id}', source: runtimeType.toString());
   }
@@ -84,20 +92,15 @@ class MapCubit extends Cubit<MapState> {
 
   resizeMarker(double rescaleFactor) async {
     if (state.mapIconPoints.isEmpty) return;
-
-    final futures = state.mapIconPoints.map((mapIconPoint) {
-      return MapUtil.getMarkerFromIcon(mapIconPoint.rescale(rescaleFactor));
-    }).toList();
-
-    final List<Marker> markers = await Future.wait(futures);
-
     emit(state.copyWith(
-        markers: markers.toSet(),
+        markers: await _markersFromPoints(state.mapIconPoints, rescaleFactor: rescaleFactor),
     ));
     Log.log('MapIconPoint markers rescaled with factor: $rescaleFactor', source: runtimeType.toString());
   }
 
-  selectMarker(String markerId) {
+  selectMarker(Marker? marker) {
+    final markerId = marker == null ? '' : marker.markerId.value;
+    if (markerId == state.selectedMarkerId) return;
     Log.log('Selecting marker with id: $markerId', source: runtimeType.toString());
     emit(state.copyWith(
       selectedMarkerId: markerId
@@ -106,16 +109,13 @@ class MapCubit extends Cubit<MapState> {
 
   replaceMarker(LatLng point, { required double rescaleFactor, required markerId }) async {
     Log.log('Moving marker: $markerId to lat: ${point.latitude}, lng: ${point.longitude}', source: state.runtimeType.toString());
-    final points = state.mapIconPoints.map((p) {
-      if (p.id == markerId) {
-        p.coordinates = point.coordinates;
-      }
-      return p;
-    });
+    for (var mapIconPoint in state.mapIconPoints) {
+      if (mapIconPoint.id == markerId) mapIconPoint.coordinates = point.coordinates;
+    }
     emit(state.copyWith(
-        markers: await _markersFromPoints(points, rescaleFactor: rescaleFactor),
-        mapIconPoints: points.toSet())
-    );
+        mapIconPoints: state.mapIconPoints,
+        markers: await _markersFromPoints(state.mapIconPoints, rescaleFactor: rescaleFactor),
+    ));
   }
 
   Future<Set<Marker>> _markersFromPoints(
@@ -127,6 +127,31 @@ class MapCubit extends Cubit<MapState> {
     });
     final markers = await Future.wait(futures);
     return markers.toSet();
+  }
+
+  updateMarker(BuildContext context, {
+    required double rescaleFactor
+  }) async {
+
+    final mapIconPoint = state.selectedMapIconPoint;
+    if (mapIconPoint == null) throw 'mapIconPoint == null ';
+
+    final craft = IconUtil.craftFromMapIconPoint(mapIconPoint);
+    await craft.startEditDialog(context);
+
+    final points = state.mapIconPoints.map((point) {
+      if (point.id == craft.id) {
+        point = IconUtil.mapIconPointFromCraft(craft,
+            IconUtil.pointFromCoordinates(mapIconPoint.coordinates)
+        );
+      }
+      return point;
+    });
+
+    emit(state.copyWith(
+      mapIconPoints: points.toSet(),
+      markers: await _markersFromPoints(points, rescaleFactor: rescaleFactor),
+    ));
   }
 
 }
