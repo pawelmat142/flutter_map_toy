@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/models/map_icon_point.dart';
 import 'package:flutter_map_toy/services/log.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
@@ -27,7 +28,8 @@ class MapState {
     BlocState? state,
     Set<Marker>? markers,
     Set<MapIconPoint>? mapIconPoints,
-    String? selectedMarkerId
+    String? selectedMarkerId,
+    double? zoom
   }) {
     Log.log('New MapState', source: runtimeType.toString());
     return MapState(
@@ -37,6 +39,9 @@ class MapState {
       selectedMarkerId ?? this.selectedMarkerId
     );
   }
+
+  Marker? get selectedMarker => selectedMarkerId.isEmpty ? null
+      : markers.firstWhere((marker) => marker.markerId.value == selectedMarkerId);
 
 }
 
@@ -52,22 +57,23 @@ class MapCubit extends Cubit<MapState> {
     final markers = state.markers;
     markers.add(marker);
     emit(state.copyWith(
+      selectedMarkerId: '',
       mapIconPoints: mapIconPoints,
       markers: markers
     ));
     Log.log('Added marker with id: ${mapIconPoint.id}', source: runtimeType.toString());
   }
 
-  cleanEventMap() {
+  cleanMarkers() {
     emit(state.copyWith(
-        mapIconPoints: {},
-        markers: {}
+      selectedMarkerId: '',
+      mapIconPoints: {},
+      markers: {}
     ));
-    Log.log('EventMap is cleaned');
+    Log.log('Markers cleaned', source: state.runtimeType.toString());
   }
 
-  resizeEventMap(double rescaleFactor) async {
-
+  resizeMarker(double rescaleFactor) async {
     if (state.mapIconPoints.isEmpty) return;
 
     final futures = state.mapIconPoints.map((mapIconPoint) {
@@ -89,11 +95,29 @@ class MapCubit extends Cubit<MapState> {
     ));
   }
 
-  moveMarker(LatLng point) {
-    Log.log('Moving marker: ${state.selectedMarkerId} to lat: ${point.latitude}, lng: ${point.longitude}');
-    emit(state.copyWith(markers: state.markers
-        .map((m) => m.copyWith(positionParam: m.markerId.value == state.selectedMarkerId ? point : m.position))
-        .toSet()));
+  replaceMarker(LatLng point, { required double rescaleFactor, required markerId }) async {
+    Log.log('Moving marker: $markerId to lat: ${point.latitude}, lng: ${point.longitude}', source: state.runtimeType.toString());
+    final points = state.mapIconPoints.map((p) {
+      if (p.id == markerId) {
+        p.coordinates = point.coordinates;
+      }
+      return p;
+    });
+    emit(state.copyWith(
+        markers: await _markersFromPoints(points, rescaleFactor: rescaleFactor),
+        mapIconPoints: points.toSet())
+    );
+  }
+
+  Future<Set<Marker>> _markersFromPoints(
+      Iterable<MapIconPoint> points,
+      { required double rescaleFactor }
+    ) async {
+    final futures = points.map((mapIconPoint) {
+      return MapUtil.getMarkerFromIcon(mapIconPoint.rescale(rescaleFactor));
+    });
+    final markers = await Future.wait(futures);
+    return markers.toSet();
   }
 
 }

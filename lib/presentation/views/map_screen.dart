@@ -41,6 +41,7 @@ class _MapScreenState extends State<MapScreen> {
   final cameraMoveHandler = TimerHandler(milliseconds: 50);
 
   double _initialViewDiagonalDistance = 0;
+  double zoom = MapUtil.kZoomInitial;
 
   @override
   void dispose() {
@@ -98,30 +99,17 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-  Set<Marker> _prepareMarkers(MapState state) {
-    return state.markers.map((marker) => Marker(
-        markerId: marker.markerId,
-        position: marker.position,
-        icon: marker.icon,
-        onTap: () => _onMarkerTap(marker)
-    )).toSet();
+  _onMapTap(LatLng point) async {
+    if (mapState.selectedMarkerId.isEmpty) return;
+    mapCubit.selectMarker('');
+    // mapCubit.replaceMarker(point, rescaleFactor: await rescaleFactor);
   }
 
   _onMarkerTap(Marker marker) {
-
-
     final selectedId = marker.markerId.value;
-    if (mapState.selectedMarkerId == selectedId) {
-      mapCubit.selectMarker('');
-    } else {
+    if (mapState.selectedMarkerId != selectedId) {
       mapCubit.selectMarker(selectedId);
     }
-  }
-
-  _onMapTap(LatLng point) {
-    print('onmaptap');
-    if (mapState.selectedMarkerId.isEmpty) return;
-    mapCubit.moveMarker(point);
   }
 
   _onAddMarker() async {
@@ -135,9 +123,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   _onClean() {
-    if (kDebugMode) {
-      print('onclean');
-    }
+    mapCubit.cleanMarkers();
   }
 
   _onSave() {
@@ -162,16 +148,34 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   _onCameraMove(CameraPosition cameraPosition) {
-    cameraMoveHandler.handle(() async {
-      mapCubit.resizeEventMap(await rescaleFactor);
-      Log.log('CameraPosition changed - zoom: ${cameraPosition.zoom.toString()}', source: widget.runtimeType.toString());
-    });
+    cameraMoveHandler.handle(() => _onCameraMoveEnd(cameraPosition));
+  }
+
+  _onCameraMoveEnd(CameraPosition cameraPosition) async {
+    final newZoom = cameraPosition.zoom;
+    if (newZoom != zoom) {
+      zoom = newZoom;
+      mapCubit.resizeMarker(await rescaleFactor);
+      Log.log('CameraPosition zoom changed: ${newZoom.toString()}', source: widget.runtimeType.toString());
+    }
+    _unselectMarkerIfOutOfView();
+  }
+
+  _unselectMarkerIfOutOfView() async {
+    if (mapState.selectedMarker != null) {
+      final visibleRegion = await _controller.getVisibleRegion();
+      final markerVisible = visibleRegion.contains(mapState.selectedMarker!.position);
+      if (!markerVisible) {
+        mapCubit.selectMarker('');
+      }
+    }
   }
 
   _onMapCreated(GoogleMapController controller) async {
     _controllerFuture.complete(controller);
     _controller = await _controllerFuture.future;
     await _getInitialDiagonalDistance();
+    mapCubit.selectMarker('');
     Log.log('GoogleMap created', source: widget.runtimeType.toString());
   }
 
@@ -184,6 +188,19 @@ class _MapScreenState extends State<MapScreen> {
         Log.log('Initial diagonal distance: $_initialViewDiagonalDistance', source: widget.runtimeType.toString());
       }
     });
+  }
+
+  Set<Marker> _prepareMarkers(MapState state) {
+    return state.markers.map((marker) => Marker(
+        markerId: marker.markerId,
+        position: marker.position,
+        icon: marker.icon,
+        onTap: () => _onMarkerTap(marker),
+        draggable: true,
+        onDragEnd: (point) async {
+            mapCubit.replaceMarker(point, rescaleFactor: await rescaleFactor, markerId: marker.markerId.value);
+        },
+    )).toSet();
   }
 
 }

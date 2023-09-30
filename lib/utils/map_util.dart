@@ -43,23 +43,26 @@ abstract class MapUtil {
 
     final textPainter = TextPainter(textDirection: TextDirection.ltr);
 
-    final fontSize = mapIconPoint.size/2;
+    final imgSize = mapIconPoint.size/2;
 
     textPainter.text = TextSpan(
         text: iconStr,
         style: TextStyle(
           letterSpacing: 0.0,
-          fontSize: fontSize,
+          fontSize: imgSize,
+          // fontSize: imgSize/2,
           fontWeight: FontWeight.w200,
           fontFamily: iconData.fontFamily,
           color: Color(mapIconPoint.colorInt),
         )
     );
     textPainter.layout();
-    textPainter.paint(canvas, const Offset(0.0, 0.0));
+    // textPainter.paint(canvas, Offset(imgSize/4, imgSize/2));
+    textPainter.paint(canvas, const Offset(0, 0));
+    // textPainter.paint(canvas, Offset(0, 0));
 
     final picture = pictureRecorder.endRecording();
-    final image = await picture.toImage(fontSize.toInt(), fontSize.toInt());
+    final image = await picture.toImage(imgSize.toInt(), imgSize.toInt());
     final bytes = await image.toByteData(format: ImageByteFormat.png);
 
     if (bytes == null) throw "bytes == null";
