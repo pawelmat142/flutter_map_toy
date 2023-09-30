@@ -34,7 +34,6 @@ abstract class MapUtil {
   }
 
   static Future<Marker> getMarkerFromIcon(MapIconPoint mapIconPoint) async {
-    // if (!craft.complete) throw 'IconCraft is incomplete!';
     final iconData = IconData(mapIconPoint.iconDataPoint, fontFamily: 'MaterialIcons');
     final iconStr = String.fromCharCode(iconData.codePoint);
 
@@ -43,7 +42,7 @@ abstract class MapUtil {
 
     final textPainter = TextPainter(textDirection: TextDirection.ltr);
 
-    final imgSize = mapIconPoint.size/2;
+    final imgSize = mapIconPoint.size;
 
     textPainter.text = TextSpan(
         text: iconStr,

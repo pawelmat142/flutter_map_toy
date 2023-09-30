@@ -16,12 +16,14 @@ class MapState {
   Set<Marker> markers;
   Set<MapIconPoint> mapIconPoints;
   String selectedMarkerId;
+  MapType mapType;
 
   MapState(
     this.state,
     this.markers,
     this.mapIconPoints,
     this.selectedMarkerId,
+    this.mapType,
   );
 
   MapState copyWith({
@@ -29,14 +31,16 @@ class MapState {
     Set<Marker>? markers,
     Set<MapIconPoint>? mapIconPoints,
     String? selectedMarkerId,
-    double? zoom
+    double? zoom,
+    MapType? mapType,
   }) {
     Log.log('New MapState', source: runtimeType.toString());
     return MapState(
       state ?? this.state,
       markers ?? this.markers,
       mapIconPoints ?? this.mapIconPoints,
-      selectedMarkerId ?? this.selectedMarkerId
+      selectedMarkerId ?? this.selectedMarkerId,
+      mapType ?? this.mapType
     );
   }
 
@@ -47,7 +51,12 @@ class MapState {
 
 class MapCubit extends Cubit<MapState> {
 
-  MapCubit(): super(MapState(BlocState.ready, {}, {}, ''));
+  MapCubit(): super(MapState(BlocState.ready, {}, {}, '', MapType.normal));
+
+  setType(MapType mapType) {
+    emit(state.copyWith(mapType: mapType));
+    Log.log('Selected: ${mapType.toString()}', source: state.runtimeType.toString());
+  }
 
   addEventMapPointAsMarker(MapIconPoint mapIconPoint, double rescaleFactor) async {
     final mapIconPoints = state.mapIconPoints;

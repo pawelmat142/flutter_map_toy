@@ -14,6 +14,9 @@ abstract class AppIcon {
   static const cleanPoint = Icons.wrong_location_outlined;
   static const targetPoint = Icons.location_searching_outlined;
 
+  static const mapTypeNormal = Icons.map_sharp;
+  static const mapTypeTerrain = Icons.terrain_rounded;
+  static const mapTypeSatellite = Icons.satellite_alt_rounded;
 
   static List<IconData> mapFlutterIcons = [
     Icons.cottage_outlined,

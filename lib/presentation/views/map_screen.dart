@@ -59,7 +59,7 @@ class _MapScreenState extends State<MapScreen> {
 
         body: GoogleMap(
           initialCameraPosition: widget.initialCameraPosition,
-          mapType: MapType.normal,
+          mapType: state.mapType,
           markers: _prepareMarkers(state),
           onCameraMove: _onCameraMove,
           onMapCreated: _onMapCreated,
@@ -93,6 +93,24 @@ class _MapScreenState extends State<MapScreen> {
               barLabel: 'menu',
               icon: AppIcon.menu,
               onTap: (){}
+          ),
+          ToolBarItem(
+              label: 'map_type_normal',
+              menuLabel: 'Normal',
+              icon: AppIcon.mapTypeNormal,
+              onTap: () => mapCubit.setType(MapType.normal)
+          ),
+          ToolBarItem(
+              label: 'map_type_terrain',
+              menuLabel: 'Terrain',
+              icon: AppIcon.mapTypeTerrain,
+              onTap: () => mapCubit.setType(MapType.terrain)
+          ),
+          ToolBarItem(
+              label: 'map_type_satellite',
+              menuLabel: 'Satellite',
+              icon: AppIcon.mapTypeSatellite,
+              onTap: () => mapCubit.setType(MapType.satellite)
           ),
         ],),
       );
