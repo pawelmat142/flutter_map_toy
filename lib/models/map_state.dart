@@ -14,22 +14,27 @@ class MapState {
   BlocState state;
   Set<Marker> markers;
   Set<MapIconPoint> mapIconPoints;
+  String selectedMarkerId;
 
   MapState(
     this.state,
     this.markers,
     this.mapIconPoints,
+    this.selectedMarkerId,
   );
 
   MapState copyWith({
     BlocState? state,
     Set<Marker>? markers,
-    Set<MapIconPoint>? mapIconPoints
+    Set<MapIconPoint>? mapIconPoints,
+    String? selectedMarkerId
   }) {
+    Log.log('New MapState', source: runtimeType.toString());
     return MapState(
       state ?? this.state,
       markers ?? this.markers,
-      mapIconPoints ?? this.mapIconPoints
+      mapIconPoints ?? this.mapIconPoints,
+      selectedMarkerId ?? this.selectedMarkerId
     );
   }
 
@@ -37,7 +42,7 @@ class MapState {
 
 class MapCubit extends Cubit<MapState> {
 
-  MapCubit(): super(MapState(BlocState.ready, {}, {}));
+  MapCubit(): super(MapState(BlocState.ready, {}, {}, ''));
 
   addEventMapPointAsMarker(MapIconPoint mapIconPoint, double rescaleFactor) async {
     final mapIconPoints = state.mapIconPoints;
@@ -75,6 +80,20 @@ class MapCubit extends Cubit<MapState> {
         markers: markers.toSet(),
     ));
     Log.log('MapIconPoint markers rescaled with factor: $rescaleFactor', source: runtimeType.toString());
+  }
+
+  selectMarker(String markerId) {
+    Log.log('Selecting marker with id: $markerId', source: runtimeType.toString());
+    emit(state.copyWith(
+      selectedMarkerId: markerId
+    ));
+  }
+
+  moveMarker(LatLng point) {
+    Log.log('Moving marker: ${state.selectedMarkerId} to lat: ${point.latitude}, lng: ${point.longitude}');
+    emit(state.copyWith(markers: state.markers
+        .map((m) => m.copyWith(positionParam: m.markerId.value == state.selectedMarkerId ? point : m.position))
+        .toSet()));
   }
 
 }

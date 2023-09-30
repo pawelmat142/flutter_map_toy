@@ -34,6 +34,7 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
 
   MapCubit get mapCubit => BlocProvider.of<MapCubit>(context);
+  MapState get mapState => mapCubit.state;
 
   final Completer<GoogleMapController> _controllerFuture = Completer<GoogleMapController>();
   late GoogleMapController _controller;
@@ -42,55 +43,88 @@ class _MapScreenState extends State<MapScreen> {
   double _initialViewDiagonalDistance = 0;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-
-      appBar: AppBar(title: const Text('Map'),),
-
-      body: BlocBuilder<MapCubit, MapState>(builder: (ctx, state) {
-        return GoogleMap(
-          initialCameraPosition: widget.initialCameraPosition,
-          mapType: MapType.normal,
-          markers: state.markers,
-          onCameraMove: _onCameraMove,
-          onMapCreated: _onMapCreated
-        );
-      }),
-
-      bottomNavigationBar: Toolbar(toolbarItems: [
-        ToolBarItem(
-          label: 'add_point',
-          barLabel: 'add point',
-          menuLabel: 'add point',
-          icon: AppIcon.addPoint,
-          onTap: _onAddPoint,
-        ),
-        ToolBarItem(
-            label: 'clean_map',
-            barLabel: 'clean',
-            menuLabel: 'clean',
-            icon: AppIcon.cleanPoint,
-            onTap: _onClean
-        ),
-        ToolBarItem(
-            label: 'save_map',
-            barLabel: 'save',
-            menuLabel: 'save',
-            icon: AppIcon.save,
-            onTap: _onSave
-        ),
-        ToolBarItem(
-            label: Toolbar.menuLabel,
-            barLabel: 'menu',
-            icon: AppIcon.menu,
-            onTap: (){}
-        ),
-      ],),
-    );
-
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
-  _onAddPoint() async {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<MapCubit, MapState>(builder: (ctx, state) {
+
+      return Scaffold(
+
+        appBar: AppBar(title: Text(state.selectedMarkerId.toString()),),
+
+        body: GoogleMap(
+          initialCameraPosition: widget.initialCameraPosition,
+          mapType: MapType.normal,
+          markers: _prepareMarkers(state),
+          onCameraMove: _onCameraMove,
+          onMapCreated: _onMapCreated,
+          onTap: _onMapTap,
+        ),
+
+        bottomNavigationBar: Toolbar(toolbarItems: [
+          ToolBarItem(
+            label: 'add_point',
+            barLabel: 'add point',
+            menuLabel: 'add point',
+            icon: AppIcon.addPoint,
+            onTap: _onAddMarker,
+          ),
+          ToolBarItem(
+              label: 'clean_map',
+              barLabel: 'clean',
+              menuLabel: 'clean',
+              icon: AppIcon.cleanPoint,
+              onTap: _onClean
+          ),
+          ToolBarItem(
+              label: 'save_map',
+              barLabel: 'save',
+              menuLabel: 'save',
+              icon: AppIcon.save,
+              onTap: _onSave
+          ),
+          ToolBarItem(
+              label: Toolbar.menuLabel,
+              barLabel: 'menu',
+              icon: AppIcon.menu,
+              onTap: (){}
+          ),
+        ],),
+      );
+    });
+  }
+
+  Set<Marker> _prepareMarkers(MapState state) {
+    return state.markers.map((marker) => Marker(
+        markerId: marker.markerId,
+        position: marker.position,
+        icon: marker.icon,
+        onTap: () => _onMarkerTap(marker)
+    )).toSet();
+  }
+
+  _onMarkerTap(Marker marker) {
+
+
+    final selectedId = marker.markerId.value;
+    if (mapState.selectedMarkerId == selectedId) {
+      mapCubit.selectMarker('');
+    } else {
+      mapCubit.selectMarker(selectedId);
+    }
+  }
+
+  _onMapTap(LatLng point) {
+    print('onmaptap');
+    if (mapState.selectedMarkerId.isEmpty) return;
+    mapCubit.moveMarker(point);
+  }
+
+  _onAddMarker() async {
     final craft = IconCraft();
     await craft.create(context);
 
@@ -123,14 +157,14 @@ class _MapScreenState extends State<MapScreen> {
 
   Future<double> get rescaleFactor async {
     final distance = await MapUtil.calcMapViewDiagonalDistance(_controller);
-    Log.log('Calculated diagonal distance: ${distance.toString()}');
+    Log.log('Calculated diagonal distance: ${distance.toString()}', source: widget.runtimeType.toString());
     return _initialViewDiagonalDistance / distance;
   }
 
   _onCameraMove(CameraPosition cameraPosition) {
     cameraMoveHandler.handle(() async {
       mapCubit.resizeEventMap(await rescaleFactor);
-      Log.log('CameraPosition changed - zoom: ${cameraPosition.zoom.toString()}');
+      Log.log('CameraPosition changed - zoom: ${cameraPosition.zoom.toString()}', source: widget.runtimeType.toString());
     });
   }
 
