@@ -4,31 +4,29 @@ import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 
 class AppModal extends StatelessWidget {
 
-  static Future<T> show<T>(BuildContext context, {
+  static Future<T?> show<T>(BuildContext context, {
     required List<Widget> children,
     VoidCallback? onBack,
     bool showBack = true,
+    AppBar? appBar,
   }) async {
-    final result = await showModalBottomSheet(context: context,
+    return showModalBottomSheet<T>(context: context,
         backgroundColor: Colors.transparent,
         isScrollControlled: true,
-        builder: (ctx) => AppModal(onBack: onBack, showBack: showBack, children: children,)
+        builder: (ctx) => AppModal(onBack: onBack, showBack: showBack, appBar: appBar, children: children,)
     );
-    if (result is T) {
-      return result;
-    } else {
-      throw 'Modal result is not of type ${T.toString()}';
-    }
   }
 
   final List<Widget> children;
   final VoidCallback? onBack;
   final bool showBack;
+  final AppBar? appBar;
 
   const AppModal({
     required this.children,
     this.onBack,
     required this.showBack,
+    this.appBar,
     Key? key}) : super(key: key);
 
   @override
@@ -39,7 +37,8 @@ class AppModal extends StatelessWidget {
         children: [
 
           Container(
-            padding: AppStyle.defaultPaddingAll,
+            width: MediaQuery.of(context).size.width,
+            padding: const EdgeInsets.fromLTRB(AppStyle.defaultPaddingVal, 0, AppStyle.defaultPaddingVal, AppStyle.defaultPaddingVal),
             decoration: const BoxDecoration(
                 color: AppColor.primaryDark,
                 borderRadius: BorderRadius.vertical(top: AppStyle.defaultRadius),

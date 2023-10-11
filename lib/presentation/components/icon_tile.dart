@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
+import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
 
 class IconTile extends StatelessWidget {
 
@@ -13,7 +14,7 @@ class IconTile extends StatelessWidget {
   const IconTile({Key? key,
     this.onLongPress,
     this.onPressed,
-    this.icon,
+    this.icon = AppIcon.defaultIcon,
     this.size = 60,
     this.active = false,
     this.color,

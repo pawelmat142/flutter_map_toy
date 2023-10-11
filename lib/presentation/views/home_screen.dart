@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/presentation/components/controls/primary_button.dart';
 import 'package:flutter_map_toy/presentation/components/controls/red_button.dart';
 import 'package:flutter_map_toy/presentation/components/controls/blue_button.dart';
+import 'package:flutter_map_toy/presentation/dialogs/icon_wizard.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 import 'package:flutter_map_toy/presentation/views/map_screen.dart';
 import 'package:flutter_map_toy/services/get_it.dart';
@@ -50,9 +51,9 @@ class HomeScreen extends StatelessWidget {
             AppStyle.verticalDefaultDistance,
             BlueButton('blue button',
               onPressed: () {
-                if (kDebugMode) {
-                  print('xx');
-                }
+                final iconWizard = IconWizard(wizardContext: context);
+                iconWizard.start(context);
+
               },
             ),
 
@@ -70,4 +71,10 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+class WizardTest {
+  String? one;
+  String? two;
+  String? three;
 }

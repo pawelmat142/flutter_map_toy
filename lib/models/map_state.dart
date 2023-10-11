@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/models/map_icon_point.dart';
-import 'package:flutter_map_toy/presentation/dialogs/icon_craft.dart';
+import 'package:flutter_map_toy/presentation/dialogs/icon_wizard.dart';
 import 'package:flutter_map_toy/services/log.dart';
 import 'package:flutter_map_toy/utils/icon_util.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
@@ -68,8 +68,14 @@ class MapCubit extends Cubit<MapState> {
     required LatLng mapViewCenter,
     required double rescaleFactor
   }) async {
-    final craft = IconCraft();
-    await craft.create(context);
+
+    final iconWizard = IconWizard(wizardContext: context);
+    await iconWizard.start(context);
+
+    final craft = iconWizard.craft;
+
+    print("craft");
+    print(craft);
 
     if (craft.incomplete) throw 'addMarker: craft.incomplete';
 

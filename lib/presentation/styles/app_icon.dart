@@ -18,6 +18,8 @@ abstract class AppIcon {
   static const mapTypeTerrain = Icons.terrain_rounded;
   static const mapTypeSatellite = Icons.satellite_alt_rounded;
 
+  static const defaultIcon = Icons.question_mark_rounded;
+
   static List<IconData> mapFlutterIcons = [
     Icons.cottage_outlined,
     Icons.festival_outlined,
