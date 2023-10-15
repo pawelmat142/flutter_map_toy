@@ -9,11 +9,12 @@ class AppModal extends StatelessWidget {
     VoidCallback? onBack,
     bool showBack = true,
     AppBar? appBar,
-  }) async {
+    bool lineOnTop = true,
+  }) {
     return showModalBottomSheet<T>(context: context,
         backgroundColor: Colors.transparent,
         isScrollControlled: true,
-        builder: (ctx) => AppModal(onBack: onBack, showBack: showBack, appBar: appBar, children: children,)
+        builder: (ctx) => AppModal(onBack: onBack, showBack: showBack, appBar: appBar, lineOnTop: lineOnTop, children: children,)
     );
   }
 
@@ -21,12 +22,14 @@ class AppModal extends StatelessWidget {
   final VoidCallback? onBack;
   final bool showBack;
   final AppBar? appBar;
+  final bool lineOnTop;
 
   const AppModal({
     required this.children,
     this.onBack,
     required this.showBack,
     this.appBar,
+    required this.lineOnTop,
     Key? key}) : super(key: key);
 
   @override
@@ -45,7 +48,7 @@ class AppModal extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Padding(
+                lineOnTop ? Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: Container(
                     height: 6,
@@ -55,7 +58,8 @@ class AppModal extends StatelessWidget {
                         borderRadius: BorderRadius.all(Radius.circular(6))
                     ),
                   ),
-                ),
+                ) : const SizedBox.shrink(),
+
                 ...children
               ],
             ),

@@ -1,15 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/presentation/components/controls/primary_button.dart';
-import 'package:flutter_map_toy/presentation/components/controls/red_button.dart';
 import 'package:flutter_map_toy/presentation/components/controls/blue_button.dart';
-import 'package:flutter_map_toy/presentation/dialogs/icon_wizard.dart';
+import 'package:flutter_map_toy/presentation/components/controls/red_button.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 import 'package:flutter_map_toy/presentation/views/map_screen.dart';
 import 'package:flutter_map_toy/services/get_it.dart';
 import 'package:flutter_map_toy/services/location_service.dart';
+import 'package:flutter_map_toy/services/log.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 
 class HomeScreen extends StatelessWidget {
   static const String id = 'home_screen';
@@ -44,33 +45,26 @@ class HomeScreen extends StatelessWidget {
                 if (kDebugMode) {
                   print(myLocation);
                 }
-
               }
             ),
 
             AppStyle.verticalDefaultDistance,
             BlueButton('blue button',
               onPressed: () {
-                final iconWizard = IconWizard(wizardContext: context);
-                iconWizard.start(context);
-
               },
             ),
 
             AppStyle.verticalDefaultDistance,
-            RedButton('red button',
-              onPressed: () {
-                if (kDebugMode) {
-                  print('xx');
-                }
-              },
-            )
+            RedButton('wizard test', onPressed: () {
+              Log.log('RED BUTTON');
+            },)
 
           ],
         ),
       ),
     );
   }
+
 }
 
 class WizardTest {

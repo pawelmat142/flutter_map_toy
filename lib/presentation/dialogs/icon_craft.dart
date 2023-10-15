@@ -24,8 +24,6 @@ class IconCraft {
     return iconData is IconData && color is Color && size is double;
   }
 
-  //TODO: create modal steps wizard abstract class and implement here
-
   Future create(BuildContext context) async {
     await _setIconData(context);
     _generateId();

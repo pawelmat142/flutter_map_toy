@@ -1,6 +1,6 @@
 # flutter_map_toy
 
-Toy simple application to draw map / diagram of some place powered by Google maps
+Application for drawing maps of places (eg event diagram) powered by Google maps
 
 ## Getting Started
 

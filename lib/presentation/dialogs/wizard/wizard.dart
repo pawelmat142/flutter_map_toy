@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_map_toy/presentation/dialogs/wizard/wizard_state.dart';
-import 'package:flutter_map_toy/services/log.dart';
+
+import 'wizard_progress.dart';
+import 'wizard_state.dart';
+import 'wizard_theme.dart';
 
 abstract class Wizard<T> {
 
   T? data;
   BuildContext? ctx;
-  late Function(T?) onComplete;
+  late Function(T) onComplete;
 
   WizardCubit get cubit => BlocProvider.of<WizardCubit>(ctx!);
 
@@ -23,20 +25,26 @@ abstract class Wizard<T> {
     throw 'Not implemented!';
   }
 
+  WizardTheme getTheme() {
+    throw 'Not implemented!';
+  }
+
   run(BuildContext ctx) {
     this.ctx = ctx;
     data = dataBuilder();
     _initialize();
     _start().then((x) {
       dataCompleter();
-      onComplete(data);
+      if (data != null) {
+        onComplete(data as T);
+      }
       _stop();
       _clear(ctx);
     });
   }
 
   _initialize() {
-    BlocProvider.of<WizardCubit>(ctx!).initialize(getSteps());
+    BlocProvider.of<WizardCubit>(ctx!).initialize(getSteps(), getTheme());
   }
 
   _clear(BuildContext context) {
@@ -50,7 +58,34 @@ abstract class Wizard<T> {
   _stop() async {
     ctx = null;
     data = null;
-    Log.log('STOP!', source: runtimeType.toString());
+  }
+}
+
+class WizardContent extends StatelessWidget {
+
+  final WizardState state;
+
+  const WizardContent(this.state,
+      {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        padding: EdgeInsets.fromLTRB(state.theme!.padding, 0, state.theme!.padding, state.theme!.padding),
+        decoration: BoxDecoration(
+          color: state.theme!.backgroundColor,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(state.theme!.radius)),
+        ),
+        child: Column(
+          children: [
+            WizardProgress(state: state),
+            state.step.builder(state.ctx!)
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -85,3 +120,5 @@ class WizardStep<T> {
   bool get ready => stepData is T;
 
 }
+
+

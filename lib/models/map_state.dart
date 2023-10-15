@@ -67,27 +67,21 @@ class MapCubit extends Cubit<MapState> {
   addMarker(BuildContext context, {
     required LatLng mapViewCenter,
     required double rescaleFactor
-  }) async {
+  }) {
+    final wizard = IconWizard();
+    wizard.run(context);
+    wizard.onComplete = (craft) async {
+      if (craft.incomplete) return;
+      final mapIconPoint = IconUtil.mapIconPointFromCraft(craft, mapViewCenter);
+      state.mapIconPoints.add(mapIconPoint);
 
-    final iconWizard = IconWizard(wizardContext: context);
-    await iconWizard.start(context);
-
-    final craft = iconWizard.craft;
-
-    print("craft");
-    print(craft);
-
-    if (craft.incomplete) throw 'addMarker: craft.incomplete';
-
-    final mapIconPoint = IconUtil.mapIconPointFromCraft(craft, mapViewCenter);
-    state.mapIconPoints.add(mapIconPoint);
-
-    emit(state.copyWith(
-        selectedMarkerId: '',
-        mapIconPoints: state.mapIconPoints,
-        markers: await _markersFromPoints(state.mapIconPoints, rescaleFactor: rescaleFactor)
-    ));
-    Log.log('Added marker with id: ${mapIconPoint.id}', source: runtimeType.toString());
+      emit(state.copyWith(
+          selectedMarkerId: '',
+          mapIconPoints: state.mapIconPoints,
+          markers: await _markersFromPoints(state.mapIconPoints, rescaleFactor: rescaleFactor)
+      ));
+      Log.log('Added marker with id: ${mapIconPoint.id}', source: runtimeType.toString());
+    };
   }
 
   cleanMarkers() {

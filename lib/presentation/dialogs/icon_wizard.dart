@@ -5,12 +5,20 @@ import 'package:flutter_map_toy/presentation/components/icon_tile.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_craft.dart';
 import 'package:flutter_map_toy/presentation/dialogs/wizard/wizard_state.dart';
 import 'package:flutter_map_toy/presentation/dialogs/wizard/wizard.dart';
+import 'package:flutter_map_toy/presentation/dialogs/wizard/wizard_theme.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';
+import 'package:uuid/uuid.dart';
 
 
 class IconWizard extends Wizard<IconCraft> {
+
+  late Uuid uuid;
+
+  IconWizard() {
+    uuid = const Uuid();
+  }
 
   @override
   IconCraft dataBuilder() {
@@ -22,6 +30,20 @@ class IconWizard extends Wizard<IconCraft> {
     data!.iconData = cubit.state.steps[0].stepData;
     data!.color = cubit.state.steps[1].stepData;
     data!.size = cubit.state.steps[2].stepData;
+    data!.id = uuid.v1();
+  }
+
+  @override
+  getTheme() {
+    return WizardTheme(
+      activeColor: AppColor.secondary,
+      disabledColor: AppColor.primary,
+      enabledColor: AppColor.blue,
+      backgroundColor: AppColor.primaryDark,
+
+      padding: AppStyle.defaultPaddingVal,
+      radius: AppStyle.defaultRadiusVal,
+    );
   }
 
   @override
