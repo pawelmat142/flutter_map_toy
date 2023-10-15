@@ -131,7 +131,6 @@ class _MapScreenState extends State<MapScreen> {
   _onMapTap(LatLng point) async {
     if (mapState.selectedMarkerId.isEmpty) return;
     mapCubit.selectMarker(null);
-    // mapCubit.replaceMarker(point, rescaleFactor: await rescaleFactor);
   }
 
   _onMarkerTap(Marker marker) {

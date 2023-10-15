@@ -1,7 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-
 // flutter packages pub run build_runner build --delete-conflicting-outputs
 
 @JsonSerializable()

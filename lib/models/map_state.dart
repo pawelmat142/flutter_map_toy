@@ -13,6 +13,8 @@ enum BlocState {
   ready
 }
 
+//TODO drawing lines feature
+
 class MapState {
 
   BlocState state;
@@ -134,27 +136,30 @@ class MapCubit extends Cubit<MapState> {
 
   updateMarker(BuildContext context, {
     required double rescaleFactor
-  }) async {
+  }) {
 
     final mapIconPoint = state.selectedMapIconPoint;
     if (mapIconPoint == null) throw 'mapIconPoint == null ';
 
     final craft = IconUtil.craftFromMapIconPoint(mapIconPoint);
-    await craft.startEditDialog(context);
+    final wizard = IconWizard();
+    wizard.run(context, edit: craft);
+    wizard.onComplete = (newCraft) async {
+      newCraft.id = craft.id;
+      final points = state.mapIconPoints.map((point) {
+        if (point.id == newCraft.id) {
+          point = IconUtil.mapIconPointFromCraft(newCraft,
+              IconUtil.pointFromCoordinates(mapIconPoint.coordinates)
+          );
+        }
+        return point;
+      });
 
-    final points = state.mapIconPoints.map((point) {
-      if (point.id == craft.id) {
-        point = IconUtil.mapIconPointFromCraft(craft,
-            IconUtil.pointFromCoordinates(mapIconPoint.coordinates)
-        );
-      }
-      return point;
-    });
-
-    emit(state.copyWith(
-      mapIconPoints: points.toSet(),
-      markers: await _markersFromPoints(points, rescaleFactor: rescaleFactor),
-    ));
+      emit(state.copyWith(
+        mapIconPoints: points.toSet(),
+        markers: await _markersFromPoints(points, rescaleFactor: rescaleFactor),
+      ));
+    };
   }
 
 }

@@ -7,6 +7,8 @@ import 'wizard_theme.dart';
 
 abstract class Wizard<T> {
 
+  //TODO submit on any step if wizard completed
+
   T? data;
   BuildContext? ctx;
   late Function(T) onComplete;
@@ -17,7 +19,7 @@ abstract class Wizard<T> {
     throw 'Not implemented!';
   }
 
-  T dataBuilder() {
+  T dataBuilder(T? edit) {
     throw 'Not implemented!';
   }
 
@@ -29,9 +31,9 @@ abstract class Wizard<T> {
     throw 'Not implemented!';
   }
 
-  run(BuildContext ctx) {
+  run(BuildContext ctx, { T? edit }) {
     this.ctx = ctx;
-    data = dataBuilder();
+    data = dataBuilder(edit);
     _initialize();
     _start().then((x) {
       dataCompleter();
@@ -52,7 +54,12 @@ abstract class Wizard<T> {
   }
 
   _start() {
-    return cubit.start(ctx: ctx!);
+    return cubit.start(ctx: ctx!, nextIndex: _getIndexOfFirstIncompleteStep());
+  }
+
+  _getIndexOfFirstIncompleteStep() {
+    final i = cubit.state.steps.indexWhere((step) => !step.ready);
+    return i == -1 ? cubit.state.steps.length-1 : i;
   }
 
   _stop() async {

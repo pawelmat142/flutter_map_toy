@@ -31,7 +31,7 @@ abstract class IconUtil {
     Log.log('IconData: ${craft.iconData?.codePoint.toString()}');
     Log.log('Color: ${craft.color.hashCode.toString()}');
     Log.log('id: ${craft.id.toString()}');
-    if (!craft.complete) throw 'craft is incomplete!';
+    craft.validate();
     return MapIconPoint(
         craft.iconData!.codePoint,
         craft.color!.value,

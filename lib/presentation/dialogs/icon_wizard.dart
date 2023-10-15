@@ -9,28 +9,18 @@ import 'package:flutter_map_toy/presentation/dialogs/wizard/wizard_theme.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';
-import 'package:uuid/uuid.dart';
 
 
 class IconWizard extends Wizard<IconCraft> {
 
-  late Uuid uuid;
-
-  IconWizard() {
-    uuid = const Uuid();
-  }
-
   @override
-  IconCraft dataBuilder() {
-    return IconCraft();
+  IconCraft dataBuilder(IconCraft? edit) {
+    return edit ?? IconCraft();
   }
 
   @override
   dataCompleter() {
-    data!.iconData = cubit.state.steps[0].stepData;
-    data!.color = cubit.state.steps[1].stepData;
-    data!.size = cubit.state.steps[2].stepData;
-    data!.id = uuid.v1();
+    data = IconCraft.byWizardBlocState(ctx!);
   }
 
   @override
@@ -104,16 +94,9 @@ class IconWizardSizeStep extends StatelessWidget {
     required this.ctx,
     Key? key}) : super(key: key);
 
-  static const double initialSize = 70;
-  static const double maxSize = 100;
-  static const double minSize = 40;
-
-  static const IconData defaultIcon = Icons.question_mark_rounded;
-  static const Color defaultIconColor = AppColor.white30;
-
   WizardCubit get cubit => BlocProvider.of<WizardCubit>(ctx);
 
-  double get size => cubit.state.steps[2].stepData ?? initialSize;
+  double get size => cubit.state.steps[2].stepData ?? IconCraft.defaultSize;
 
   _finishStep() {
     cubit.finishStep(WizardStepResult(size));
@@ -131,32 +114,22 @@ class IconWizardSizeStep extends StatelessWidget {
           if (!state.indexOk) {
             return const SizedBox.shrink();
           }
-          final stepData = state.step.stepData;
-          final double size = stepData is double ? stepData : initialSize;
-          final IconData iconData = state.steps[0].stepData ?? defaultIcon;
-          final Color color = state.steps[1].stepData ?? defaultIconColor;
-
           return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
 
                 SizedBox(
-                  width: 100,
-                  height: 100,
-                  child: Center(
-                    child: Icon(iconData,
-                      color: color,
-                      size: size,
-                    ),
-                  ),
+                  width: IconCraft.maxSize,
+                  height: IconCraft.maxSize,
+                  child: Center(child: IconCraft.byWizardBlocState(context).widget),
                 ),
                 AppStyle.verticalDefaultDistance,
 
                 Slider(
                   value: size,
                   onChanged: (value) => cubit.emitStepData<double>(value),
-                  min: minSize,
-                  max: maxSize,
+                  min: IconCraft.minSize,
+                  max: IconCraft.maxSize,
                 ),
                 AppStyle.verticalDefaultDistance,
 

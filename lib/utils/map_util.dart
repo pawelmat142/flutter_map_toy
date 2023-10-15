@@ -1,10 +1,9 @@
 import 'dart:math';
-import 'dart:ui';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/models/map_icon_point.dart';
 import 'package:flutter_map_toy/utils/icon_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:widget_to_marker/widget_to_marker.dart';
 
 abstract class MapUtil {
 
@@ -34,46 +33,71 @@ abstract class MapUtil {
   }
 
   static Future<Marker> getMarkerFromIcon(MapIconPoint mapIconPoint) async {
-    final iconData = IconData(mapIconPoint.iconDataPoint, fontFamily: 'MaterialIcons');
-    final iconStr = String.fromCharCode(iconData.codePoint);
-
-    final pictureRecorder = PictureRecorder();
-    final canvas = Canvas(pictureRecorder);
-
-    final textPainter = TextPainter(textDirection: TextDirection.ltr);
-
-    final imgSize = mapIconPoint.size;
-
-    textPainter.text = TextSpan(
-        text: iconStr,
-        style: TextStyle(
-          letterSpacing: 0.0,
-          fontSize: imgSize,
-          // fontSize: imgSize/2,
-          fontWeight: FontWeight.w200,
-          fontFamily: iconData.fontFamily,
-          color: Color(mapIconPoint.colorInt),
-        )
-    );
-    textPainter.layout();
-    // textPainter.paint(canvas, Offset(imgSize/4, imgSize/2));
-    textPainter.paint(canvas, const Offset(0, 0));
-    // textPainter.paint(canvas, Offset(0, 0));
-
-    final picture = pictureRecorder.endRecording();
-    final image = await picture.toImage(imgSize.toInt(), imgSize.toInt());
-    final bytes = await image.toByteData(format: ImageByteFormat.png);
-
-    if (bytes == null) throw "bytes == null";
-
-    final bitmapDescriptor = BitmapDescriptor.fromBytes(bytes.buffer.asUint8List());
-    final marker = Marker(
-      markerId: MarkerId(mapIconPoint.id),
+    final craft = IconUtil.craftFromMapIconPoint(mapIconPoint);
+    if (craft.incomplete) throw 'craft incomplete!';
+    craft.size = craft.size! / 5;
+    return Marker(
+      markerId: MarkerId(craft.id!),
       position: IconUtil.pointFromCoordinates(mapIconPoint.coordinates),
-      icon: bitmapDescriptor,
+      icon: await craft.widget.toBitmapDescriptor(),
     );
-
-    return marker;
   }
+
+  //   static Future<Marker> getMarkerFromIcon(MapIconPoint mapIconPoint) async {
+  //   final iconData = IconData(mapIconPoint.iconDataPoint, fontFamily: 'MaterialIcons');
+  //   final iconStr = String.fromCharCode(iconData.codePoint);
+  //
+  //   final pictureRecorder = PictureRecorder();
+  //   final canvas = Canvas(pictureRecorder);
+  //
+  //   const iconProportion = 0.8;
+  //   final size = mapIconPoint.size/2;
+  //   final rectOffset = size*0.025;
+  //   final iconOffset = (size*(1-iconProportion)/2)+rectOffset;
+  //   final color = Color(mapIconPoint.colorInt);
+  //   final radius = size*0.2;
+  //
+  //   final rect = RRect.fromLTRBR(rectOffset, rectOffset, size, size, Radius.circular(radius));
+  //
+  //   canvas.drawRRect(rect, Paint()..color = color.withAlpha(50));
+  //
+  //   canvas.drawPath(
+  //     Path()
+  //       ..addRRect(rect),
+  //     Paint()
+  //       ..color = color
+  //       ..strokeWidth = size*0.05
+  //       ..style = PaintingStyle.stroke
+  //   );
+  //
+  //   final textPainter = TextPainter(textDirection: TextDirection.ltr);
+  //   textPainter.text = TextSpan(
+  //       text: iconStr,
+  //       style: TextStyle(
+  //         letterSpacing: 0.0,
+  //         fontSize: size*iconProportion,
+  //         fontWeight: FontWeight.w200,
+  //         fontFamily: iconData.fontFamily,
+  //         color: Color(mapIconPoint.colorInt),
+  //       )
+  //   );
+  //   textPainter.layout();
+  //   textPainter.paint(canvas, Offset(iconOffset, iconOffset));
+  //
+  //   final imgSize = (size*1.05).toInt();
+  //   final image = await pictureRecorder.endRecording().toImage(imgSize, imgSize);
+  //   final bytes = await image.toByteData(format: ImageByteFormat.png);
+  //
+  //   if (bytes == null) throw "bytes == null";
+  //
+  //   final bitmapDescriptor = BitmapDescriptor.fromBytes(bytes.buffer.asUint8List());
+  //   final marker = Marker(
+  //     markerId: MarkerId(mapIconPoint.id),
+  //     position: IconUtil.pointFromCoordinates(mapIconPoint.coordinates),
+  //     icon: bitmapDescriptor,
+  //   );
+  //
+  //   return marker;
+  // }
 
 }

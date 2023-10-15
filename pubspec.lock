@@ -609,6 +609,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.4.0"
+  widget_to_marker:
+    dependency: "direct main"
+    description:
+      name: widget_to_marker
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.3"
   yaml:
     dependency: transitive
     description:

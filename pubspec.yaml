@@ -45,6 +45,7 @@ dependencies:
   json_annotation: ^4.8.0
   card_swiper: ^3.0.1
   uuid: ^4.1.0
+  widget_to_marker: ^1.0.3
 
 dev_dependencies:
   flutter_test:
