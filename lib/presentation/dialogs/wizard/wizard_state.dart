@@ -19,17 +19,20 @@ class WizardState {
   int currentIndex;
   BuildContext? ctx;
   WizardTheme? theme;
+  Widget? submitButton;
 
   WizardState(this.state,
     this.steps,
     this.currentIndex,
     this.ctx,
     this.theme,
+    this.submitButton,
   );
 
   bool get initialized => steps.isNotEmpty && state != BlocWizardState.empty;
   bool get opened => initialized && ctx is BuildContext;
-  bool get indexOk => currentIndex > 0 && currentIndex <= steps.length-1;
+  bool get indexOk => currentIndex >= 0 && currentIndex <= steps.length-1;
+  bool get completed => steps.every((step) => step.ready);
 
   WizardStep get step => steps[currentIndex];
 
@@ -40,6 +43,7 @@ class WizardState {
     BuildContext? ctx,
     bool cleanCtx = false,
     WizardTheme? theme,
+    Widget? submitButton,
   }) {
     return WizardState(
       state ?? this.state,
@@ -47,20 +51,22 @@ class WizardState {
       currentIndex ?? this.currentIndex,
       cleanCtx ? null : ctx ?? this.ctx,
       theme ?? this.theme,
+      submitButton ?? this.submitButton,
     );
   }
 }
 
 class WizardCubit extends Cubit<WizardState> {
 
-  WizardCubit(): super(WizardState(BlocWizardState.empty, [], -1, null, null));
+  WizardCubit(): super(WizardState(BlocWizardState.empty, [], -1, null, null, null));
 
-  initialize<T>(List<WizardStep> steps, WizardTheme theme) {
+  initialize<T>(List<WizardStep> steps, WizardTheme theme, Widget submitButton) {
     _validateIndexes(steps);
     emit(state.copyWith(
       state: BlocWizardState.ready,
       steps: steps,
-      theme: theme
+      theme: theme,
+      submitButton: submitButton
     ));
   }
 
@@ -87,15 +93,15 @@ class WizardCubit extends Cubit<WizardState> {
         currentIndex: nextIndex,
         ctx: ctx
     ));
-    return _progressStep(ctx);
+    return _progressStep();
   }
 
-  _progressStep(BuildContext ctx) {
+  _progressStep() {
     return showModalBottomSheet(
         context: state.ctx!,
         backgroundColor: Colors.transparent,
         isScrollControlled: true,
-        builder: (ctx) => WizardContent(state)
+        builder: (ctx) => const WizardContent()
     ).then((result) => _stepFinished(result));
   }
 
@@ -110,6 +116,9 @@ class WizardCubit extends Cubit<WizardState> {
     final ctx = state.ctx!;
     _stop();
     if (result == null) return;
+    if (result.submit) {
+      return _wizardCompleted();
+    }
     if (step.ready && result.goForward) {
       if (step != state.steps.last) {
         return start(ctx: ctx, nextIndex: step.index+1);
@@ -167,12 +176,14 @@ class WizardCubit extends Cubit<WizardState> {
 }
 
 class WizardStepResult<T> {
-  T data;
+  T? data;
   bool goForward;
   int indexTo;
+  bool submit;
 
   WizardStepResult(this.data, {
     this.goForward = true,
-    this.indexTo = 0
+    this.indexTo = 0,
+    this.submit = false
   });
 }

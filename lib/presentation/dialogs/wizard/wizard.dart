@@ -7,8 +7,6 @@ import 'wizard_theme.dart';
 
 abstract class Wizard<T> {
 
-  //TODO submit on any step if wizard completed
-
   T? data;
   BuildContext? ctx;
   late Function(T) onComplete;
@@ -31,13 +29,17 @@ abstract class Wizard<T> {
     throw 'Not implemented!';
   }
 
+  Widget getSubmitButton() {
+    throw 'Not implemented!';
+  }
+
   run(BuildContext ctx, { T? edit }) {
     this.ctx = ctx;
     data = dataBuilder(edit);
     _initialize();
     _start().then((x) {
       dataCompleter();
-      if (data != null) {
+      if (data != null && cubit.state.completed) {
         onComplete(data as T);
       }
       _stop();
@@ -46,7 +48,7 @@ abstract class Wizard<T> {
   }
 
   _initialize() {
-    BlocProvider.of<WizardCubit>(ctx!).initialize(getSteps(), getTheme());
+    BlocProvider.of<WizardCubit>(ctx!).initialize(getSteps(), getTheme(), getSubmitButton());
   }
 
   _clear(BuildContext context) {
@@ -70,28 +72,35 @@ abstract class Wizard<T> {
 
 class WizardContent extends StatelessWidget {
 
-  final WizardState state;
-
-  const WizardContent(this.state,
-      {Key? key}) : super(key: key);
+  const WizardContent({ Key? key }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.fromLTRB(state.theme!.padding, 0, state.theme!.padding, state.theme!.padding),
-        decoration: BoxDecoration(
-          color: state.theme!.backgroundColor,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(state.theme!.radius)),
-        ),
-        child: Column(
-          children: [
-            WizardProgress(state: state),
-            state.step.builder(state.ctx!)
-          ],
-        ),
-      ),
+    return BlocBuilder<WizardCubit, WizardState>(
+      builder: (ctx, state) {
+        if (!state.indexOk) return const SizedBox.shrink();
+        return IntrinsicHeight(
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.fromLTRB(state.theme!.padding, 0, state.theme!.padding, state.theme!.padding),
+            decoration: BoxDecoration(
+              color: state.theme!.backgroundColor,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(state.theme!.radius)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                WizardProgress(state: state),
+                state.step.builder(state.ctx!),
+                if (state.completed) Padding(
+                  padding: EdgeInsets.only(top: state.theme!.padding/2),
+                  child: state.submitButton,
+                )
+              ],
+            ),
+          ),
+        );
+      }
     );
   }
 }
@@ -121,7 +130,6 @@ class WizardStep<T> {
     // this.onStop,
     // this.onBack,
   });
-
 
   //means that step is filled with data
   bool get ready => stepData is T;

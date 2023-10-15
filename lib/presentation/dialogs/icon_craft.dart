@@ -18,6 +18,10 @@ class IconCraft {
   double? size;
   String? id;
 
+  IconCraft() {
+    size = defaultSize;
+  }
+
   bool get complete => dialogComplete && id is String;
 
   bool get incomplete => !complete;
@@ -31,13 +35,12 @@ class IconCraft {
   }
 
   static IconCraft byWizardBlocState(BuildContext context) {
-    final craft = IconCraft();
     final state = BlocProvider.of<WizardCubit>(context).state;
-    craft.iconData = state.steps[0].stepData ?? defaultIcon;
-    craft.color = state.steps[1].stepData ?? defaultIconColor;
-    craft.size = state.steps[2].stepData ?? defaultSize;
-    craft.id = const Uuid().v1();
-    return craft;
+    return IconCraft()
+      ..iconData = state.steps[0].stepData ?? defaultIcon
+      ..color = state.steps[1].stepData ?? defaultIconColor
+      ..size = state.steps[2].stepData ?? defaultSize
+      ..id = const Uuid().v1();
   }
 
   StatelessWidget get widget => IconCraftWidget(this);

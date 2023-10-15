@@ -24,6 +24,16 @@ class IconWizard extends Wizard<IconCraft> {
   }
 
   @override
+  Widget getSubmitButton() {
+    return PrimaryButton('submit', onPressed: () {
+      cubit.finishStep(WizardStepResult(
+          cubit.state.step.stepData,
+          submit: true
+      ));
+    });
+  }
+
+  @override
   getTheme() {
     return WizardTheme(
       activeColor: AppColor.secondary,
@@ -72,7 +82,7 @@ class IconWizard extends Wizard<IconCraft> {
 
         WizardStep<double>(index: 2,
             stepData: data!.size,
-            builder: (ctx) => IconWizardSizeStep(ctx: ctx)
+            builder: (ctx) => const IconWizardSizeStep()
         ),
       ];
   }
@@ -88,59 +98,45 @@ class IconWizard extends Wizard<IconCraft> {
 
 class IconWizardSizeStep extends StatelessWidget {
 
-  final BuildContext ctx;
-
-  const IconWizardSizeStep({
-    required this.ctx,
-    Key? key}) : super(key: key);
-
-  WizardCubit get cubit => BlocProvider.of<WizardCubit>(ctx);
-
-  double get size => cubit.state.steps[2].stepData ?? IconCraft.defaultSize;
-
-  _finishStep() {
-    cubit.finishStep(WizardStepResult(size));
-  }
+  const IconWizardSizeStep({ Key? key }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        _finishStep();
-        return false;
-      },
-      child: BlocBuilder<WizardCubit, WizardState>(
-        builder: (ctx, state) {
-          if (!state.indexOk) {
-            return const SizedBox.shrink();
-          }
-          return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
 
-                SizedBox(
-                  width: IconCraft.maxSize,
-                  height: IconCraft.maxSize,
-                  child: Center(child: IconCraft.byWizardBlocState(context).widget),
-                ),
-                AppStyle.verticalDefaultDistance,
+    final cubit = BlocProvider.of<WizardCubit>(context);
 
-                Slider(
-                  value: size,
-                  onChanged: (value) => cubit.emitStepData<double>(value),
-                  min: IconCraft.minSize,
-                  max: IconCraft.maxSize,
-                ),
-                AppStyle.verticalDefaultDistance,
+    return BlocBuilder<WizardCubit, WizardState>(builder: (ctx, state) {
 
-                SizedBox(
-                    height: 48,
-                    width: MediaQuery.of(context).size.width,
-                    child: PrimaryButton('submit', onPressed: _finishStep)
-                ),
-              ]);
+      final size = state.steps[2].stepData ?? IconCraft.defaultSize;
+
+      return WillPopScope(
+        onWillPop: () async {
+          cubit.finishStep(WizardStepResult(null));
+          return false;
         },
-      )
-    );
+        child: !state.indexOk ? const SizedBox.shrink() : Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+
+              SizedBox(
+                width: IconCraft.maxSize,
+                height: IconCraft.maxSize,
+                child: Center(child: IconCraft.byWizardBlocState(context).widget),
+              ),
+              AppStyle.verticalDefaultDistance,
+
+              Slider(
+                value: size,
+                onChanged: (value) {
+                  cubit.emitStepData<double>(value);
+                },
+                min: IconCraft.minSize,
+                max: IconCraft.maxSize,
+              ),
+            ]
+        ),
+      );
+    });
+
   }
 }
