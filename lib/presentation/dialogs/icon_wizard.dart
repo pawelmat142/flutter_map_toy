@@ -1,93 +1,71 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/presentation/components/controls/primary_button.dart';
 import 'package:flutter_map_toy/presentation/components/icon_tile.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_craft.dart';
-import 'package:flutter_map_toy/presentation/dialogs/modal_steps_wizard.dart';
+import 'package:flutter_map_toy/presentation/dialogs/wizard/wizard_state.dart';
+import 'package:flutter_map_toy/presentation/dialogs/wizard/wizard.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 
-class IconWizard extends ModalStepsWizard<IconCraft> {
 
-  IconWizard({required super.wizardContext});
-
-  IconCraft craft = IconCraft();
+class IconWizard extends Wizard<IconCraft> {
 
   @override
-  bool get complete => craft.complete;
+  IconCraft dataBuilder() {
+    return IconCraft();
+  }
 
   @override
-  initSteps() {
-    final tileSize = _getModalTileSize(wizardContext);
-    super.steps = [
-
-      WizardStep<IconData>(craft.iconData,
-        label: 'one',
-        parentWizard: this,
-        builder: (ctx) => Wrap(
-          spacing: AppStyle.wrapSpacing,
-          runSpacing: AppStyle.wrapSpacing,
-          children: AppIcon.mapFlutterIcons.asMap().map((index, icon) => MapEntry(index, IconTile(
-            icon: icon,
-            onPressed: () => Navigator.pop(ctx, AppIcon.mapFlutterIcons[index]),
-            size: tileSize,
-            color: craft.color,
-          ))).values.toList()
-        ),
-        onSuccess: (result) {
-          craft.iconData = result;
-          ppprint();
-        }
-      ),
-
-      WizardStep<Color>(craft.color,
-        label: 'two',
-        parentWizard: this,
-        builder: (ctx) => Wrap(
-          spacing: AppStyle.wrapSpacing,
-          runSpacing: AppStyle.wrapSpacing,
-          children: AppColor.mapFlutterIconColors
-              .asMap()
-              .map((index, color) => MapEntry(
-                  index,
-                  IconTile(
-                    icon: craft.iconData,
-                    onPressed: () => Navigator.pop(
-                        ctx, AppColor.mapFlutterIconColors[index]),
-                    size: IconWizard._getModalTileSize(ctx),
-                    color: color,
-                  )))
-              .values
-            .toList()
-        ),
-        onSuccess: (result) {
-          craft.color = result;
-          ppprint();
-        },
-      ),
-
-      WizardStep<double>(craft.size,
-          label: 'three',
-          parentWizard: this,
-          builder: (ctx) => IconWizardSizeStep(craft: craft),
-          onSuccess: (result) {
-            craft.size = result;
-            ppprint();
-          }
-      ),
-    ];
+  dataCompleter() {
+    data!.iconData = cubit.state.steps[0].stepData;
+    data!.color = cubit.state.steps[1].stepData;
+    data!.size = cubit.state.steps[2].stepData;
   }
 
-  ppprint() {
-    print('craft.size');
-    print(craft.size);
-    print('craft.color');
-    print(craft.color);
-    print('craft.iconData');
-    print(craft.iconData);
+  @override
+  List<WizardStep> getSteps() {
+      final tileSize = _getModalTileSize(ctx!);
+      return [
+        WizardStep<IconData>(index: 0,
+          stepData: data!.iconData,
+          builder: (ctx) => Wrap(
+            spacing: AppStyle.wrapSpacing,
+            runSpacing: AppStyle.wrapSpacing,
+            children: AppIcon.mapFlutterIcons.asMap()
+                .map((index, icon) => MapEntry(index, IconTile(
+              icon: icon,
+              onPressed: () => cubit.finishStep(WizardStepResult(AppIcon.mapFlutterIcons[index])),
+              size: tileSize,
+              color: BlocProvider.of<WizardCubit>(ctx).state.steps[1].stepData,
+            ))).values.toList(),
+          ),
+        ),
+
+        WizardStep<Color>(index: 1,
+          stepData: data!.color,
+          builder: (ctx) => Wrap(
+              spacing: AppStyle.wrapSpacing,
+              runSpacing: AppStyle.wrapSpacing,
+              children: AppColor.mapFlutterIconColors.asMap()
+                  .map((index, color) => MapEntry(index, IconTile(
+                icon: BlocProvider.of<WizardCubit>(ctx).state.steps[0].stepData,
+                onPressed: () => cubit.finishStep(WizardStepResult(AppColor.mapFlutterIconColors[index])),
+                size: tileSize,
+                color: color,
+              ))).values.toList()
+          ),
+        ),
+
+        WizardStep<double>(index: 2,
+            stepData: data!.size,
+            builder: (ctx) => IconWizardSizeStep(ctx: ctx)
+        ),
+      ];
   }
 
-  static _getModalTileSize(BuildContext context) {
+  _getModalTileSize(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final screenWidth = size.width;
     const itemsPerRow = 4;
@@ -95,18 +73,14 @@ class IconWizard extends ModalStepsWizard<IconCraft> {
   }
 
 }
-class IconWizardSizeStep extends StatefulWidget {
-  final IconCraft craft;
+
+class IconWizardSizeStep extends StatelessWidget {
+
+  final BuildContext ctx;
 
   const IconWizardSizeStep({
-    required this.craft,
+    required this.ctx,
     Key? key}) : super(key: key);
-
-  @override
-  State<IconWizardSizeStep> createState() => _IconWizardSizeStepState();
-}
-
-class _IconWizardSizeStepState extends State<IconWizardSizeStep> {
 
   static const double initialSize = 70;
   static const double maxSize = 100;
@@ -115,65 +89,63 @@ class _IconWizardSizeStepState extends State<IconWizardSizeStep> {
   static const IconData defaultIcon = Icons.question_mark_rounded;
   static const Color defaultIconColor = AppColor.white30;
 
-  double get size => widget.craft.size ?? initialSize;
-  IconData get iconData => widget.craft.iconData ?? defaultIcon;
-  Color get color => widget.craft.color ?? defaultIconColor;
+  WizardCubit get cubit => BlocProvider.of<WizardCubit>(ctx);
 
-  late double _size;
+  double get size => cubit.state.steps[2].stepData ?? initialSize;
 
-  @override
-  void initState() {
-    _size = size;
-    super.initState();
-  }
-
-  _setSize(double value) {
-    setState(() {
-      _size = value;
-    });
+  _finishStep() {
+    cubit.finishStep(WizardStepResult(size));
   }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        Navigator.pop(context, _size);
+        _finishStep();
         return false;
       },
-      child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+      child: BlocBuilder<WizardCubit, WizardState>(
+        builder: (ctx, state) {
+          if (!state.indexOk) {
+            return const SizedBox.shrink();
+          }
+          final stepData = state.step.stepData;
+          final double size = stepData is double ? stepData : initialSize;
+          final IconData iconData = state.steps[0].stepData ?? defaultIcon;
+          final Color color = state.steps[1].stepData ?? defaultIconColor;
 
-            SizedBox(
-              width: 100,
-              height: 100,
-              child: Center(
-                child: Icon(iconData,
-                  color: color,
-                  size: _size,
+          return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+
+                SizedBox(
+                  width: 100,
+                  height: 100,
+                  child: Center(
+                    child: Icon(iconData,
+                      color: color,
+                      size: size,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            AppStyle.verticalDefaultDistance,
+                AppStyle.verticalDefaultDistance,
 
-            Slider(
-              value: _size,
-              onChanged: _setSize,
-              min: minSize,
-              max: maxSize,
-            ),
-            AppStyle.verticalDefaultDistance,
+                Slider(
+                  value: size,
+                  onChanged: (value) => cubit.emitStepData<double>(value),
+                  min: minSize,
+                  max: maxSize,
+                ),
+                AppStyle.verticalDefaultDistance,
 
-            SizedBox(
-                height: 48,
-                width: MediaQuery.of(context).size.width,
-                child: PrimaryButton('submit',
-                  onPressed: () => Navigator.pop(context, _size),
-                )
-            ),
-          ]),
+                SizedBox(
+                    height: 48,
+                    width: MediaQuery.of(context).size.width,
+                    child: PrimaryButton('submit', onPressed: _finishStep)
+                ),
+              ]);
+        },
+      )
     );
   }
 }
-
-
