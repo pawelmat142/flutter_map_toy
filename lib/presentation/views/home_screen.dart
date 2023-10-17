@@ -5,6 +5,7 @@ import 'package:flutter_map_toy/presentation/components/controls/blue_button.dar
 import 'package:flutter_map_toy/presentation/components/controls/red_button.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 import 'package:flutter_map_toy/presentation/views/map_screen.dart';
+import 'package:flutter_map_toy/presentation/views/test.dart';
 import 'package:flutter_map_toy/services/get_it.dart';
 import 'package:flutter_map_toy/services/location_service.dart';
 import 'package:flutter_map_toy/services/log.dart';
@@ -51,6 +52,7 @@ class HomeScreen extends StatelessWidget {
             AppStyle.verticalDefaultDistance,
             BlueButton('blue button',
               onPressed: () {
+                Navigator.pushNamed(context, Test.id);
               },
             ),
 
@@ -65,10 +67,4 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-}
-
-class WizardTest {
-  String? one;
-  String? two;
-  String? three;
 }

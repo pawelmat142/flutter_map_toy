@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
+import 'package:flutter_map_toy/presentation/components/drawing/drawing_state.dart';
 import 'package:flutter_map_toy/presentation/dialogs/wizard/wizard_state.dart';
 import 'package:flutter_map_toy/presentation/views/home_screen.dart';
 import 'package:flutter_map_toy/presentation/styles/app_theme.dart';
+import 'package:flutter_map_toy/presentation/views/test.dart';
 import 'package:flutter_map_toy/services/get_it.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 
 void main() async {
 
@@ -18,14 +19,15 @@ void main() async {
 
   runApp(
 
-    //BLOC initialization
+    /// BLOC initialization
     MultiBlocProvider(
       providers: [
         BlocProvider<MapCubit>(create: (_) => MapCubit()),
         BlocProvider<WizardCubit>(create: (_) => WizardCubit()),
+        BlocProvider<DrawingCubit>(create: (_) => DrawingCubit()),
       ],
 
-      //MAIN WIDGET
+      /// MAIN WIDGET
       child: const MyApp(),
     ),
   );
@@ -52,6 +54,7 @@ class _MyAppState extends State<MyApp> {
       initialRoute: HomeScreen.id,
       routes: {
         HomeScreen.id: (context) => const HomeScreen(),
+        Test.id: (context) => const Test(),
         // MapScreen.id: (context) => const MapScreen(),
       },
     );
