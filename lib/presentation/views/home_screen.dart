@@ -4,7 +4,7 @@ import 'package:flutter_map_toy/presentation/components/controls/primary_button.
 import 'package:flutter_map_toy/presentation/components/controls/blue_button.dart';
 import 'package:flutter_map_toy/presentation/components/controls/red_button.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';
-import 'package:flutter_map_toy/presentation/views/map_screen.dart';
+import 'package:flutter_map_toy/presentation/views/map_screen/map_screen.dart';
 import 'package:flutter_map_toy/presentation/views/test.dart';
 import 'package:flutter_map_toy/services/get_it.dart';
 import 'package:flutter_map_toy/services/location_service.dart';

@@ -1,11 +1,9 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
-import 'package:flutter_map_toy/presentation/components/toolbar.dart';
-import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
+import 'package:flutter_map_toy/presentation/views/map_screen/map_toolbar.dart';
 import 'package:flutter_map_toy/services/log.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
 import 'package:flutter_map_toy/utils/timer_handler.dart';
@@ -40,11 +38,6 @@ class _MapScreenState extends State<MapScreen> {
 
   double _initialViewDiagonalDistance = 0;
   double zoom = MapUtil.kZoomInitial;
-  double _rescaleFactor = 1;
-  late LatLngBounds _visibleRegion;
-
-  double get rescaleFactor => _rescaleFactor;
-  LatLngBounds get visibleRegion => _visibleRegion;
 
   @override
   void dispose() {
@@ -71,59 +64,7 @@ class _MapScreenState extends State<MapScreen> {
           onTap: _onMapTap,
         ),
 
-        bottomNavigationBar: Toolbar(toolbarItems: [
-          ToolBarItem(
-            label: 'add_point',
-            barLabel: 'add point',
-            menuLabel: 'add point',
-            icon: AppIcon.addPoint,
-            onTap: _onAddMarker,
-          ),
-          ToolBarItem(
-            label: 'edit_marker',
-            barLabel: 'edit',
-            icon: AppIcon.editPoint,
-            disabled: state.selectedMarkerId.isEmpty,
-            onTap: _onEditMarker,
-          ),
-          ToolBarItem(
-              label: 'clean_map',
-              menuLabel: 'clean markers',
-              icon: AppIcon.cleanPoint,
-              onTap: _onClean
-          ),
-          ToolBarItem(
-              label: 'save_map',
-              barLabel: 'save',
-              menuLabel: 'save',
-              icon: AppIcon.save,
-              onTap: _onSave
-          ),
-          ToolBarItem(
-              label: Toolbar.menuLabel,
-              barLabel: 'menu',
-              icon: AppIcon.menu,
-              onTap: (){}
-          ),
-          ToolBarItem(
-              label: 'map_type_normal',
-              menuLabel: 'Normal',
-              icon: AppIcon.mapTypeNormal,
-              onTap: () => mapCubit.setType(MapType.normal)
-          ),
-          ToolBarItem(
-              label: 'map_type_terrain',
-              menuLabel: 'Terrain',
-              icon: AppIcon.mapTypeTerrain,
-              onTap: () => mapCubit.setType(MapType.terrain)
-          ),
-          ToolBarItem(
-              label: 'map_type_satellite',
-              menuLabel: 'Satellite',
-              icon: AppIcon.mapTypeSatellite,
-              onTap: () => mapCubit.setType(MapType.satellite)
-          ),
-        ],),
+        bottomNavigationBar: const MapToolbar()
       );
     });
   }
@@ -137,36 +78,6 @@ class _MapScreenState extends State<MapScreen> {
     mapCubit.selectMarker(marker);
   }
 
-  _onAddMarker() async {
-    mapCubit.addMarker(context,
-      mapViewCenter: await mapViewCenter,
-      rescaleFactor: rescaleFactor
-    );
-  }
-
-  _onEditMarker() async {
-    mapCubit.updateMarker(context, rescaleFactor: rescaleFactor);
-  }
-
-  _onClean() {
-    mapCubit.cleanMarkers();
-  }
-
-  _onSave() {
-    if (kDebugMode) {
-      print('onsave');
-    }
-  }
-
-  Future<LatLng> get mapViewCenter async {
-    LatLngBounds visibleRegion = this.visibleRegion;
-    LatLng centerLatLng = LatLng(
-      (visibleRegion.northeast.latitude + visibleRegion.southwest.latitude) / 2,
-      (visibleRegion.northeast.longitude + visibleRegion.southwest.longitude) / 2,
-    );
-    return centerLatLng;
-  }
-
   _onCameraMove(CameraPosition cameraPosition) {
     //workaround
     cameraMoveHandler.handle(() => _onCameraMoveEnd(cameraPosition));
@@ -176,7 +87,7 @@ class _MapScreenState extends State<MapScreen> {
     final newZoom = cameraPosition.zoom;
     if (newZoom != zoom) {
       await _updateRescaleFactor();
-      mapCubit.resizeMarker(rescaleFactor);
+      mapCubit.resizeMarker(mapState.rescaleFactor);
       zoom = newZoom;
       Log.log('CameraPosition zoom changed: ${newZoom.toString()}', source: widget.runtimeType.toString());
     }
@@ -190,7 +101,7 @@ class _MapScreenState extends State<MapScreen> {
       //GoogleMaps API doesn't share info about selected marker id or something
       //this solution should integrate google maps marker selection with this app marker selection
       //its not perfect so marker selection may be not synchronized
-      final markerVisible = visibleRegion.contains(mapState.selectedMarker!.position);
+      final markerVisible = mapState.visibleRegion?.contains(mapState.selectedMarker!.position) ?? false;
       if (!markerVisible) {
         mapCubit.selectMarker(null);
       }
@@ -225,7 +136,7 @@ class _MapScreenState extends State<MapScreen> {
         onTap: () => _onMarkerTap(marker),
         draggable: true,
         onDragEnd: (point) async {
-            mapCubit.replaceMarker(point, rescaleFactor: rescaleFactor, markerId: marker.markerId.value);
+            mapCubit.replaceMarker(point, rescaleFactor: state.rescaleFactor, markerId: marker.markerId.value);
         },
     )).toSet();
   }
@@ -233,13 +144,12 @@ class _MapScreenState extends State<MapScreen> {
   _updateRescaleFactor() async {
     final distance = await MapUtil.calcMapViewDiagonalDistance(_controller);
     Log.log('Calculated diagonal distance: ${distance.toString()}', source: widget.runtimeType.toString());
-    _rescaleFactor = _initialViewDiagonalDistance / distance;
+    mapCubit.updateRescaleFactor(_initialViewDiagonalDistance / distance);
   }
 
   _updateVisibleRegion() async {
-    _visibleRegion = await _controller.getVisibleRegion();
+    mapCubit.updateVisibleRegion(await _controller.getVisibleRegion());
     Log.log('Visible region updated', source: widget.runtimeType.toString());
   }
-
 
 }

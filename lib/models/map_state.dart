@@ -13,8 +13,6 @@ enum BlocState {
   ready
 }
 
-//TODO drawing lines feature
-
 class MapState {
 
   BlocState state;
@@ -22,6 +20,8 @@ class MapState {
   Set<MapIconPoint> mapIconPoints;
   String selectedMarkerId;
   MapType mapType;
+  double rescaleFactor;
+  LatLngBounds? visibleRegion;
 
   MapState(
     this.state,
@@ -29,6 +29,8 @@ class MapState {
     this.mapIconPoints,
     this.selectedMarkerId,
     this.mapType,
+    this.rescaleFactor,
+    this.visibleRegion,
   );
 
   MapState copyWith({
@@ -38,6 +40,8 @@ class MapState {
     String? selectedMarkerId,
     double? zoom,
     MapType? mapType,
+    double? rescaleFactor,
+    LatLngBounds? visibleRegion,
   }) {
     Log.log('New MapState', source: runtimeType.toString());
     return MapState(
@@ -45,7 +49,9 @@ class MapState {
       markers ?? this.markers,
       mapIconPoints ?? this.mapIconPoints,
       selectedMarkerId ?? this.selectedMarkerId,
-      mapType ?? this.mapType
+      mapType ?? this.mapType,
+      rescaleFactor ?? this.rescaleFactor,
+      visibleRegion ?? this.visibleRegion,
     );
   }
 
@@ -55,11 +61,19 @@ class MapState {
   MapIconPoint? get selectedMapIconPoint => selectedMarkerId.isEmpty ? null
       : mapIconPoints.firstWhere((point) => point.id == selectedMarkerId);
 
+  LatLng get mapViewCenter {
+    if (visibleRegion == null) throw 'visible region == null';
+    return LatLng(
+      (visibleRegion!.northeast.latitude + visibleRegion!.southwest.latitude) / 2,
+      (visibleRegion!.northeast.longitude + visibleRegion!.southwest.longitude) / 2,
+    );
+  }
+
 }
 
 class MapCubit extends Cubit<MapState> {
 
-  MapCubit(): super(MapState(BlocState.ready, {}, {}, '', MapType.normal));
+  MapCubit(): super(MapState(BlocState.ready, {}, {}, '', MapType.normal, 1, null));
 
   setType(MapType mapType) {
     emit(state.copyWith(mapType: mapType));
@@ -160,6 +174,14 @@ class MapCubit extends Cubit<MapState> {
         markers: await _markersFromPoints(points, rescaleFactor: rescaleFactor),
       ));
     };
+  }
+
+  updateRescaleFactor(double rescaleFactor) {
+    emit(state.copyWith(rescaleFactor: rescaleFactor));
+  }
+
+  updateVisibleRegion(LatLngBounds visibleRegion) {
+    emit(state.copyWith(visibleRegion: visibleRegion));
   }
 
 }
