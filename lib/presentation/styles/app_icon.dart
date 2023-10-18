@@ -15,6 +15,8 @@ abstract class AppIcon {
   static const targetPoint = Icons.location_searching_rounded;
 
   static const drawLine = Icons.draw_rounded;
+  static const drawCancel = Icons.cancel;
+  static const drawColor = Icons.color_lens;
 
   static const mapTypeNormal = Icons.map_sharp;
   static const mapTypeTerrain = Icons.terrain_rounded;

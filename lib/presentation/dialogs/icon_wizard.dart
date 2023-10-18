@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map_toy/global/wizard/wizard.dart';
+import 'package:flutter_map_toy/global/wizard/wizard_state.dart';
+import 'package:flutter_map_toy/global/wizard/wizard_theme.dart';
 import 'package:flutter_map_toy/presentation/components/controls/primary_button.dart';
 import 'package:flutter_map_toy/presentation/components/icon_tile.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_craft.dart';
-import 'package:flutter_map_toy/presentation/dialogs/wizard/wizard_state.dart';
-import 'package:flutter_map_toy/presentation/dialogs/wizard/wizard.dart';
-import 'package:flutter_map_toy/presentation/dialogs/wizard/wizard_theme.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';

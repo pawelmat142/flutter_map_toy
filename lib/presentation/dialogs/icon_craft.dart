@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_map_toy/presentation/dialogs/wizard/wizard_state.dart';
+import 'package:flutter_map_toy/global/wizard/wizard_state.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:uuid/uuid.dart';
 

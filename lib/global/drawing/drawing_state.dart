@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'drawing_point.dart';
+import 'drawing_theme.dart';
 
 enum BlocState {
   on,
@@ -17,6 +18,7 @@ class DrawingState {
   List<DrawingPoint> historyDrawingPoints;
   List<DrawingPoint> drawingPoints;
   DrawingPoint? currentDrawingPoint;
+  DrawingTheme theme;
 
   DrawingState(
     this.state,
@@ -26,6 +28,7 @@ class DrawingState {
     this.historyDrawingPoints,
     this.drawingPoints,
     this.currentDrawingPoint,
+    this.theme,
   );
 
   DrawingState copyWith({
@@ -45,13 +48,14 @@ class DrawingState {
     historyDrawingPoints ?? this.historyDrawingPoints,
     drawingPoints ?? this.drawingPoints,
     cleanCurrentDrawingPoint ? null : currentDrawingPoint ?? this.currentDrawingPoint,
+    theme
   );
 
 }
 
 class DrawingCubit extends Cubit<DrawingState> {
 
-  DrawingCubit() : super(DrawingState(BlocState.off, false, Colors.black, 2, [], [], null));
+  DrawingCubit(DrawingTheme theme) : super(DrawingState(BlocState.off, false, Colors.black, 2, [], [], null, theme));
 
   turn({ required bool on }) {
     emit(state.copyWith(on: on));
@@ -93,6 +97,16 @@ class DrawingCubit extends Cubit<DrawingState> {
       currentDrawingPoint: null,
       cleanCurrentDrawingPoint: true
     ));
+  }
+
+  selectColor(BuildContext context) async {
+
+    // final result = await showModalBottomSheet(context: context, builder: );
+
+    // if (result is Color) {
+    //   emit(state.copyWith(color: result));
+    // }
+
   }
 
 }

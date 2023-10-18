@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map_toy/global/drawing/drawing_widget.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
-import 'package:flutter_map_toy/presentation/components/drawing/drawing_widget.dart';
 import 'package:flutter_map_toy/presentation/views/map_screen/map_toolbar.dart';
 import 'package:flutter_map_toy/services/log.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map_toy/presentation/components/drawing/drawing_widget.dart';
+import 'package:flutter_map_toy/global/drawing/drawing_widget.dart';
 
 class Test extends StatelessWidget {
 
