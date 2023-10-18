@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
+import 'package:flutter_map_toy/presentation/components/drawing/drawing_widget.dart';
 import 'package:flutter_map_toy/presentation/views/map_screen/map_toolbar.dart';
 import 'package:flutter_map_toy/services/log.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
@@ -40,6 +41,12 @@ class _MapScreenState extends State<MapScreen> {
   double zoom = MapUtil.kZoomInitial;
 
   @override
+  void initState() {
+    super.initState();
+    mapCubit.turnDrawingMode(context: context, on: false);
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -51,20 +58,34 @@ class _MapScreenState extends State<MapScreen> {
 
       Log.log('Build MapState, markers: ${state.markers.length}', source: mapState.runtimeType.toString());
 
-      return Scaffold(
+      return WillPopScope(
+        onWillPop: () async {
+          mapCubit.turnDrawingMode(context: context, on: false);
+          return true;
+        },
+        child: Scaffold(
 
-        appBar: AppBar(title: Text(state.selectedMarkerId.toString()),),
+          appBar: AppBar(title: Text(state.selectedMarkerId.toString()),),
 
-        body: GoogleMap(
-          initialCameraPosition: widget.initialCameraPosition,
-          mapType: state.mapType,
-          markers: _prepareMarkers(state),
-          onCameraMove: _onCameraMove,
-          onMapCreated: _onMapCreated,
-          onTap: _onMapTap,
+          body: Stack(
+            children: [
+
+              GoogleMap(
+                initialCameraPosition: widget.initialCameraPosition,
+                mapType: state.mapType,
+                markers: _prepareMarkers(state),
+                onCameraMove: _onCameraMove,
+                onMapCreated: _onMapCreated,
+                onTap: _onMapTap,
+              ),
+
+              const DrawingWidget(),
+
+            ],
+          ),
+
+          bottomNavigationBar: const MapToolbar()
         ),
-
-        bottomNavigationBar: const MapToolbar()
       );
     });
   }

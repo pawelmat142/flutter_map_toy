@@ -12,23 +12,26 @@ class DrawingWidget extends StatelessWidget {
 
     final cubit = BlocProvider.of<DrawingCubit>(context);
 
-    return GestureDetector(
-      onPanStart: cubit.drawStart,
-      onPanUpdate: cubit.drawUpdate,
-      onPanEnd: cubit.drawEnd,
+    return LayoutBuilder(builder: (BuildContext ctx, BoxConstraints constraints) {
+      return BlocBuilder<DrawingCubit, DrawingState>(builder: (ctx, state) {
 
-      child: BlocBuilder<DrawingCubit, DrawingState>(builder: (ctx, state) {
-        return CustomPaint(
-          painter: DrawingPainter(
-            drawingPoints: state.drawingPoints
-          ),
-          child: SizedBox(
-            //TODO get parent size
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-          ),
-        );
-      }),
-    );
+        return state.on == false ? const SizedBox.shrink() :
+          GestureDetector(
+            onPanStart: cubit.drawStart,
+            onPanUpdate: cubit.drawUpdate,
+            onPanEnd: cubit.drawEnd,
+
+            child: CustomPaint(
+                painter: DrawingPainter(
+                  drawingPoints: state.drawingPoints
+                ),
+                child: SizedBox(
+                  width: constraints.maxWidth,
+                  height: constraints.maxHeight,
+                ),
+            )
+          );
+      });
+    });
   }
 }

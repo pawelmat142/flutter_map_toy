@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/models/map_icon_point.dart';
+import 'package:flutter_map_toy/presentation/components/drawing/drawing_state.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_wizard.dart';
 import 'package:flutter_map_toy/services/log.dart';
 import 'package:flutter_map_toy/utils/icon_util.dart';
@@ -22,6 +23,7 @@ class MapState {
   MapType mapType;
   double rescaleFactor;
   LatLngBounds? visibleRegion;
+  bool drawingMode;
 
   MapState(
     this.state,
@@ -31,6 +33,7 @@ class MapState {
     this.mapType,
     this.rescaleFactor,
     this.visibleRegion,
+    this.drawingMode,
   );
 
   MapState copyWith({
@@ -42,6 +45,7 @@ class MapState {
     MapType? mapType,
     double? rescaleFactor,
     LatLngBounds? visibleRegion,
+    bool? drawingMode,
   }) {
     Log.log('New MapState', source: runtimeType.toString());
     return MapState(
@@ -52,6 +56,7 @@ class MapState {
       mapType ?? this.mapType,
       rescaleFactor ?? this.rescaleFactor,
       visibleRegion ?? this.visibleRegion,
+      drawingMode ?? this.drawingMode,
     );
   }
 
@@ -73,7 +78,7 @@ class MapState {
 
 class MapCubit extends Cubit<MapState> {
 
-  MapCubit(): super(MapState(BlocState.ready, {}, {}, '', MapType.normal, 1, null));
+  MapCubit(): super(MapState(BlocState.ready, {}, {}, '', MapType.normal, 1, null, false));
 
   setType(MapType mapType) {
     emit(state.copyWith(mapType: mapType));
@@ -182,6 +187,20 @@ class MapCubit extends Cubit<MapState> {
 
   updateVisibleRegion(LatLngBounds visibleRegion) {
     emit(state.copyWith(visibleRegion: visibleRegion));
+  }
+
+  turnDrawingMode({ required BuildContext context, required bool on }) {
+    if (state.drawingMode == on) return;
+    final drawingCubit = BlocProvider.of<DrawingCubit>(context);
+    drawingCubit.turn(on: on);
+    emit(state.copyWith(drawingMode: on));
+    _validateDrawingMode(context);
+  }
+
+  _validateDrawingMode(BuildContext context) {
+    final drawingState = BlocProvider.of<DrawingCubit>(context).state;
+    if (drawingState.on == state.drawingMode) return;
+    throw 'Drawing state mode error!';
   }
 
 }

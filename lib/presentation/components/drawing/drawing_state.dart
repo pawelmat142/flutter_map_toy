@@ -11,6 +11,7 @@ enum BlocState {
 class DrawingState {
 
   BlocState state;
+  bool on;
   Color color;
   int width;
   List<DrawingPoint> historyDrawingPoints;
@@ -19,6 +20,7 @@ class DrawingState {
 
   DrawingState(
     this.state,
+    this.on,
     this.color,
     this.width,
     this.historyDrawingPoints,
@@ -28,6 +30,7 @@ class DrawingState {
 
   DrawingState copyWith({
     BlocState? state,
+    bool? on,
     Color? color,
     int? width,
     List<DrawingPoint>? historyDrawingPoints,
@@ -36,6 +39,7 @@ class DrawingState {
     bool cleanCurrentDrawingPoint = false,
   }) => DrawingState(
     state ?? this.state,
+    on ?? this.on,
     color ?? this.color,
     width ?? this.width,
     historyDrawingPoints ?? this.historyDrawingPoints,
@@ -47,7 +51,11 @@ class DrawingState {
 
 class DrawingCubit extends Cubit<DrawingState> {
 
-  DrawingCubit() : super(DrawingState(BlocState.off, Colors.black, 2, [], [], null));
+  DrawingCubit() : super(DrawingState(BlocState.off, false, Colors.black, 2, [], [], null));
+
+  turn({ required bool on }) {
+    emit(state.copyWith(on: on));
+  }
 
   drawStart(DragStartDetails details) {
     final currentDrawingPoint = DrawingPoint(

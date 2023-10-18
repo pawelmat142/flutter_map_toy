@@ -18,22 +18,33 @@ class MapToolbar extends StatelessWidget {
     return BlocBuilder<MapCubit, MapState>(builder: (ctx, state) {
 
       return Toolbar(toolbarItems: [
-        ToolBarItem(
-          label: 'add_point',
-          barLabel: 'add point',
-          menuLabel: 'add point',
-          icon: AppIcon.addPoint,
-          onTap: () => mapCubit.addMarker(context,
-              mapViewCenter: state.mapViewCenter,
-              rescaleFactor: state.rescaleFactor
-          ),
+        mapCubit.state.selectedMarkerId.isEmpty ?
+          ToolBarItem(
+            label: 'add_point',
+            barLabel: 'add point',
+            menuLabel: 'add point',
+            icon: AppIcon.addPoint,
+            onTap: () => mapCubit.addMarker(context,
+                    mapViewCenter: state.mapViewCenter,
+                    rescaleFactor: state.rescaleFactor
+              ),
+          ) : ToolBarItem(
+            label: 'edit_marker',
+            barLabel: 'edit',
+            icon: AppIcon.editPoint,
+            disabled: mapCubit.state.selectedMarkerId.isEmpty,
+            onTap: () => mapCubit
+                .updateMarker(context, rescaleFactor: state.rescaleFactor),
         ),
+
         ToolBarItem(
-          label: 'edit_marker',
-          barLabel: 'edit',
-          icon: AppIcon.editPoint,
-          disabled: mapCubit.state.selectedMarkerId.isEmpty,
-          onTap: () => mapCubit.updateMarker(context, rescaleFactor: state.rescaleFactor),
+          label: 'draw_line',
+          barLabel: 'draw line',
+          icon: AppIcon.drawLine,
+          disabled: state.drawingMode == true,
+          onTap: () {
+            mapCubit.turnDrawingMode(context: context, on: true);
+          }
         ),
         ToolBarItem(
             label: 'clean_map',
