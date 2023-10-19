@@ -14,9 +14,12 @@ abstract class AppIcon {
   static const cleanPoint = Icons.wrong_location_rounded;
   static const targetPoint = Icons.location_searching_rounded;
 
-  static const drawLine = Icons.draw_rounded;
+  static const drawLine = Icons.drive_file_rename_outline_sharp;
   static const drawCancel = Icons.cancel;
   static const drawColor = Icons.color_lens;
+  static const drawWidth = Icons.open_in_full_rounded;
+  static const drawWidth1 = Icons.expand_rounded;
+  static const drawWidth2 = Icons.design_services_rounded;
 
   static const mapTypeNormal = Icons.map_sharp;
   static const mapTypeTerrain = Icons.terrain_rounded;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map_toy/global/static.dart';
 import 'package:flutter_map_toy/global/wizard/wizard.dart';
 import 'package:flutter_map_toy/global/wizard/wizard_state.dart';
-import 'package:flutter_map_toy/global/wizard/wizard_theme.dart';
 import 'package:flutter_map_toy/presentation/components/controls/primary_button.dart';
 import 'package:flutter_map_toy/presentation/components/icon_tile.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_craft.dart';
@@ -34,17 +34,7 @@ class IconWizard extends Wizard<IconCraft> {
   }
 
   @override
-  getTheme() {
-    return WizardTheme(
-      activeColor: AppColor.secondary,
-      disabledColor: AppColor.primary,
-      enabledColor: AppColor.blue,
-      backgroundColor: AppColor.primaryDark,
-
-      padding: AppStyle.defaultPaddingVal,
-      radius: AppStyle.defaultRadiusVal,
-    );
-  }
+  getTheme() => Static.wizardTheme;
 
   @override
   List<WizardStep> getSteps() {

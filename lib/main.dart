@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_state.dart';
-import 'package:flutter_map_toy/global/drawing/drawing_theme.dart';
 import 'package:flutter_map_toy/global/wizard/wizard_state.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
-import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/views/home_screen.dart';
 import 'package:flutter_map_toy/presentation/styles/app_theme.dart';
 import 'package:flutter_map_toy/presentation/views/test.dart';
@@ -26,11 +24,11 @@ void main() async {
       providers: [
         BlocProvider<MapCubit>(create: (_) => MapCubit()),
         BlocProvider<WizardCubit>(create: (_) => WizardCubit()),
-        BlocProvider<DrawingCubit>(create: (_) => DrawingCubit(DrawingTheme(AppColor.mapFlutterIconColors))),
+        BlocProvider<DrawingCubit>(create: (_) => DrawingCubit())
       ],
 
-      /// MAIN WIDGET
-      child: const MyApp(),
+  /// MAIN WIDGET
+    child: const MyApp(),
     ),
   );
 }

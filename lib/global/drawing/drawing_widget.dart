@@ -23,7 +23,7 @@ class DrawingWidget extends StatelessWidget {
 
             child: CustomPaint(
                 painter: DrawingPainter(
-                  drawingPoints: state.drawingPoints
+                  drawingPoints: state.drawingPoints,
                 ),
                 child: SizedBox(
                   width: constraints.maxWidth,

@@ -24,7 +24,7 @@ class MapToolbar extends StatelessWidget {
   }
 
   List<ToolBarItem> drawingToolbar(BuildContext context, MapCubit cubit, MapState state) {
-    final drawCubit = BlocProvider.of<DrawingCubit>(context);
+    final drawingCubit = BlocProvider.of<DrawingCubit>(context);
     return [
       ToolBarItem(
         label: 'cancel',
@@ -36,7 +36,13 @@ class MapToolbar extends StatelessWidget {
           label: 'color',
           barLabel: 'color',
           icon: AppIcon.drawColor,
-          onTap: () => cubit.turnDrawingMode(context: context, on: false)
+          onTap: () => drawingCubit.selectColor(context)
+      ),
+      ToolBarItem(
+          label: 'width',
+          barLabel: 'width',
+          icon: AppIcon.drawWidth,
+          onTap: () => drawingCubit.selectWidth(context)
       ),
       ToolBarItem(
         label: Toolbar.menuLabel,
@@ -66,8 +72,7 @@ class MapToolbar extends StatelessWidget {
         icon: AppIcon.editPoint,
         disabled: cubit.state.selectedMarkerId.isEmpty,
         onTap: () =>
-            cubit
-                .updateMarker(context, rescaleFactor: state.rescaleFactor),
+            cubit.updateMarker(context, rescaleFactor: state.rescaleFactor),
       ),
 
       ToolBarItem(

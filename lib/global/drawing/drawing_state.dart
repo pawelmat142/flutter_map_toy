@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map_toy/global/static.dart';
+import 'package:flutter_map_toy/presentation/components/icon_tile.dart';
+import 'package:flutter_map_toy/presentation/dialogs/app_modal.dart';
+import 'package:flutter_map_toy/presentation/styles/app_color.dart';
+import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
+import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 
 import 'drawing_point.dart';
-import 'drawing_theme.dart';
 
 enum BlocState {
   on,
@@ -14,29 +19,24 @@ class DrawingState {
   BlocState state;
   bool on;
   Color color;
-  int width;
-  List<DrawingPoint> historyDrawingPoints;
+  double width;
   List<DrawingPoint> drawingPoints;
   DrawingPoint? currentDrawingPoint;
-  DrawingTheme theme;
 
   DrawingState(
     this.state,
     this.on,
     this.color,
     this.width,
-    this.historyDrawingPoints,
     this.drawingPoints,
     this.currentDrawingPoint,
-    this.theme,
   );
 
   DrawingState copyWith({
     BlocState? state,
     bool? on,
     Color? color,
-    int? width,
-    List<DrawingPoint>? historyDrawingPoints,
+    double? width,
     List<DrawingPoint>? drawingPoints,
     DrawingPoint? currentDrawingPoint,
     bool cleanCurrentDrawingPoint = false,
@@ -45,17 +45,16 @@ class DrawingState {
     on ?? this.on,
     color ?? this.color,
     width ?? this.width,
-    historyDrawingPoints ?? this.historyDrawingPoints,
     drawingPoints ?? this.drawingPoints,
     cleanCurrentDrawingPoint ? null : currentDrawingPoint ?? this.currentDrawingPoint,
-    theme
   );
 
 }
 
 class DrawingCubit extends Cubit<DrawingState> {
 
-  DrawingCubit(DrawingTheme theme) : super(DrawingState(BlocState.off, false, Colors.black, 2, [], [], null, theme));
+  DrawingCubit()
+      : super(DrawingState(BlocState.off, false, Colors.black, 2, [], null));
 
   turn({ required bool on }) {
     emit(state.copyWith(on: on));
@@ -63,6 +62,8 @@ class DrawingCubit extends Cubit<DrawingState> {
 
   drawStart(DragStartDetails details) {
     final currentDrawingPoint = DrawingPoint(
+        color: state.color,
+        width: state.width,
         id: DateTime.now().microsecondsSinceEpoch,
         offsets: [
           details.localPosition
@@ -99,14 +100,66 @@ class DrawingCubit extends Cubit<DrawingState> {
     ));
   }
 
-  selectColor(BuildContext context) async {
+  selectColor(BuildContext context) {
+    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (ctx) {
+      return AppModal(showBack: false, lineOnTop: false,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: AppStyle.defaultPaddingVal*2),
+          child: Wrap(
+            spacing: AppStyle.wrapSpacing,
+            runSpacing: AppStyle.wrapSpacing,
+            children: AppColor.mapFlutterIconColors.asMap()
+                .map((index, color) => MapEntry(index, IconTile(
+              icon: AppIcon.defaultIcon,
+              onPressed: () {
+                _colorSelected(color);
+                Navigator.pop(context);
+              },
+              size: Static.getModalTileSize(context),
+              color: color,
+            ))).values.toList()
+          ),
+        )
+      ],);
+    });
+  }
 
-    // final result = await showModalBottomSheet(context: context, builder: );
+  _colorSelected(Color color) {
+    emit(state.copyWith(
+      color: color,
+      drawingPoints: state.drawingPoints.map((point) {
+        point.color = color;
+        return point;
+      }).toList()
+    ));
+  }
 
-    // if (result is Color) {
-    //   emit(state.copyWith(color: result));
-    // }
-
+  selectWidth(BuildContext context) {
+    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (ctx) {
+      return AppModal(showBack: false, lineOnTop: false,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: AppStyle.defaultPaddingVal*2),
+            child: BlocBuilder<DrawingCubit, DrawingState>(builder: (ctx, state) {
+              return Slider(
+                value: state.width,
+                min: 1,
+                max: 20,
+                onChanged: (value) {
+                  emit(state.copyWith(
+                    width: value,
+                    drawingPoints: state.drawingPoints.map((point) {
+                      point.width = value;
+                      return point;
+                    }).toList()
+                  ));
+                },
+              );
+            }),
+          )
+        ],);
+    });
   }
 
 }

@@ -13,25 +13,15 @@ abstract class Wizard<T> {
 
   WizardCubit get cubit => BlocProvider.of<WizardCubit>(ctx!);
 
-  List<WizardStep> getSteps() {
-    throw 'Not implemented!';
-  }
+  List<WizardStep> getSteps();
 
-  T dataBuilder(T? edit) {
-    throw 'Not implemented!';
-  }
+  T dataBuilder(T? edit);
 
-  dataCompleter() {
-    throw 'Not implemented!';
-  }
+  dataCompleter();
 
-  WizardTheme getTheme() {
-    throw 'Not implemented!';
-  }
+  WizardTheme getTheme();
 
-  Widget getSubmitButton() {
-    throw 'Not implemented!';
-  }
+  Widget getSubmitButton();
 
   run(BuildContext ctx, { T? edit }) {
     this.ctx = ctx;
