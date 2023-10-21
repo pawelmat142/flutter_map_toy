@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_map_toy/global/static.dart';
-import 'package:flutter_map_toy/presentation/components/icon_tile.dart';
-import 'package:flutter_map_toy/presentation/dialogs/app_modal.dart';
-import 'package:flutter_map_toy/presentation/styles/app_color.dart';
-import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
-import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 
+import 'drawing_initializer.dart';
 import 'drawing_point.dart';
 
 enum BlocState {
@@ -22,6 +17,7 @@ class DrawingState {
   double width;
   List<DrawingPoint> drawingPoints;
   DrawingPoint? currentDrawingPoint;
+  DrawingInitializer drawingInitializer;
 
   DrawingState(
     this.state,
@@ -30,6 +26,7 @@ class DrawingState {
     this.width,
     this.drawingPoints,
     this.currentDrawingPoint,
+    this.drawingInitializer,
   );
 
   DrawingState copyWith({
@@ -47,14 +44,15 @@ class DrawingState {
     width ?? this.width,
     drawingPoints ?? this.drawingPoints,
     cleanCurrentDrawingPoint ? null : currentDrawingPoint ?? this.currentDrawingPoint,
+    drawingInitializer,
   );
 
 }
 
 class DrawingCubit extends Cubit<DrawingState> {
 
-  DrawingCubit()
-      : super(DrawingState(BlocState.off, false, Colors.black, 2, [], null));
+  DrawingCubit(DrawingInitializer initializer)
+      : super(DrawingState(BlocState.off, false, Colors.black, 2, [], null, initializer));
 
   turn({ required bool on }) {
     emit(state.copyWith(on: on));
@@ -100,29 +98,11 @@ class DrawingCubit extends Cubit<DrawingState> {
     ));
   }
 
-  selectColor(BuildContext context) {
-    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (ctx) {
-      return AppModal(showBack: false, lineOnTop: false,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: AppStyle.defaultPaddingVal*2),
-          child: Wrap(
-            spacing: AppStyle.wrapSpacing,
-            runSpacing: AppStyle.wrapSpacing,
-            children: AppColor.mapFlutterIconColors.asMap()
-                .map((index, color) => MapEntry(index, IconTile(
-              icon: AppIcon.defaultIcon,
-              onPressed: () {
-                _colorSelected(color);
-                Navigator.pop(context);
-              },
-              size: Static.getModalTileSize(context),
-              color: color,
-            ))).values.toList()
-          ),
-        )
-      ],);
-    });
+  selectColor(BuildContext context) async {
+    final color = await state.drawingInitializer.selectColor(context);
+    if (color is Color) {
+      _colorSelected(color);
+    }
   }
 
   _colorSelected(Color color) {
@@ -136,30 +116,17 @@ class DrawingCubit extends Cubit<DrawingState> {
   }
 
   selectWidth(BuildContext context) {
-    showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (ctx) {
-      return AppModal(showBack: false, lineOnTop: false,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: AppStyle.defaultPaddingVal*2),
-            child: BlocBuilder<DrawingCubit, DrawingState>(builder: (ctx, state) {
-              return Slider(
-                value: state.width,
-                min: 1,
-                max: 20,
-                onChanged: (value) {
-                  emit(state.copyWith(
-                    width: value,
-                    drawingPoints: state.drawingPoints.map((point) {
-                      point.width = value;
-                      return point;
-                    }).toList()
-                  ));
-                },
-              );
-            }),
-          )
-        ],);
-    });
+    state.drawingInitializer.selectWidth(context);
+  }
+
+  widthSelected(double width) {
+    emit(state.copyWith(
+        width: width,
+        drawingPoints: state.drawingPoints.map((point) {
+          point.width = width;
+          return point;
+        }).toList()
+    ));
   }
 
 }
