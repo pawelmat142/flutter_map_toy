@@ -1,8 +1,12 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_map_toy/global/drawing/drawing_painter.dart';
+import 'package:flutter_map_toy/global/drawing/drawing_point.dart';
 import 'package:flutter_map_toy/models/map_icon_point.dart';
 import 'package:flutter_map_toy/utils/icon_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:uuid/uuid.dart';
 import 'package:widget_to_marker/widget_to_marker.dart';
 
 abstract class MapUtil {
@@ -41,6 +45,56 @@ abstract class MapUtil {
       position: IconUtil.pointFromCoordinates(mapIconPoint.coordinates),
       icon: await craft.widget.toBitmapDescriptor(),
     );
+  }
+
+  static Future<Marker> getMarkerFromDrawing({
+    required double devicePixelRatio,
+    required List<DrawingPoint> drawingPoints,
+    required GoogleMapController mapController
+  }) async {
+
+    final dxs = drawingPoints.expand((drawingPoint) => drawingPoint.offsets.map((o) => o.dx).toList());
+    final minX = dxs.reduce(min);
+    final maxX = dxs.reduce(max);
+    final dys = drawingPoints.expand((drawingPoint) => drawingPoint.offsets.map((o) => o.dy).toList());
+    final minY = dys.reduce(min);
+    final maxY = dys.reduce(max);
+    final height = maxY - minY;
+
+    var drawingPointsCutToEdge = addOffset(
+        drawingPoints: drawingPoints,
+        dx: minX,
+        dy: minY
+    );
+
+    final bitmap = await CustomPaint(
+      painter: DrawingPainter(drawingPoints: drawingPointsCutToEdge),
+      child: SizedBox(
+        width: maxX - minX,
+        height: height,
+      ),
+    ).toBitmapDescriptor();
+
+    final drawingCenter = Point((minX + maxX)/2 , (minY + maxY)/2 + height/2);
+
+    final drawingPosition = await mapController.getLatLng(ScreenCoordinate(
+        x: (drawingCenter.x * devicePixelRatio).toInt(),
+        y: (drawingCenter.y * devicePixelRatio).toInt(),
+    ));
+
+    return Marker(
+        markerId: MarkerId(const Uuid().v1()),
+        position: drawingPosition,
+        icon: bitmap
+    );
+  }
+
+  static List<DrawingPoint> addOffset({ required List<DrawingPoint> drawingPoints, double? dx, double? dy }) {
+    return drawingPoints.map((point) => DrawingPoint(
+      width: point.width,
+      color: point.color,
+      offsets: point.offsets.map((o) => Offset(o.dx - (dx ?? 0), o.dy - (dy ?? 0))).toList()
+    )).toList();
   }
 
   //   static Future<Marker> getMarkerFromIcon(MapIconPoint mapIconPoint) async {

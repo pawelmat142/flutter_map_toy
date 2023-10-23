@@ -52,6 +52,8 @@ class _MapScreenState extends State<MapScreen> {
     super.dispose();
   }
 
+  Set<Marker> markers = {};
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MapCubit, MapState>(builder: (ctx, state) {
@@ -108,21 +110,21 @@ class _MapScreenState extends State<MapScreen> {
     final newZoom = cameraPosition.zoom;
     if (newZoom != zoom) {
       await _updateRescaleFactor();
-      mapCubit.resizeMarker(mapState.rescaleFactor);
+      mapCubit.resizeMarkers();
       zoom = newZoom;
       Log.log('CameraPosition zoom changed: ${newZoom.toString()}', source: widget.runtimeType.toString());
     }
-    await _updateVisibleRegion();
     _unselectMarkerIfOutOfView();
   }
 
-  _unselectMarkerIfOutOfView() {
+  _unselectMarkerIfOutOfView() async {
     if (mapState.selectedMarker != null) {
       //workaround solution, also in _onMarkerTap
       //GoogleMaps API doesn't share info about selected marker id or something
       //this solution should integrate google maps marker selection with this app marker selection
       //its not perfect so marker selection may be not synchronized
-      final markerVisible = mapState.visibleRegion?.contains(mapState.selectedMarker!.position) ?? false;
+      final visibleRegion = await _controller.getVisibleRegion();
+      final markerVisible = visibleRegion.contains(mapState.selectedMarker!.position);
       if (!markerVisible) {
         mapCubit.selectMarker(null);
       }
@@ -132,17 +134,16 @@ class _MapScreenState extends State<MapScreen> {
   _onMapCreated(GoogleMapController controller) async {
     _controllerFuture.complete(controller);
     _controller = await _controllerFuture.future;
+    mapCubit.initMap(_controller);
     await _getInitialDiagonalDistance();
-    await _updateVisibleRegion();
-    mapCubit.selectMarker(null);
     Log.log('GoogleMap created', source: widget.runtimeType.toString());
   }
 
   _getInitialDiagonalDistance() {
-    Future.delayed(const Duration(milliseconds: 500), () async {
+    return Future.delayed(const Duration(milliseconds: 500), () async {
       _initialViewDiagonalDistance = await MapUtil.calcMapViewDiagonalDistance(_controller);
       if (_initialViewDiagonalDistance == 0) {
-        _getInitialDiagonalDistance();
+        return _getInitialDiagonalDistance();
       } else {
         Log.log('Initial diagonal distance: $_initialViewDiagonalDistance', source: widget.runtimeType.toString());
       }
@@ -157,7 +158,7 @@ class _MapScreenState extends State<MapScreen> {
         onTap: () => _onMarkerTap(marker),
         draggable: true,
         onDragEnd: (point) async {
-            mapCubit.replaceMarker(point, rescaleFactor: state.rescaleFactor, markerId: marker.markerId.value);
+            mapCubit.replaceMarker(point, markerId: marker.markerId.value);
         },
     )).toSet();
   }
@@ -166,11 +167,6 @@ class _MapScreenState extends State<MapScreen> {
     final distance = await MapUtil.calcMapViewDiagonalDistance(_controller);
     Log.log('Calculated diagonal distance: ${distance.toString()}', source: widget.runtimeType.toString());
     mapCubit.updateRescaleFactor(_initialViewDiagonalDistance / distance);
-  }
-
-  _updateVisibleRegion() async {
-    mapCubit.updateVisibleRegion(await _controller.getVisibleRegion());
-    Log.log('Visible region updated', source: widget.runtimeType.toString());
   }
 
 }

@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map_toy/global/drawing/drawing_point.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_state.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/models/map_icon_point.dart';
@@ -22,8 +25,8 @@ class MapState {
   String selectedMarkerId;
   MapType mapType;
   double rescaleFactor;
-  LatLngBounds? visibleRegion;
   bool drawingMode;
+  GoogleMapController? mapController;
 
   MapState(
     this.state,
@@ -32,8 +35,8 @@ class MapState {
     this.selectedMarkerId,
     this.mapType,
     this.rescaleFactor,
-    this.visibleRegion,
     this.drawingMode,
+    this.mapController,
   );
 
   MapState copyWith({
@@ -44,8 +47,8 @@ class MapState {
     double? zoom,
     MapType? mapType,
     double? rescaleFactor,
-    LatLngBounds? visibleRegion,
     bool? drawingMode,
+    GoogleMapController? mapController,
   }) {
     Log.log('New MapState', source: runtimeType.toString());
     return MapState(
@@ -55,8 +58,8 @@ class MapState {
       selectedMarkerId ?? this.selectedMarkerId,
       mapType ?? this.mapType,
       rescaleFactor ?? this.rescaleFactor,
-      visibleRegion ?? this.visibleRegion,
       drawingMode ?? this.drawingMode,
+      mapController ?? this.mapController,
     );
   }
 
@@ -66,11 +69,11 @@ class MapState {
   MapIconPoint? get selectedMapIconPoint => selectedMarkerId.isEmpty ? null
       : mapIconPoints.firstWhere((point) => point.id == selectedMarkerId);
 
-  LatLng get mapViewCenter {
-    if (visibleRegion == null) throw 'visible region == null';
+  Future<LatLng> get mapViewCenter async {
+    final visibleRegion = await mapController!.getVisibleRegion();
     return LatLng(
-      (visibleRegion!.northeast.latitude + visibleRegion!.southwest.latitude) / 2,
-      (visibleRegion!.northeast.longitude + visibleRegion!.southwest.longitude) / 2,
+      (visibleRegion.northeast.latitude + visibleRegion.southwest.latitude) / 2,
+      (visibleRegion.northeast.longitude + visibleRegion.southwest.longitude) / 2,
     );
   }
 
@@ -78,7 +81,15 @@ class MapState {
 
 class MapCubit extends Cubit<MapState> {
 
-  MapCubit(): super(MapState(BlocState.ready, {}, {}, '', MapType.normal, 1, null, false));
+  MapCubit(): super(MapState(BlocState.empty, {}, {}, '', MapType.normal, 1, false, null));
+
+  initMap(GoogleMapController googleMapController) {
+    emit(state.copyWith(
+      state: BlocState.ready,
+      mapController: googleMapController,
+      selectedMarkerId: '',
+    ));
+  }
 
   setType(MapType mapType) {
     emit(state.copyWith(mapType: mapType));
@@ -87,7 +98,6 @@ class MapCubit extends Cubit<MapState> {
 
   addMarker(BuildContext context, {
     required LatLng mapViewCenter,
-    required double rescaleFactor
   }) {
     final wizard = IconWizard();
     wizard.run(context);
@@ -99,11 +109,12 @@ class MapCubit extends Cubit<MapState> {
       emit(state.copyWith(
           selectedMarkerId: '',
           mapIconPoints: state.mapIconPoints,
-          markers: await _markersFromPoints(state.mapIconPoints, rescaleFactor: rescaleFactor)
+          markers: await _markersFromPoints(state.mapIconPoints, rescaleFactor: state.rescaleFactor)
       ));
       Log.log('Added marker with id: ${mapIconPoint.id}', source: runtimeType.toString());
     };
   }
+
 
   cleanMarkers() {
     emit(state.copyWith(
@@ -114,12 +125,12 @@ class MapCubit extends Cubit<MapState> {
     Log.log('Markers cleaned', source: state.runtimeType.toString());
   }
 
-  resizeMarker(double rescaleFactor) async {
+  resizeMarkers() async {
     if (state.mapIconPoints.isEmpty) return;
     emit(state.copyWith(
-        markers: await _markersFromPoints(state.mapIconPoints, rescaleFactor: rescaleFactor),
+        markers: await _markersFromPoints(state.mapIconPoints, rescaleFactor: state.rescaleFactor),
     ));
-    Log.log('MapIconPoint markers rescaled with factor: $rescaleFactor', source: runtimeType.toString());
+    Log.log('MapIconPoint markers rescaled with factor: ${state.rescaleFactor}', source: runtimeType.toString());
   }
 
   selectMarker(Marker? marker) {
@@ -131,14 +142,14 @@ class MapCubit extends Cubit<MapState> {
     ));
   }
 
-  replaceMarker(LatLng point, { required double rescaleFactor, required markerId }) async {
+  replaceMarker(LatLng point, { required markerId }) async {
     Log.log('Moving marker: $markerId to lat: ${point.latitude}, lng: ${point.longitude}', source: state.runtimeType.toString());
     for (var mapIconPoint in state.mapIconPoints) {
       if (mapIconPoint.id == markerId) mapIconPoint.coordinates = point.coordinates;
     }
     emit(state.copyWith(
         mapIconPoints: state.mapIconPoints,
-        markers: await _markersFromPoints(state.mapIconPoints, rescaleFactor: rescaleFactor),
+        markers: await _markersFromPoints(state.mapIconPoints, rescaleFactor: state.rescaleFactor),
     ));
   }
 
@@ -185,10 +196,6 @@ class MapCubit extends Cubit<MapState> {
     emit(state.copyWith(rescaleFactor: rescaleFactor));
   }
 
-  updateVisibleRegion(LatLngBounds visibleRegion) {
-    emit(state.copyWith(visibleRegion: visibleRegion));
-  }
-
   turnDrawingMode({ required BuildContext context, required bool on }) {
     if (state.drawingMode == on) return;
     final drawingCubit = BlocProvider.of<DrawingCubit>(context);
@@ -201,6 +208,27 @@ class MapCubit extends Cubit<MapState> {
     final drawingState = BlocProvider.of<DrawingCubit>(context).state;
     if (drawingState.on == state.drawingMode) return;
     throw 'Drawing state mode error!';
+  }
+
+  addDrawingAsMarker({
+    required BuildContext context,
+    required List<DrawingPoint> drawingPoints
+  }) async {
+    turnDrawingMode(context: context, on: false);
+    final devicePixelRatio = Platform.isAndroid
+        ? MediaQuery.of(context).devicePixelRatio
+        : 1.0;
+
+    final marker = await MapUtil.getMarkerFromDrawing(
+      devicePixelRatio: devicePixelRatio,
+      mapController: state.mapController!,
+      drawingPoints: drawingPoints
+    );
+    final markers = state.markers;
+    markers.add(marker);
+    emit(state.copyWith(
+        markers: markers,
+    ));
   }
 
 }

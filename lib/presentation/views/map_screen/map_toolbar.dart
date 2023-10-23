@@ -45,10 +45,24 @@ class MapToolbar extends StatelessWidget {
           onTap: () => drawingCubit.selectWidth(context)
       ),
       ToolBarItem(
+          label: 'test',
+          barLabel: 'test',
+          icon: AppIcon.defaultIcon,
+          onTap: () {
+            cubit.addDrawingAsMarker(context: context, drawingPoints: drawingCubit.state.drawingPoints);
+          }
+      ),
+      ToolBarItem(
         label: Toolbar.menuLabel,
         barLabel: 'menu',
         icon: AppIcon.menu,
         onTap: () {}
+      ),
+      ToolBarItem(
+          label: 'clean_map',
+          menuLabel: 'clean markers',
+          icon: AppIcon.cleanPoint,
+          onTap: cubit.cleanMarkers
       ),
     ];
   }
@@ -61,10 +75,9 @@ class MapToolbar extends StatelessWidget {
         barLabel: 'add point',
         menuLabel: 'add point',
         icon: AppIcon.addPoint,
-        onTap: () =>
+        onTap: () async =>
             cubit.addMarker(context,
-                mapViewCenter: state.mapViewCenter,
-                rescaleFactor: state.rescaleFactor
+                mapViewCenter: await state.mapViewCenter,
             ),
       ) : ToolBarItem(
         label: 'edit_marker',

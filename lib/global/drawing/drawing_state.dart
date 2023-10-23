@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'drawing_initializer.dart';
+import 'drawing_painter.dart';
 import 'drawing_point.dart';
 
 enum BlocState {
@@ -18,6 +19,7 @@ class DrawingState {
   List<DrawingPoint> drawingPoints;
   DrawingPoint? currentDrawingPoint;
   DrawingInitializer drawingInitializer;
+  DrawingPainter drawingPainter;
 
   DrawingState(
     this.state,
@@ -27,6 +29,7 @@ class DrawingState {
     this.drawingPoints,
     this.currentDrawingPoint,
     this.drawingInitializer,
+    this.drawingPainter,
   );
 
   DrawingState copyWith({
@@ -37,6 +40,7 @@ class DrawingState {
     List<DrawingPoint>? drawingPoints,
     DrawingPoint? currentDrawingPoint,
     bool cleanCurrentDrawingPoint = false,
+    DrawingPainter? drawingPainter,
   }) => DrawingState(
     state ?? this.state,
     on ?? this.on,
@@ -45,6 +49,7 @@ class DrawingState {
     drawingPoints ?? this.drawingPoints,
     cleanCurrentDrawingPoint ? null : currentDrawingPoint ?? this.currentDrawingPoint,
     drawingInitializer,
+    drawingPainter ?? this.drawingPainter,
   );
 
 }
@@ -52,13 +57,23 @@ class DrawingState {
 class DrawingCubit extends Cubit<DrawingState> {
 
   DrawingCubit(DrawingInitializer initializer)
-      : super(DrawingState(BlocState.off, false, Colors.black, 2, [], null, initializer));
+      : super(DrawingState(BlocState.off, false, Colors.black, 2, [], null, initializer, DrawingPainter(drawingPoints: [])));
 
   turn({ required bool on }) {
-    emit(state.copyWith(on: on));
+    if (on) {
+      emit(state.copyWith(on: true));
+    } else {
+      emit(state.copyWith(on: false,
+        drawingPainter: DrawingPainter(drawingPoints: []),
+        drawingPoints: [],
+        cleanCurrentDrawingPoint: true,
+        currentDrawingPoint: null
+      ));
+    }
   }
 
-  drawStart(DragStartDetails details) {
+  drawStart(DragStartDetails details) async {
+    final drawingPoints = List.of(state.drawingPoints);
     final currentDrawingPoint = DrawingPoint(
         color: state.color,
         width: state.width,
@@ -67,11 +82,12 @@ class DrawingCubit extends Cubit<DrawingState> {
           details.localPosition
         ]
     );
-    final drawingPoints = List.of(state.drawingPoints);
     drawingPoints.add(currentDrawingPoint);
+
     emit(state.copyWith(
       currentDrawingPoint: currentDrawingPoint,
       drawingPoints: drawingPoints,
+      drawingPainter: DrawingPainter(drawingPoints: drawingPoints),
     ));
   }
 
@@ -86,15 +102,16 @@ class DrawingCubit extends Cubit<DrawingState> {
     drawingPoints.last = currentDrawingPoint;
 
     emit(state.copyWith(
-        currentDrawingPoint: currentDrawingPoint,
-        drawingPoints: drawingPoints,
+      currentDrawingPoint: currentDrawingPoint,
+      drawingPoints: drawingPoints,
+      drawingPainter: DrawingPainter(drawingPoints: drawingPoints),
     ));
   }
 
   drawEnd(_) {
     emit(state.copyWith(
       currentDrawingPoint: null,
-      cleanCurrentDrawingPoint: true
+      cleanCurrentDrawingPoint: true,
     ));
   }
 
@@ -106,12 +123,11 @@ class DrawingCubit extends Cubit<DrawingState> {
   }
 
   _colorSelected(Color color) {
+    final drawingPoints = state.drawingPoints.map((point) => point..color = color).toList();
     emit(state.copyWith(
       color: color,
-      drawingPoints: state.drawingPoints.map((point) {
-        point.color = color;
-        return point;
-      }).toList()
+      drawingPoints: drawingPoints,
+      drawingPainter: DrawingPainter(drawingPoints: drawingPoints)
     ));
   }
 
@@ -120,12 +136,14 @@ class DrawingCubit extends Cubit<DrawingState> {
   }
 
   widthSelected(double width) {
+    final drawingPoints = state.drawingPoints.map((point) {
+      point.width = width;
+      return point;
+    }).toList();
     emit(state.copyWith(
-        width: width,
-        drawingPoints: state.drawingPoints.map((point) {
-          point.width = width;
-          return point;
-        }).toList()
+      width: width,
+      drawingPoints: drawingPoints,
+      drawingPainter: DrawingPainter(drawingPoints: drawingPoints)
     ));
   }
 
