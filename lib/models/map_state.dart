@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_map_toy/global/drawing/drawing_point.dart';
+import 'package:flutter_map_toy/global/drawing/drawing_line.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_state.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/models/map_icon_point.dart';
@@ -212,7 +212,7 @@ class MapCubit extends Cubit<MapState> {
 
   addDrawingAsMarker({
     required BuildContext context,
-    required List<DrawingPoint> drawingPoints
+    required List<DrawingLine> drawingLines
   }) async {
     turnDrawingMode(context: context, on: false);
     final devicePixelRatio = Platform.isAndroid
@@ -222,7 +222,7 @@ class MapCubit extends Cubit<MapState> {
     final marker = await MapUtil.getMarkerFromDrawing(
       devicePixelRatio: devicePixelRatio,
       mapController: state.mapController!,
-      drawingPoints: drawingPoints
+      drawingLines: drawingLines
     );
     final markers = state.markers;
     markers.add(marker);

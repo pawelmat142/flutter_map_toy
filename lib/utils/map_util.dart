@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map_toy/global/drawing/drawing_line.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_painter.dart';
-import 'package:flutter_map_toy/global/drawing/drawing_point.dart';
 import 'package:flutter_map_toy/models/map_icon_point.dart';
 import 'package:flutter_map_toy/utils/icon_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -49,26 +49,26 @@ abstract class MapUtil {
 
   static Future<Marker> getMarkerFromDrawing({
     required double devicePixelRatio,
-    required List<DrawingPoint> drawingPoints,
+    required List<DrawingLine> drawingLines,
     required GoogleMapController mapController
   }) async {
 
-    final dxs = drawingPoints.expand((drawingPoint) => drawingPoint.offsets.map((o) => o.dx).toList());
+    final dxs = drawingLines.expand((drawingLine) => drawingLine.offsets.map((o) => o.dx).toList());
     final minX = dxs.reduce(min);
     final maxX = dxs.reduce(max);
-    final dys = drawingPoints.expand((drawingPoint) => drawingPoint.offsets.map((o) => o.dy).toList());
+    final dys = drawingLines.expand((drawingLine) => drawingLine.offsets.map((o) => o.dy).toList());
     final minY = dys.reduce(min);
     final maxY = dys.reduce(max);
     final height = maxY - minY;
 
-    var drawingPointsCutToEdge = addOffset(
-        drawingPoints: drawingPoints,
+    var drawing = addOffset(
+        drawingLines: drawingLines,
         dx: minX,
         dy: minY
     );
 
     final bitmap = await CustomPaint(
-      painter: DrawingPainter(drawingPoints: drawingPointsCutToEdge),
+      painter: DrawingPainter(drawingLines: drawing),
       child: SizedBox(
         width: maxX - minX,
         height: height,
@@ -89,8 +89,8 @@ abstract class MapUtil {
     );
   }
 
-  static List<DrawingPoint> addOffset({ required List<DrawingPoint> drawingPoints, double? dx, double? dy }) {
-    return drawingPoints.map((point) => DrawingPoint(
+  static List<DrawingLine> addOffset({ required List<DrawingLine> drawingLines, double? dx, double? dy }) {
+    return drawingLines.map((point) => DrawingLine(
       width: point.width,
       color: point.color,
       offsets: point.offsets.map((o) => Offset(o.dx - (dx ?? 0), o.dy - (dy ?? 0))).toList()

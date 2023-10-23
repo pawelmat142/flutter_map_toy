@@ -49,7 +49,7 @@ class MapToolbar extends StatelessWidget {
           barLabel: 'test',
           icon: AppIcon.defaultIcon,
           onTap: () {
-            cubit.addDrawingAsMarker(context: context, drawingPoints: drawingCubit.state.drawingPoints);
+            cubit.addDrawingAsMarker(context: context, drawingLines: drawingCubit.state.drawingLines);
           }
       ),
       ToolBarItem(

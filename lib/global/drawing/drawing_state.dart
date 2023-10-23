@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'drawing_initializer.dart';
 import 'drawing_painter.dart';
-import 'drawing_point.dart';
+import 'drawing_line.dart';
 
 enum BlocState {
   on,
@@ -16,8 +16,8 @@ class DrawingState {
   bool on;
   Color color;
   double width;
-  List<DrawingPoint> drawingPoints;
-  DrawingPoint? currentDrawingPoint;
+  List<DrawingLine> drawingLines;
+  DrawingLine? currentDrawingLine;
   DrawingInitializer drawingInitializer;
   DrawingPainter drawingPainter;
 
@@ -26,8 +26,8 @@ class DrawingState {
     this.on,
     this.color,
     this.width,
-    this.drawingPoints,
-    this.currentDrawingPoint,
+    this.drawingLines,
+    this.currentDrawingLine,
     this.drawingInitializer,
     this.drawingPainter,
   );
@@ -37,17 +37,17 @@ class DrawingState {
     bool? on,
     Color? color,
     double? width,
-    List<DrawingPoint>? drawingPoints,
-    DrawingPoint? currentDrawingPoint,
-    bool cleanCurrentDrawingPoint = false,
+    List<DrawingLine>? drawingLines,
+    DrawingLine? currentDrawingLine,
+    bool cleanCurrentDrawingLine = false,
     DrawingPainter? drawingPainter,
   }) => DrawingState(
     state ?? this.state,
     on ?? this.on,
     color ?? this.color,
     width ?? this.width,
-    drawingPoints ?? this.drawingPoints,
-    cleanCurrentDrawingPoint ? null : currentDrawingPoint ?? this.currentDrawingPoint,
+    drawingLines ?? this.drawingLines,
+    cleanCurrentDrawingLine ? null : currentDrawingLine ?? this.currentDrawingLine,
     drawingInitializer,
     drawingPainter ?? this.drawingPainter,
   );
@@ -57,24 +57,24 @@ class DrawingState {
 class DrawingCubit extends Cubit<DrawingState> {
 
   DrawingCubit(DrawingInitializer initializer)
-      : super(DrawingState(BlocState.off, false, Colors.black, 2, [], null, initializer, DrawingPainter(drawingPoints: [])));
+      : super(DrawingState(BlocState.off, false, Colors.black, 2, [], null, initializer, DrawingPainter(drawingLines: [])));
 
   turn({ required bool on }) {
     if (on) {
       emit(state.copyWith(on: true));
     } else {
       emit(state.copyWith(on: false,
-        drawingPainter: DrawingPainter(drawingPoints: []),
-        drawingPoints: [],
-        cleanCurrentDrawingPoint: true,
-        currentDrawingPoint: null
+        drawingPainter: DrawingPainter(drawingLines: []),
+        drawingLines: [],
+        cleanCurrentDrawingLine: true,
+        currentDrawingLine: null
       ));
     }
   }
 
   drawStart(DragStartDetails details) async {
-    final drawingPoints = List.of(state.drawingPoints);
-    final currentDrawingPoint = DrawingPoint(
+    final drawingLines = List.of(state.drawingLines);
+    final currentDrawingLine = DrawingLine(
         color: state.color,
         width: state.width,
         id: DateTime.now().microsecondsSinceEpoch,
@@ -82,36 +82,36 @@ class DrawingCubit extends Cubit<DrawingState> {
           details.localPosition
         ]
     );
-    drawingPoints.add(currentDrawingPoint);
+    drawingLines.add(currentDrawingLine);
 
     emit(state.copyWith(
-      currentDrawingPoint: currentDrawingPoint,
-      drawingPoints: drawingPoints,
-      drawingPainter: DrawingPainter(drawingPoints: drawingPoints),
+      currentDrawingLine: currentDrawingLine,
+      drawingLines: drawingLines,
+      drawingPainter: DrawingPainter(drawingLines: drawingLines),
     ));
   }
 
   drawUpdate(DragUpdateDetails details) {
-    if (state.currentDrawingPoint == null) return;
+    if (state.currentDrawingLine == null) return;
 
-    final currentDrawingPoint = state.currentDrawingPoint!.copyWidth(
-      offsets: state.currentDrawingPoint!.offsets
+    final currentDrawingLine = state.currentDrawingLine!.currentDrawingLine(
+      offsets: state.currentDrawingLine!.offsets
           ..add(details.localPosition)
     );
-    final drawingPoints = List.of(state.drawingPoints);
-    drawingPoints.last = currentDrawingPoint;
+    final drawingLines = List.of(state.drawingLines);
+    drawingLines.last = currentDrawingLine;
 
     emit(state.copyWith(
-      currentDrawingPoint: currentDrawingPoint,
-      drawingPoints: drawingPoints,
-      drawingPainter: DrawingPainter(drawingPoints: drawingPoints),
+      currentDrawingLine: currentDrawingLine,
+      drawingLines: drawingLines,
+      drawingPainter: DrawingPainter(drawingLines: drawingLines),
     ));
   }
 
   drawEnd(_) {
     emit(state.copyWith(
-      currentDrawingPoint: null,
-      cleanCurrentDrawingPoint: true,
+      currentDrawingLine: null,
+      cleanCurrentDrawingLine: true,
     ));
   }
 
@@ -123,11 +123,11 @@ class DrawingCubit extends Cubit<DrawingState> {
   }
 
   _colorSelected(Color color) {
-    final drawingPoints = state.drawingPoints.map((point) => point..color = color).toList();
+    final drawingLines = state.drawingLines.map((point) => point..color = color).toList();
     emit(state.copyWith(
       color: color,
-      drawingPoints: drawingPoints,
-      drawingPainter: DrawingPainter(drawingPoints: drawingPoints)
+      drawingLines: drawingLines,
+      drawingPainter: DrawingPainter(drawingLines: drawingLines)
     ));
   }
 
@@ -136,14 +136,14 @@ class DrawingCubit extends Cubit<DrawingState> {
   }
 
   widthSelected(double width) {
-    final drawingPoints = state.drawingPoints.map((point) {
+    final drawingLines = state.drawingLines.map((point) {
       point.width = width;
       return point;
     }).toList();
     emit(state.copyWith(
       width: width,
-      drawingPoints: drawingPoints,
-      drawingPainter: DrawingPainter(drawingPoints: drawingPoints)
+      drawingLines: drawingLines,
+      drawingPainter: DrawingPainter(drawingLines: drawingLines)
     ));
   }
 

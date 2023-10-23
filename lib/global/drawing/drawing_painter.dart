@@ -1,30 +1,30 @@
 import 'package:flutter/material.dart';
 
-import 'drawing_point.dart';
+import 'drawing_line.dart';
 
 class DrawingPainter extends CustomPainter {
 
-  final List<DrawingPoint> drawingPoints;
+  final List<DrawingLine> drawingLines;
 
   DrawingPainter({
-    required this.drawingPoints
+    required this.drawingLines
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (var drawingPoint in drawingPoints) {
+    for (var drawingLine in drawingLines) {
       final paint = Paint()
-          ..color = drawingPoint.color
+          ..color = drawingLine.color
           ..isAntiAlias = true
-          ..strokeWidth = drawingPoint.width
+          ..strokeWidth = drawingLine.width
           ..strokeCap = StrokeCap.round;
 
-      for (var i = 0; i < drawingPoint.offsets.length; i++) {
-        var notLastOffset = i != drawingPoint.offsets.length-1;
+      for (var i = 0; i < drawingLine.offsets.length; i++) {
+        var notLastOffset = i != drawingLine.offsets.length-1;
         
         if (notLastOffset) {
-          final current = drawingPoint.offsets[i];
-          final next = drawingPoint.offsets[i+1];
+          final current = drawingLine.offsets[i];
+          final next = drawingLine.offsets[i+1];
           canvas.drawLine(current, next, paint);
         }
       }

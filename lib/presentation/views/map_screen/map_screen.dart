@@ -52,8 +52,6 @@ class _MapScreenState extends State<MapScreen> {
     super.dispose();
   }
 
-  Set<Marker> markers = {};
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MapCubit, MapState>(builder: (ctx, state) {
@@ -157,7 +155,7 @@ class _MapScreenState extends State<MapScreen> {
         icon: marker.icon,
         onTap: () => _onMarkerTap(marker),
         draggable: true,
-        onDragEnd: (point) async {
+        onDragEnd: (point) {
             mapCubit.replaceMarker(point, markerId: marker.markerId.value);
         },
     )).toSet();
