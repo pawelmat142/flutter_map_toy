@@ -5,7 +5,7 @@ import 'package:flutter_map_toy/global/drawing/drawing_line.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_painter.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/models/map_drawing_model.dart';
-import 'package:flutter_map_toy/models/map_icon_point.dart';
+import 'package:flutter_map_toy/models/map_icon_model.dart';
 import 'package:flutter_map_toy/utils/icon_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -44,7 +44,7 @@ abstract class MapUtil {
     return distanceBetweenPoints(viewPort.southwest, viewPort.northeast);
   }
 
-  static Future<Marker> getMarkerFromIcon(MapIconPoint mapIconPoint) async {
+  static Future<Marker> getMarkerFromIcon(MapIconModel mapIconPoint) async {
     final craft = IconUtil.craftFromMapIconPoint(mapIconPoint);
     if (craft.incomplete) throw 'craft incomplete!';
     craft.size = craft.size! / 5;

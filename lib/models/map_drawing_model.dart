@@ -1,11 +1,10 @@
 import 'dart:typed_data';
-
-import 'package:hive/hive.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 // flutter packages pub run build_runner build --delete-conflicting-outputs
 
-@JsonSerializable()
+part 'map_drawing_model.g.dart';
+
 @HiveType(typeId: 2)
 class MapDrawingModel extends HiveObject {
 

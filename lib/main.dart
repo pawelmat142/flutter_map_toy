@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_state.dart';
+import 'package:flutter_map_toy/global/hive.dart';
 import 'package:flutter_map_toy/global/wizard/wizard_state.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/presentation/dialogs/app_drawing.dart';
@@ -17,6 +18,8 @@ void main() async {
   await FlutterConfig.loadEnvVariables(); // environment variables initialization
 
   AppGetIt.init(); //DI initialization
+
+  await AppHive.initBoxes(); // local database initialization
 
   runApp(
 

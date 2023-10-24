@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_line.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_state.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
-import 'package:flutter_map_toy/models/map_icon_point.dart';
+import 'package:flutter_map_toy/models/map_icon_model.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_wizard.dart';
 import 'package:flutter_map_toy/services/log.dart';
 import 'package:flutter_map_toy/utils/icon_util.dart';
@@ -23,7 +23,7 @@ class MapState {
 
   BlocState state;
   Set<Marker> markers;
-  Set<MapIconPoint> mapIconPoints;
+  Set<MapIconModel> mapIconPoints;
   Set<MapDrawingModel> drawings;
   String selectedMarkerId;
   MapType mapType;
@@ -50,7 +50,7 @@ class MapState {
   MapState copyWith({
     BlocState? state,
     Set<Marker>? markers,
-    Set<MapIconPoint>? mapIconPoints,
+    Set<MapIconModel>? mapIconPoints,
     Set<MapDrawingModel>? drawings,
     String? selectedMarkerId,
     double? zoom,
@@ -76,7 +76,7 @@ class MapState {
   Marker? get selectedMarker => selectedMarkerId.isEmpty ? null
       : markers.firstWhere((marker) => marker.markerId.value == selectedMarkerId);
 
-  MapIconPoint? get selectedMapIconPoint => selectedMarkerId.isEmpty ? null
+  MapIconModel? get selectedMapIconPoint => selectedMarkerId.isEmpty ? null
       : mapIconPoints.firstWhere((point) => point.id == selectedMarkerId);
 
   Future<LatLng> get mapViewCenter async {
@@ -169,7 +169,7 @@ class MapCubit extends Cubit<MapState> {
   }
 
   Future<Set<Marker>> _getAllMarkers({
-    Iterable<MapIconPoint>? mapIconPoints,
+    Iterable<MapIconModel>? mapIconPoints,
     Iterable<MapDrawingModel>? drawings,
   }) async {
     return  {
@@ -179,7 +179,7 @@ class MapCubit extends Cubit<MapState> {
   }
 
   Future<Set<Marker>> _markersFromPoints(
-      Iterable<MapIconPoint> points,
+      Iterable<MapIconModel> points,
     ) async {
     final futures = points.map((mapIconPoint) {
       return MapUtil.getMarkerFromIcon(mapIconPoint.rescale(state.rescaleFactor));

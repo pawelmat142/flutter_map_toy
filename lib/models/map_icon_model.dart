@@ -1,11 +1,11 @@
-import 'package:hive/hive.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:hive_flutter/adapters.dart';
 
 // flutter packages pub run build_runner build --delete-conflicting-outputs
 
-@JsonSerializable()
+part 'map_icon_model.g.dart';
+
 @HiveType(typeId: 1)
-class MapIconPoint extends HiveObject {
+class MapIconModel extends HiveObject {
 
   @HiveField(0)
   int iconDataPoint;
@@ -25,7 +25,7 @@ class MapIconPoint extends HiveObject {
   @HiveField(5)
   String type;
 
-  MapIconPoint(
+  MapIconModel(
       this.iconDataPoint,
       this.colorInt,
       this.size,
@@ -34,8 +34,8 @@ class MapIconPoint extends HiveObject {
       this.type
   );
 
-  MapIconPoint rescale(double rescaleFactor) {
-    return MapIconPoint(
+  MapIconModel rescale(double rescaleFactor) {
+    return MapIconModel(
         iconDataPoint,
         colorInt,
         size * rescaleFactor,
