@@ -22,13 +22,14 @@ class MapModelAdapter extends TypeAdapter<MapModel> {
       (fields[2] as List).cast<MapIconModel>(),
       (fields[3] as List).cast<MapDrawingModel>(),
       (fields[4] as List).cast<double>(),
+      fields[5] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, MapModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -38,7 +39,9 @@ class MapModelAdapter extends TypeAdapter<MapModel> {
       ..writeByte(3)
       ..write(obj.drawings)
       ..writeByte(4)
-      ..write(obj.mainCoordinates);
+      ..write(obj.mainCoordinates)
+      ..writeByte(5)
+      ..write(obj.modified);
   }
 
   @override

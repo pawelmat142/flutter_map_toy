@@ -38,7 +38,7 @@ class IconWizard extends Wizard<IconCraft> {
 
   @override
   List<WizardStep> getSteps() {
-      final tileSize = _getModalTileSize(ctx!);
+      final tileSize = Static.getModalTileSize(ctx!);
       return [
         WizardStep<IconData>(index: 0,
           stepData: data!.iconData,
@@ -75,13 +75,6 @@ class IconWizard extends Wizard<IconCraft> {
             builder: (ctx) => const IconWizardSizeStep()
         ),
       ];
-  }
-
-  _getModalTileSize(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final screenWidth = size.width;
-    const itemsPerRow = 4;
-    return (screenWidth - itemsPerRow*AppStyle.wrapSpacing - 2*AppStyle.defaultPaddingVal) / itemsPerRow;
   }
 
 }

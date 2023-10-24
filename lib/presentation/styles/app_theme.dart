@@ -30,6 +30,10 @@ abstract class AppTheme {
 
     fontFamily: AppFont.robotoMono,
 
+    listTileTheme: const ListTileThemeData(
+      textColor: Colors.white,
+    ),
+
     textTheme: const TextTheme(
 
       titleLarge: titleLargeTextStyle,

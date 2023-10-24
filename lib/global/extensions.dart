@@ -1,4 +1,5 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 
 extension StringExtension on String {
 
@@ -10,4 +11,11 @@ extension StringExtension on String {
 extension LatLngExtension on LatLng {
 
   List<double> get coordinates => [ longitude, latitude ];
+}
+
+extension DateTimeExtension on DateTime {
+
+  static final formater = DateFormat('kk:mm dd-MM-yyyy');
+
+  String get format => formater.format(this);
 }
