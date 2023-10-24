@@ -69,14 +69,14 @@ class MapToolbar extends StatelessWidget {
 
   List<ToolBarItem> mapToolbar(BuildContext context, MapCubit cubit, MapState state) {
     return [
-      state.selectedMarkerId.isEmpty ?
+      !state.isAnyIconSelected ?
       ToolBarItem(
         label: 'add_point',
         barLabel: 'add point',
         menuLabel: 'add point',
         icon: AppIcon.addPoint,
         onTap: () async =>
-            cubit.addMarker(context,
+            cubit.addIconMarker(context,
                 mapViewCenter: await state.mapViewCenter,
             ),
       ) : ToolBarItem(
@@ -85,10 +85,21 @@ class MapToolbar extends StatelessWidget {
         icon: AppIcon.editPoint,
         disabled: cubit.state.selectedMarkerId.isEmpty,
         onTap: () =>
-            cubit.updateMarker(context, rescaleFactor: state.rescaleFactor),
+            cubit.updateIconMarker(context, rescaleFactor: state.rescaleFactor),
       ),
 
+      state.isAnyDrawingSelected ?
       ToolBarItem(
+          label: 'edit_line',
+          barLabel: 'edit line',
+          icon: AppIcon.editLine,
+          onTap: () {
+            //TODO edit drawing
+            if (kDebugMode){
+              print('EDIT LINE');
+            }
+          }
+      ) : ToolBarItem(
           label: 'draw_line',
           barLabel: 'draw line',
           icon: AppIcon.drawLine,

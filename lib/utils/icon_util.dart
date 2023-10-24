@@ -16,13 +16,6 @@ abstract class IconUtil {
     return craft;
   }
 
-  static LatLng pointFromCoordinates(List<double> coordinates) {
-    if (coordinates.length != 2) {
-      throw 'coordinates length != 2';
-    }
-    return LatLng(coordinates[1], coordinates[0]);
-  }
-
   static IconData _iconDataFromMapIconPoint(MapIconPoint mapIconPoint) {
     return IconData(mapIconPoint.iconDataPoint, fontFamily: 'MaterialIcons');
   }

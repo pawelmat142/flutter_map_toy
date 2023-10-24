@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_line.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_painter.dart';
+import 'package:flutter_map_toy/global/extensions.dart';
+import 'package:flutter_map_toy/models/map_drawing_model.dart';
 import 'package:flutter_map_toy/models/map_icon_point.dart';
 import 'package:flutter_map_toy/utils/icon_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -16,6 +18,12 @@ abstract class MapUtil {
 
   static const double earthRadius = 6371; // Earth's radius in kilometers
 
+  static LatLng pointFromCoordinates(List<double> coordinates) {
+    if (coordinates.length != 2) {
+      throw 'coordinates length != 2';
+    }
+    return LatLng(coordinates[1], coordinates[0]);
+  }
 
   static double distanceBetweenPoints(LatLng pointOne, LatLng pointTwo) {
     double dLat = _degreesToRadians(pointTwo.latitude - pointOne.latitude);
@@ -42,17 +50,25 @@ abstract class MapUtil {
     craft.size = craft.size! / 5;
     return Marker(
       markerId: MarkerId(craft.id!),
-      position: IconUtil.pointFromCoordinates(mapIconPoint.coordinates),
+      position: MapUtil.pointFromCoordinates(mapIconPoint.coordinates),
       icon: await craft.widget.toBitmapDescriptor(),
     );
   }
 
-  static Future<Marker> getMarkerFromDrawing({
+
+  static Marker getMarkerFromDrawingModel(MapDrawingModel mapDrawingModel) {
+    return Marker(
+      markerId: MarkerId(mapDrawingModel.id),
+      position: pointFromCoordinates(mapDrawingModel.coordinates),
+      icon: BitmapDescriptor.fromBytes(mapDrawingModel.bitmap),
+    );
+  }
+
+  static Future<MapDrawingModel> getModelFromDrawing({
     required double devicePixelRatio,
     required List<DrawingLine> drawingLines,
     required GoogleMapController mapController
   }) async {
-
     final dxs = drawingLines.expand((drawingLine) => drawingLine.offsets.map((o) => o.dx).toList());
     final minX = dxs.reduce(min);
     final maxX = dxs.reduce(max);
@@ -67,26 +83,25 @@ abstract class MapUtil {
         dy: minY
     );
 
-    final bitmap = await CustomPaint(
+    final widget = CustomPaint(
       painter: DrawingPainter(drawingLines: drawing),
       child: SizedBox(
         width: maxX - minX,
         height: height,
       ),
-    ).toBitmapDescriptor();
+    );
+    final bitmap = await createImageFromWidget(widget,
+      waitToRender: Duration.zero,
+    );
 
     final drawingCenter = Point((minX + maxX)/2 , (minY + maxY)/2 + height/2);
-
     final drawingPosition = await mapController.getLatLng(ScreenCoordinate(
-        x: (drawingCenter.x * devicePixelRatio).toInt(),
-        y: (drawingCenter.y * devicePixelRatio).toInt(),
+      x: (drawingCenter.x * devicePixelRatio).toInt(),
+      y: (drawingCenter.y * devicePixelRatio).toInt(),
     ));
+    final id = const Uuid().v1();
 
-    return Marker(
-        markerId: MarkerId(const Uuid().v1()),
-        position: drawingPosition,
-        icon: bitmap
-    );
+    return MapDrawingModel(id, id, bitmap, id, drawingPosition.coordinates);
   }
 
   static List<DrawingLine> addOffset({ required List<DrawingLine> drawingLines, double? dx, double? dy }) {

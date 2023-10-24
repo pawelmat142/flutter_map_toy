@@ -15,6 +15,7 @@ abstract class AppIcon {
   static const targetPoint = Icons.location_searching_rounded;
 
   static const drawLine = Icons.drive_file_rename_outline_sharp;
+  static const editLine = Icons.drive_file_rename_outline;
   static const drawCancel = Icons.cancel;
   static const drawColor = Icons.color_lens;
   static const drawWidth = Icons.open_in_full_rounded;

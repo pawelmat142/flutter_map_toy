@@ -12,6 +12,8 @@ import 'package:flutter_map_toy/utils/icon_util.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import 'map_drawing_model.dart';
+
 enum BlocState {
   empty,
   ready
@@ -22,18 +24,22 @@ class MapState {
   BlocState state;
   Set<Marker> markers;
   Set<MapIconPoint> mapIconPoints;
-  Set<Marker> drawingMarkers;
+  Set<MapDrawingModel> drawings;
   String selectedMarkerId;
   MapType mapType;
   double rescaleFactor;
   bool drawingMode;
   GoogleMapController? mapController;
 
+  bool get isAnyMarkerSelected => selectedMarkerId.isNotEmpty;
+  bool get isAnyIconSelected => mapIconPoints.any((point) => point.id == selectedMarkerId);
+  bool get isAnyDrawingSelected => isAnyMarkerSelected && !isAnyIconSelected;
+
   MapState(
     this.state,
     this.markers,
     this.mapIconPoints,
-    this.drawingMarkers,
+    this.drawings,
     this.selectedMarkerId,
     this.mapType,
     this.rescaleFactor,
@@ -45,7 +51,7 @@ class MapState {
     BlocState? state,
     Set<Marker>? markers,
     Set<MapIconPoint>? mapIconPoints,
-    Set<Marker>? drawingMarkers,
+    Set<MapDrawingModel>? drawings,
     String? selectedMarkerId,
     double? zoom,
     MapType? mapType,
@@ -58,7 +64,7 @@ class MapState {
       state ?? this.state,
       markers ?? this.markers,
       mapIconPoints ?? this.mapIconPoints,
-      drawingMarkers ?? this.drawingMarkers,
+      drawings ?? this.drawings,
       selectedMarkerId ?? this.selectedMarkerId,
       mapType ?? this.mapType,
       rescaleFactor ?? this.rescaleFactor,
@@ -100,7 +106,7 @@ class MapCubit extends Cubit<MapState> {
     Log.log('Selected: ${mapType.toString()}', source: state.runtimeType.toString());
   }
 
-  addMarker(BuildContext context, {
+  addIconMarker(BuildContext context, {
     required LatLng mapViewCenter,
   }) {
     final wizard = IconWizard();
@@ -131,6 +137,7 @@ class MapCubit extends Cubit<MapState> {
   }
 
   resizeMarkers() async {
+    //TODO resize drawings
     if (state.mapIconPoints.isEmpty) return;
     emit(state.copyWith(
         markers: await _getAllMarkers(),
@@ -150,6 +157,7 @@ class MapCubit extends Cubit<MapState> {
   replaceMarker(LatLng point, { required markerId }) async {
     Log.log('Moving marker: $markerId to lat: ${point.latitude}, lng: ${point.longitude}', source: state.runtimeType.toString());
 
+    //TODO replace drawing marker
     final mapIconPoints = state.mapIconPoints.map((mapIconPoint) {
       if (mapIconPoint.id == markerId) mapIconPoint.coordinates = point.coordinates;
       return mapIconPoint;
@@ -162,11 +170,11 @@ class MapCubit extends Cubit<MapState> {
 
   Future<Set<Marker>> _getAllMarkers({
     Iterable<MapIconPoint>? mapIconPoints,
-    Iterable<Marker>? drawingMarkers,
+    Iterable<MapDrawingModel>? drawings,
   }) async {
     return  {
       ...(await _markersFromPoints(mapIconPoints ?? state.mapIconPoints)),
-      ...(drawingMarkers ?? state.drawingMarkers)
+      ...(drawings ?? state.drawings).map((drawing) => MapUtil.getMarkerFromDrawingModel(drawing))
     };
   }
 
@@ -180,7 +188,7 @@ class MapCubit extends Cubit<MapState> {
     return markers.toSet();
   }
 
-  updateMarker(BuildContext context, {
+  updateIconMarker(BuildContext context, {
     required double rescaleFactor
   }) {
 
@@ -195,7 +203,7 @@ class MapCubit extends Cubit<MapState> {
       final points = state.mapIconPoints.map((point) {
         if (point.id == newCraft.id) {
           point = IconUtil.mapIconPointFromCraft(newCraft,
-              IconUtil.pointFromCoordinates(mapIconPoint.coordinates)
+              MapUtil.pointFromCoordinates(mapIconPoint.coordinates)
           );
         }
         return point;
@@ -235,16 +243,17 @@ class MapCubit extends Cubit<MapState> {
         ? MediaQuery.of(context).devicePixelRatio
         : 1.0;
 
-    final marker = await MapUtil.getMarkerFromDrawing(
+    final drawingModel = await MapUtil.getModelFromDrawing(
       devicePixelRatio: devicePixelRatio,
       mapController: state.mapController!,
       drawingLines: drawingLines
     );
-    final drawingMarkers = state.drawingMarkers;
-    drawingMarkers.add(marker);
+
+    final drawings = state.drawings;
+    drawings.add(drawingModel);
     emit(state.copyWith(
-      drawingMarkers: drawingMarkers,
-      markers: await _getAllMarkers(drawingMarkers: drawingMarkers)
+      drawings: drawings,
+      markers: await _getAllMarkers(drawings: drawings)
     ));
   }
 
