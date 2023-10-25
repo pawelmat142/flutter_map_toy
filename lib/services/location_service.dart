@@ -1,9 +1,19 @@
 import 'package:flutter_map_toy/services/log.dart';
+import 'package:flutter_map_toy/utils/map_util.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 
 class LocationService {
 
   final _location = Location();
+
+  Future<CameraPosition> getMyInitialCameraPosition() async {
+    final myLocation = await getMyLocation();
+    return CameraPosition(
+        target: LatLng(myLocation.latitude!, myLocation.longitude!),
+        zoom: MapUtil.kZoomInitial
+    );
+  }
 
   Future<LocationData> getMyLocation() async {
     await _checkService();

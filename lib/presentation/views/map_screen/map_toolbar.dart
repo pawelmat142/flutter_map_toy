@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_state.dart';
-import 'package:flutter_map_toy/models/map_model.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/presentation/components/toolbar.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
@@ -120,10 +119,7 @@ class MapToolbar extends StatelessWidget {
           barLabel: 'save',
           menuLabel: 'save',
           icon: AppIcon.save,
-          onTap: () async {
-            final mapModel = await MapModel.createByMapState(cubit.state);
-            mapModel.save();
-          }
+          onTap: () => cubit.onSaveMapModel(context),
       ),
       ToolBarItem(
           label: Toolbar.menuLabel,

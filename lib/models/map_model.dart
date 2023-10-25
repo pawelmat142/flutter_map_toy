@@ -50,11 +50,18 @@ class MapModel extends HiveObject {
     }
   }
 
-  static Future<MapModel> createByMapState(MapState state) async {
+  static MapModel? getById(String id) {
+    return hiveBox.get(id);
+  }
+
+  static Future<MapModel> createByMapState({
+    required MapState state,
+    required String name,
+    String? id,
+  }) async {
     return MapModel(
-      //TODO popup on save with name
-      'nameaaa',
-      const Uuid().v1(),
+      name,
+      id ?? const Uuid().v1(),
       state.mapIconPoints.toList(),
       state.drawings.toList(),
       (await state.mapViewCenter).coordinates,
@@ -66,6 +73,10 @@ class MapModel extends HiveObject {
   save() {
     final itemKey = id;
     return hiveBox.put(itemKey, this);
+  }
+
+  saveOrCreate() {
+
   }
 
   static test() {

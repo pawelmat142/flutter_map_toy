@@ -13,6 +13,13 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class MapScreen extends StatefulWidget {
   static const String id = 'map_screen';
 
+  // static push(BuildContext context, CameraPosition initialCameraPosition) {
+  //   Navigator.pushAndRemoveUntil(context,
+  //     MaterialPageRoute(builder: (ctx) => MapScreen(initialCameraPosition: initialCameraPosition)),
+  //         (Route route) => route.isFirst,
+  //   );
+  // }
+
   static push(BuildContext context, CameraPosition initialCameraPosition) {
     Navigator.push(context, MaterialPageRoute(builder: (ctx) =>
         MapScreen(initialCameraPosition: initialCameraPosition)));
@@ -48,7 +55,7 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    // _controller.dispose();
     super.dispose();
   }
 

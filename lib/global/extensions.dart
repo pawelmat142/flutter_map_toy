@@ -15,7 +15,7 @@ extension LatLngExtension on LatLng {
 
 extension DateTimeExtension on DateTime {
 
-  static final formater = DateFormat('kk:mm dd-MM-yyyy');
+  static final formatter = DateFormat('kk:mm dd-MM-yyyy');
 
-  String get format => formater.format(this);
+  String get format => formatter.format(this);
 }

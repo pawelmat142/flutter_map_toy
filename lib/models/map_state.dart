@@ -6,7 +6,10 @@ import 'package:flutter_map_toy/global/drawing/drawing_line.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_state.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/models/map_icon_model.dart';
+import 'package:flutter_map_toy/models/map_model.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_wizard.dart';
+import 'package:flutter_map_toy/presentation/dialogs/map_name_popup.dart';
+import 'package:flutter_map_toy/presentation/views/saved_maps_screen.dart';
 import 'package:flutter_map_toy/services/log.dart';
 import 'package:flutter_map_toy/utils/icon_util.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
@@ -22,6 +25,7 @@ enum BlocState {
 class MapState {
 
   BlocState state;
+  String mapModelId;
   Set<Marker> markers;
   Set<MapIconModel> mapIconPoints;
   Set<MapDrawingModel> drawings;
@@ -37,6 +41,7 @@ class MapState {
 
   MapState(
     this.state,
+    this.mapModelId,
     this.markers,
     this.mapIconPoints,
     this.drawings,
@@ -49,11 +54,11 @@ class MapState {
 
   MapState copyWith({
     BlocState? state,
+    String? mapModelId,
     Set<Marker>? markers,
     Set<MapIconModel>? mapIconPoints,
     Set<MapDrawingModel>? drawings,
     String? selectedMarkerId,
-    double? zoom,
     MapType? mapType,
     double? rescaleFactor,
     bool? drawingMode,
@@ -62,6 +67,7 @@ class MapState {
     Log.log('New MapState', source: runtimeType.toString());
     return MapState(
       state ?? this.state,
+      mapModelId ?? this.mapModelId,
       markers ?? this.markers,
       mapIconPoints ?? this.mapIconPoints,
       drawings ?? this.drawings,
@@ -91,7 +97,7 @@ class MapState {
 
 class MapCubit extends Cubit<MapState> {
 
-  MapCubit(): super(MapState(BlocState.empty, {}, {}, {}, '', MapType.normal, 1, false, null));
+  MapCubit(): super(MapState(BlocState.empty, '', {}, {}, {}, '', MapType.normal, 1, false, null));
 
   initMap(GoogleMapController googleMapController) {
     emit(state.copyWith(
@@ -100,6 +106,31 @@ class MapCubit extends Cubit<MapState> {
       selectedMarkerId: '',
     ));
   }
+
+  cleanState() {
+    emit(state.copyWith(
+      mapModelId: '',
+      markers: {},
+      mapIconPoints: {},
+      drawings: {},
+      selectedMarkerId: '',
+      rescaleFactor: 1,
+    ));
+  }
+
+  //
+  // MapState(
+  //     this.state,
+  //     this.mapModelId,
+  //     this.markers,
+  //     this.mapIconPoints,
+  //     this.drawings,
+  //     this.selectedMarkerId,
+  //     this.mapType,
+  //     this.rescaleFactor,
+  //     this.drawingMode,
+  //     this.mapController,
+  //     );
 
   setType(MapType mapType) {
     emit(state.copyWith(mapType: mapType));
@@ -120,17 +151,17 @@ class MapCubit extends Cubit<MapState> {
       emit(state.copyWith(
           selectedMarkerId: '',
           mapIconPoints: mapIconPoints,
-          markers: await _getAllMarkers(mapIconPoints: mapIconPoints)
+          markers: await _getAllMarkers(mapIcons: mapIconPoints)
       ));
       Log.log('Added marker with id: ${mapIconPoint.id}', source: runtimeType.toString());
     };
   }
 
-
   cleanMarkers() {
     emit(state.copyWith(
       selectedMarkerId: '',
       mapIconPoints: {},
+      drawings: {},
       markers: {}
     ));
     Log.log('Markers cleaned', source: state.runtimeType.toString());
@@ -164,16 +195,16 @@ class MapCubit extends Cubit<MapState> {
     });
     emit(state.copyWith(
         mapIconPoints: mapIconPoints.toSet(),
-        markers: await _getAllMarkers(mapIconPoints: mapIconPoints),
+        markers: await _getAllMarkers(mapIcons: mapIconPoints),
     ));
   }
 
   Future<Set<Marker>> _getAllMarkers({
-    Iterable<MapIconModel>? mapIconPoints,
+    Iterable<MapIconModel>? mapIcons,
     Iterable<MapDrawingModel>? drawings,
   }) async {
     return  {
-      ...(await _markersFromPoints(mapIconPoints ?? state.mapIconPoints)),
+      ...(await _markersFromPoints(mapIcons ?? state.mapIconPoints)),
       ...(drawings ?? state.drawings).map((drawing) => MapUtil.getMarkerFromDrawingModel(drawing))
     };
   }
@@ -211,7 +242,7 @@ class MapCubit extends Cubit<MapState> {
 
       emit(state.copyWith(
         mapIconPoints: points.toSet(),
-        markers: await _getAllMarkers(mapIconPoints: points),
+        markers: await _getAllMarkers(mapIcons: points),
       ));
     };
   }
@@ -256,5 +287,35 @@ class MapCubit extends Cubit<MapState> {
       markers: await _getAllMarkers(drawings: drawings)
     ));
   }
+
+  loadStateFromModel(MapModel mapModel) async {
+    final mapIcons = mapModel.icons.toSet();
+    final drawings = mapModel.drawings.toSet();
+    emit(state.copyWith(
+      mapModelId: mapModel.id,
+      drawings: drawings,
+      mapIconPoints: mapIcons,
+      markers: await _getAllMarkers(mapIcons: mapIcons, drawings: drawings),
+      selectedMarkerId: '',
+    ));
+  }
+
+  onSaveMapModel(BuildContext context) async {
+    final mapModelName = state.mapModelId.isEmpty
+        ? await MapNamePopup.show(context)
+        : MapModel.getById(state.mapModelId)?.name;
+
+    if (mapModelName == null) return;
+
+    final mapModel = await MapModel.createByMapState(
+      state: state,
+      name: mapModelName,
+      id: state.mapModelId.isEmpty ? null : state.mapModelId
+    );
+    mapModel.save();
+    // ignore: use_build_context_synchronously
+    Navigator.popAndPushNamed(context, SavedMapsScreen.id);
+  }
+
 
 }

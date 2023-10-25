@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/models/map_model.dart';
+import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
+import 'package:flutter_map_toy/presentation/views/map_screen/map_screen.dart';
+import 'package:flutter_map_toy/services/get_it.dart';
+import 'package:flutter_map_toy/services/location_service.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class SavedMapsScreen extends StatelessWidget {
@@ -12,6 +17,9 @@ class SavedMapsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final mapCubit = BlocProvider.of<MapCubit>(context);
+
     return Scaffold(
 
       appBar: AppBar(title: const Text('saved maps'),),
@@ -19,7 +27,7 @@ class SavedMapsScreen extends StatelessWidget {
       body: ValueListenableBuilder(
         valueListenable: MapModel.hiveBox.listenable(),
         builder: (context, box, widget) {
-          final boxLength = box.keys.length;
+
           return ListView.separated(
               itemBuilder: (ctx, index) {
                 var mapModel = box.getAt(index);
@@ -27,6 +35,11 @@ class SavedMapsScreen extends StatelessWidget {
                 return mapModel == null ? const SizedBox.shrink() : ListTile(
                   title: Text(mapModel.name),
                   subtitle: Text(mapModel.modified?.format ?? ''),
+                  onTap: () async {
+                    //TODO get map center by markers
+                    mapCubit.loadStateFromModel(mapModel);
+                    MapScreen.push(context, await getIt.get<LocationService>().getMyInitialCameraPosition());
+                  },
                   onLongPress: () {
                     mapModel.delete();
                   },
@@ -35,7 +48,7 @@ class SavedMapsScreen extends StatelessWidget {
               separatorBuilder: (ctx, index) {
                 return const Divider(height: 1, color: AppColor.primaryDark,);
               },
-              itemCount: boxLength
+              itemCount: box.keys.length
           );
         },
       ),

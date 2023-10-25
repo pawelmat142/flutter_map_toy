@@ -1,6 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/models/map_model.dart';
+import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/presentation/components/controls/primary_button.dart';
 import 'package:flutter_map_toy/presentation/components/controls/blue_button.dart';
 import 'package:flutter_map_toy/presentation/components/controls/red_button.dart';
@@ -9,8 +10,6 @@ import 'package:flutter_map_toy/presentation/views/map_screen/map_screen.dart';
 import 'package:flutter_map_toy/presentation/views/saved_maps_screen.dart';
 import 'package:flutter_map_toy/services/get_it.dart';
 import 'package:flutter_map_toy/services/location_service.dart';
-import 'package:flutter_map_toy/utils/map_util.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 
 class HomeScreen extends StatelessWidget {
@@ -32,20 +31,11 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
 
-            PrimaryButton('go to map',
+            PrimaryButton('New map',
               onPressed: () async {
-                final myLocation = await getIt.get<LocationService>().getMyLocation();
-                if (myLocation.latitude is double && myLocation.longitude is double) {
-                  final initialCameraPosition = CameraPosition(
-                    target: LatLng(myLocation.latitude!, myLocation.longitude!),
-                    zoom: MapUtil.kZoomInitial
-                  );
-                  // ignore: use_build_context_synchronously
-                  MapScreen.push(context, initialCameraPosition);
-                }
-                if (kDebugMode) {
-                  print(myLocation);
-                }
+                //TODO navigation issue - saved list many times in stack
+                BlocProvider.of<MapCubit>(context).cleanState();
+                MapScreen.push(context, await getIt.get<LocationService>().getMyInitialCameraPosition());
               }
             ),
 
