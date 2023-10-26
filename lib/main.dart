@@ -3,7 +3,7 @@ import 'package:flutter_config/flutter_config.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_state.dart';
 import 'package:flutter_map_toy/global/hive.dart';
 import 'package:flutter_map_toy/global/wizard/wizard_state.dart';
-import 'package:flutter_map_toy/models/map_state.dart';
+import 'package:flutter_map_toy/models/map_cubit.dart';
 import 'package:flutter_map_toy/presentation/dialogs/app_drawing.dart';
 import 'package:flutter_map_toy/presentation/views/home_screen.dart';
 import 'package:flutter_map_toy/presentation/styles/app_theme.dart';

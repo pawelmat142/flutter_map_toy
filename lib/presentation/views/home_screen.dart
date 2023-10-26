@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map_toy/models/map_cubit.dart';
 import 'package:flutter_map_toy/models/map_model.dart';
-import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/presentation/components/controls/primary_button.dart';
 import 'package:flutter_map_toy/presentation/components/controls/blue_button.dart';
 import 'package:flutter_map_toy/presentation/components/controls/red_button.dart';
@@ -36,7 +36,7 @@ class HomeScreen extends StatelessWidget {
                 final ctx = context;
                 final mapCubit = BlocProvider.of<MapCubit>(context);
                 final initialCameraPosition = await getIt.get<LocationService>().getMyInitialCameraPosition();
-                mapCubit.setNewMapState(initialCameraPosition);
+                mapCubit.emitNewMapState(initialCameraPosition);
                 Navigator.pushNamed(ctx, MapScreen.id);
               }
             ),

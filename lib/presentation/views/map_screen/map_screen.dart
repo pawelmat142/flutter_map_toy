@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_widget.dart';
+import 'package:flutter_map_toy/models/map_cubit.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/presentation/views/map_screen/map_toolbar.dart';
 import 'package:flutter_map_toy/services/log.dart';
@@ -24,6 +25,8 @@ class _MapScreenState extends State<MapScreen> {
 
   //TODO refactor to stateless
 
+  //TODO error https://github.com/flutter/flutter/issues/43785
+
   MapCubit get mapCubit => BlocProvider.of<MapCubit>(context);
   MapState get mapState => mapCubit.state;
 
@@ -33,12 +36,6 @@ class _MapScreenState extends State<MapScreen> {
 
   double _initialViewDiagonalDistance = 0;
   double zoom = MapUtil.kZoomInitial;
-
-  @override
-  void initState() {
-    super.initState();
-    mapCubit.turnDrawingMode(context: context, on: false);
-  }
 
   @override
   void dispose() {
@@ -63,6 +60,7 @@ class _MapScreenState extends State<MapScreen> {
         },
         child: Scaffold(
 
+          //TODO title
           appBar: AppBar(title: Text(state.selectedMarkerId.toString()),),
 
           body: Stack(
