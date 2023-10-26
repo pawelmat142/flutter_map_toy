@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -19,14 +20,26 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapCubit extends Cubit<MapState> {
 
-  MapCubit(): super(MapState(BlocState.empty, '', {}, {}, {}, '', MapType.normal, 1, false, null, null));
+  MapCubit(): super(MapState(BlocState.empty, '', {}, {}, {}, '', MapType.normal, 1, false, null, null, null));
 
-  initMap(GoogleMapController googleMapController) {
-    emit(state.copyWith(
+
+  initMap(GoogleMapController controller) async {
+    final completer = Completer<GoogleMapController>();
+    completer.complete(controller);
+    controller = await completer.future;
+    final diagonalDistance = await MapUtil.calcMapViewDiagonalDistance(controller);
+    if (diagonalDistance == 0) {
+      Future.delayed(const Duration(milliseconds: 500), () {
+        initMap(controller);
+      });
+    } else {
+      emit(state.copyWith(
         state: BlocState.ready,
-        mapController: googleMapController,
+        mapController: controller,
         selectedMarkerId: '',
-    ));
+        initialDiagonalDistance: diagonalDistance
+      ));
+    }
   }
 
   setInitialCameraPosition(CameraPosition initialCameraPosition) {
@@ -48,10 +61,6 @@ class MapCubit extends Cubit<MapState> {
   setType(MapType mapType) {
     emit(state.copyWith(mapType: mapType));
     Log.log('Selected: ${mapType.toString()}', source: state.runtimeType.toString());
-  }
-
-  updateRescaleFactor(double rescaleFactor) {
-    emit(state.copyWith(rescaleFactor: rescaleFactor));
   }
 
   loadStateFromModel(MapModel mapModel) async {
@@ -204,15 +213,6 @@ class MapCubit extends Cubit<MapState> {
     Log.log('Markers cleaned', source: state.runtimeType.toString());
   }
 
-  resizeMarkers() async {
-    //TODO resize drawings
-    if (state.mapIconPoints.isEmpty) return;
-    emit(state.copyWith(
-      markers: await _getAllMarkers(),
-    ));
-    Log.log('MapIconPoint markers rescaled with factor: ${state.rescaleFactor}', source: runtimeType.toString());
-  }
-
   selectMarker(Marker? marker) {
     final markerId = marker == null ? '' : marker.markerId.value;
     if (markerId == state.selectedMarkerId) return;
@@ -234,6 +234,19 @@ class MapCubit extends Cubit<MapState> {
       mapIconPoints: mapIconPoints.toSet(),
       markers: await _getAllMarkers(mapIcons: mapIconPoints),
     ));
+  }
+
+  updateRescaleFactor() async {
+    final distance = await MapUtil.calcMapViewDiagonalDistance(state.mapController!);
+    final factor = state.initialDiagonalDistance! / distance;
+    if (factor != state.rescaleFactor) {
+      state.rescaleFactor = factor;
+      //TODO resize drawings
+      emit(state.copyWith(
+          rescaleFactor: factor,
+          markers: await _getAllMarkers()
+      ));
+    }
   }
 
 }

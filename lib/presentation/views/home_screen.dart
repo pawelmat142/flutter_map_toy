@@ -33,11 +33,11 @@ class HomeScreen extends StatelessWidget {
 
             PrimaryButton('New map',
               onPressed: () async {
-                final ctx = context;
                 final mapCubit = BlocProvider.of<MapCubit>(context);
-                final initialCameraPosition = await getIt.get<LocationService>().getMyInitialCameraPosition();
-                mapCubit.emitNewMapState(initialCameraPosition);
-                Navigator.pushNamed(ctx, MapScreen.id);
+                getIt.get<LocationService>().getMyInitialCameraPosition().then((position) {
+                  mapCubit.emitNewMapState(position);
+                  Navigator.pushNamed(context, MapScreen.id);
+                });
               }
             ),
 

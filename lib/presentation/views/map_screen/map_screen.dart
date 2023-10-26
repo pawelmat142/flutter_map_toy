@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_widget.dart';
@@ -7,55 +5,32 @@ import 'package:flutter_map_toy/models/map_cubit.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/presentation/views/map_screen/map_toolbar.dart';
 import 'package:flutter_map_toy/services/log.dart';
-import 'package:flutter_map_toy/utils/map_util.dart';
 import 'package:flutter_map_toy/utils/timer_handler.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class MapScreen extends StatefulWidget {
+class MapScreen extends StatelessWidget {
 
   static const String id = 'map_screen';
+  static final cameraMoveEndHandler = TimerHandler(milliseconds: 50);
 
   const MapScreen({ Key? key }) : super(key: key);
 
   @override
-  State<MapScreen> createState() => _MapScreenState();
-}
-
-class _MapScreenState extends State<MapScreen> {
-
-  //TODO refactor to stateless
-
-  //TODO error https://github.com/flutter/flutter/issues/43785
-
-  MapCubit get mapCubit => BlocProvider.of<MapCubit>(context);
-  MapState get mapState => mapCubit.state;
-
-  final Completer<GoogleMapController> _controllerFuture = Completer<GoogleMapController>();
-  late GoogleMapController _controller;
-  final cameraMoveHandler = TimerHandler(milliseconds: 50);
-
-  double _initialViewDiagonalDistance = 0;
-  double zoom = MapUtil.kZoomInitial;
-
-  @override
-  void dispose() {
-    // _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+
+    final cubit = BlocProvider.of<MapCubit>(context);
+
     return BlocBuilder<MapCubit, MapState>(builder: (ctx, state) {
 
       if (state.initialCameraPosition == null) {
         return const SizedBox.shrink();
       }
 
-      Log.log('Build MapState, markers: ${state.markers.length}', source: mapState.runtimeType.toString());
+      Log.log('Build MapState, markers: ${state.markers.length}', source: state.runtimeType.toString());
 
       return WillPopScope(
         onWillPop: () async {
-          mapCubit.turnDrawingMode(context: context, on: false);
+          cubit.turnDrawingMode(context: context, on: false);
           return true;
         },
         child: Scaffold(
@@ -69,10 +44,10 @@ class _MapScreenState extends State<MapScreen> {
               GoogleMap(
                 initialCameraPosition: state.initialCameraPosition!,
                 mapType: state.mapType,
-                markers: _prepareMarkers(state),
-                onCameraMove: _onCameraMove,
-                onMapCreated: _onMapCreated,
-                onTap: _onMapTap,
+                markers: _prepareMarkers(state, cubit),
+                onCameraMove: (position) => _onCameraMove(position, cubit, state),
+                onMapCreated: (controller) => cubit.initMap(controller),
+                onTap: (point) => _onMapTap(point, cubit, state),
               ),
 
               const DrawingWidget(),
@@ -86,82 +61,48 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-  _onMapTap(LatLng point) async {
-    if (mapState.selectedMarkerId.isEmpty) return;
+  _onMapTap(LatLng point, MapCubit mapCubit, MapState state) async {
+    if (state.selectedMarkerId.isEmpty) return;
     mapCubit.selectMarker(null);
   }
 
-  _onMarkerTap(Marker marker) {
-    mapCubit.selectMarker(marker);
-  }
-
-  _onCameraMove(CameraPosition cameraPosition) {
+  _onCameraMove(CameraPosition cameraPosition, MapCubit cubit, MapState state) {
     //workaround
-    cameraMoveHandler.handle(() => _onCameraMoveEnd(cameraPosition));
+    cameraMoveEndHandler.handle(() async {
+      //onCameraMoveEnd:
+      await cubit.updateRescaleFactor();
+      _unselectMarkerIfOutOfView(cubit, state);
+    });
   }
 
-  _onCameraMoveEnd(CameraPosition cameraPosition) async {
-    final newZoom = cameraPosition.zoom;
-    if (newZoom != zoom) {
-      await _updateRescaleFactor();
-      mapCubit.resizeMarkers();
-      zoom = newZoom;
-      Log.log('CameraPosition zoom changed: ${newZoom.toString()}', source: widget.runtimeType.toString());
-    }
-    _unselectMarkerIfOutOfView();
-  }
-
-  _unselectMarkerIfOutOfView() async {
-    if (mapState.selectedMarker != null) {
+  _unselectMarkerIfOutOfView(MapCubit cubit, MapState state) async {
+    if (state.selectedMarker != null) {
       //workaround solution, also in _onMarkerTap
       //GoogleMaps API doesn't share info about selected marker id or something
       //this solution should integrate google maps marker selection with this app marker selection
       //its not perfect so marker selection may be not synchronized
-      final visibleRegion = await _controller.getVisibleRegion();
-      final markerVisible = visibleRegion.contains(mapState.selectedMarker!.position);
+      final visibleRegion = await state.mapController?.getVisibleRegion();
+      final markerVisible = visibleRegion?.contains(state.selectedMarker!.position) ?? false;
       if (!markerVisible) {
-        mapCubit.selectMarker(null);
+        cubit.selectMarker(null);
       }
     }
   }
 
-  _onMapCreated(GoogleMapController controller) async {
-    _controllerFuture.complete(controller);
-    _controller = await _controllerFuture.future;
-    mapCubit.initMap(_controller);
-    setState((){});
-    await _getInitialDiagonalDistance();
-    Log.log('GoogleMap created', source: widget.runtimeType.toString());
-  }
-
-  _getInitialDiagonalDistance() {
-    return Future.delayed(const Duration(milliseconds: 500), () async {
-      _initialViewDiagonalDistance = await MapUtil.calcMapViewDiagonalDistance(_controller);
-      if (_initialViewDiagonalDistance == 0) {
-        return _getInitialDiagonalDistance();
-      } else {
-        Log.log('Initial diagonal distance: $_initialViewDiagonalDistance', source: widget.runtimeType.toString());
-      }
-    });
-  }
-
-  Set<Marker> _prepareMarkers(MapState state) {
+  Set<Marker> _prepareMarkers(MapState state, MapCubit cubit) {
     return state.markers.map((marker) => Marker(
         markerId: marker.markerId,
         position: marker.position,
         icon: marker.icon,
-        onTap: () => _onMarkerTap(marker),
+        onTap: () => _onMarkerTap(marker, cubit),
         draggable: true,
         onDragEnd: (point) {
-            mapCubit.replaceMarker(point, markerId: marker.markerId.value);
+          cubit.replaceMarker(point, markerId: marker.markerId.value);
         },
     )).toSet();
   }
 
-  _updateRescaleFactor() async {
-    final distance = await MapUtil.calcMapViewDiagonalDistance(_controller);
-    Log.log('Calculated diagonal distance: ${distance.toString()}', source: widget.runtimeType.toString());
-    mapCubit.updateRescaleFactor(_initialViewDiagonalDistance / distance);
+  _onMarkerTap(Marker marker, MapCubit mapCubit) {
+    mapCubit.selectMarker(marker);
   }
-
 }
