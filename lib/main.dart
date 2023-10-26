@@ -7,6 +7,7 @@ import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/presentation/dialogs/app_drawing.dart';
 import 'package:flutter_map_toy/presentation/views/home_screen.dart';
 import 'package:flutter_map_toy/presentation/styles/app_theme.dart';
+import 'package:flutter_map_toy/presentation/views/map_screen/map_screen.dart';
 import 'package:flutter_map_toy/presentation/views/saved_maps_screen.dart';
 import 'package:flutter_map_toy/services/get_it.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -58,6 +59,7 @@ class _MyAppState extends State<MyApp> {
       initialRoute: HomeScreen.id,
       routes: {
         HomeScreen.id: (context) => const HomeScreen(),
+        MapScreen.id: (context) => const MapScreen(),
         SavedMapsScreen.id: (context) => const SavedMapsScreen(),
       },
     );

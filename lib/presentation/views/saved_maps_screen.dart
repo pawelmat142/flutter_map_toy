@@ -5,8 +5,6 @@ import 'package:flutter_map_toy/models/map_model.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/views/map_screen/map_screen.dart';
-import 'package:flutter_map_toy/services/get_it.dart';
-import 'package:flutter_map_toy/services/location_service.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 class SavedMapsScreen extends StatelessWidget {
@@ -38,7 +36,7 @@ class SavedMapsScreen extends StatelessWidget {
                   onTap: () async {
                     //TODO get map center by markers
                     mapCubit.loadStateFromModel(mapModel);
-                    MapScreen.push(context, await getIt.get<LocationService>().getMyInitialCameraPosition());
+                    Navigator.pushNamed(context, MapScreen.id);
                   },
                   onLongPress: () {
                     mapModel.delete();

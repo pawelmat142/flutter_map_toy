@@ -9,6 +9,7 @@ import 'package:flutter_map_toy/models/map_icon_model.dart';
 import 'package:flutter_map_toy/models/map_model.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_wizard.dart';
 import 'package:flutter_map_toy/presentation/dialogs/map_name_popup.dart';
+import 'package:flutter_map_toy/presentation/views/home_screen.dart';
 import 'package:flutter_map_toy/presentation/views/saved_maps_screen.dart';
 import 'package:flutter_map_toy/services/log.dart';
 import 'package:flutter_map_toy/utils/icon_util.dart';
@@ -34,6 +35,7 @@ class MapState {
   double rescaleFactor;
   bool drawingMode;
   GoogleMapController? mapController;
+  CameraPosition? initialCameraPosition;
 
   bool get isAnyMarkerSelected => selectedMarkerId.isNotEmpty;
   bool get isAnyIconSelected => mapIconPoints.any((point) => point.id == selectedMarkerId);
@@ -50,6 +52,7 @@ class MapState {
     this.rescaleFactor,
     this.drawingMode,
     this.mapController,
+    this.initialCameraPosition,
   );
 
   MapState copyWith({
@@ -63,6 +66,7 @@ class MapState {
     double? rescaleFactor,
     bool? drawingMode,
     GoogleMapController? mapController,
+    CameraPosition? initialCameraPosition,
   }) {
     Log.log('New MapState', source: runtimeType.toString());
     return MapState(
@@ -76,6 +80,7 @@ class MapState {
       rescaleFactor ?? this.rescaleFactor,
       drawingMode ?? this.drawingMode,
       mapController ?? this.mapController,
+      initialCameraPosition ?? this.initialCameraPosition,
     );
   }
 
@@ -97,7 +102,7 @@ class MapState {
 
 class MapCubit extends Cubit<MapState> {
 
-  MapCubit(): super(MapState(BlocState.empty, '', {}, {}, {}, '', MapType.normal, 1, false, null));
+  MapCubit(): super(MapState(BlocState.empty, '', {}, {}, {}, '', MapType.normal, 1, false, null, null));
 
   initMap(GoogleMapController googleMapController) {
     emit(state.copyWith(
@@ -107,7 +112,11 @@ class MapCubit extends Cubit<MapState> {
     ));
   }
 
-  cleanState() {
+  setInitialCameraPosition(CameraPosition initialCameraPosition) {
+    emit(state.copyWith(initialCameraPosition: initialCameraPosition));
+  }
+
+  setNewMapState(CameraPosition initialCameraPosition) {
     emit(state.copyWith(
       mapModelId: '',
       markers: {},
@@ -115,22 +124,9 @@ class MapCubit extends Cubit<MapState> {
       drawings: {},
       selectedMarkerId: '',
       rescaleFactor: 1,
+      initialCameraPosition: initialCameraPosition
     ));
   }
-
-  //
-  // MapState(
-  //     this.state,
-  //     this.mapModelId,
-  //     this.markers,
-  //     this.mapIconPoints,
-  //     this.drawings,
-  //     this.selectedMarkerId,
-  //     this.mapType,
-  //     this.rescaleFactor,
-  //     this.drawingMode,
-  //     this.mapController,
-  //     );
 
   setType(MapType mapType) {
     emit(state.copyWith(mapType: mapType));
@@ -252,6 +248,7 @@ class MapCubit extends Cubit<MapState> {
   }
 
   turnDrawingMode({ required BuildContext context, required bool on }) {
+    //TODO refactor - trigger by copyWith
     if (state.drawingMode == on) return;
     final drawingCubit = BlocProvider.of<DrawingCubit>(context);
     drawingCubit.turn(on: on);
@@ -297,6 +294,7 @@ class MapCubit extends Cubit<MapState> {
       mapIconPoints: mapIcons,
       markers: await _getAllMarkers(mapIcons: mapIcons, drawings: drawings),
       selectedMarkerId: '',
+      initialCameraPosition: MapUtil.getCameraPosition(MapUtil.pointFromCoordinates(mapModel.mainCoordinates))
     ));
   }
 
@@ -314,7 +312,10 @@ class MapCubit extends Cubit<MapState> {
     );
     mapModel.save();
     // ignore: use_build_context_synchronously
-    Navigator.popAndPushNamed(context, SavedMapsScreen.id);
+    Navigator.pushNamedAndRemoveUntil(context,
+        SavedMapsScreen.id,
+        ModalRoute.withName(HomeScreen.id)
+    );
   }
 
 

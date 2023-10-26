@@ -18,6 +18,13 @@ abstract class MapUtil {
 
   static const double earthRadius = 6371; // Earth's radius in kilometers
 
+  static CameraPosition getCameraPosition(LatLng point) {
+    return CameraPosition(
+      target: point,
+      zoom: MapUtil.kZoomInitial
+    );
+  }
+
   static LatLng pointFromCoordinates(List<double> coordinates) {
     if (coordinates.length != 2) {
       throw 'coordinates length != 2';

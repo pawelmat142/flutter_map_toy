@@ -11,31 +11,18 @@ import 'package:flutter_map_toy/utils/timer_handler.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapScreen extends StatefulWidget {
+
   static const String id = 'map_screen';
 
-  // static push(BuildContext context, CameraPosition initialCameraPosition) {
-  //   Navigator.pushAndRemoveUntil(context,
-  //     MaterialPageRoute(builder: (ctx) => MapScreen(initialCameraPosition: initialCameraPosition)),
-  //         (Route route) => route.isFirst,
-  //   );
-  // }
-
-  static push(BuildContext context, CameraPosition initialCameraPosition) {
-    Navigator.push(context, MaterialPageRoute(builder: (ctx) =>
-        MapScreen(initialCameraPosition: initialCameraPosition)));
-  }
-
-  final CameraPosition initialCameraPosition;
-
-  const MapScreen({
-    required this.initialCameraPosition,
-    Key? key}) : super(key: key);
+  const MapScreen({ Key? key }) : super(key: key);
 
   @override
   State<MapScreen> createState() => _MapScreenState();
 }
 
 class _MapScreenState extends State<MapScreen> {
+
+  //TODO refactor to stateless
 
   MapCubit get mapCubit => BlocProvider.of<MapCubit>(context);
   MapState get mapState => mapCubit.state;
@@ -63,6 +50,10 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<MapCubit, MapState>(builder: (ctx, state) {
 
+      if (state.initialCameraPosition == null) {
+        return const SizedBox.shrink();
+      }
+
       Log.log('Build MapState, markers: ${state.markers.length}', source: mapState.runtimeType.toString());
 
       return WillPopScope(
@@ -78,7 +69,7 @@ class _MapScreenState extends State<MapScreen> {
             children: [
 
               GoogleMap(
-                initialCameraPosition: widget.initialCameraPosition,
+                initialCameraPosition: state.initialCameraPosition!,
                 mapType: state.mapType,
                 markers: _prepareMarkers(state),
                 onCameraMove: _onCameraMove,
@@ -140,6 +131,7 @@ class _MapScreenState extends State<MapScreen> {
     _controllerFuture.complete(controller);
     _controller = await _controllerFuture.future;
     mapCubit.initMap(_controller);
+    setState((){});
     await _getInitialDiagonalDistance();
     Log.log('GoogleMap created', source: widget.runtimeType.toString());
   }

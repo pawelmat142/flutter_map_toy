@@ -33,9 +33,11 @@ class HomeScreen extends StatelessWidget {
 
             PrimaryButton('New map',
               onPressed: () async {
-                //TODO navigation issue - saved list many times in stack
-                BlocProvider.of<MapCubit>(context).cleanState();
-                MapScreen.push(context, await getIt.get<LocationService>().getMyInitialCameraPosition());
+                final ctx = context;
+                final mapCubit = BlocProvider.of<MapCubit>(context);
+                final initialCameraPosition = await getIt.get<LocationService>().getMyInitialCameraPosition();
+                mapCubit.setNewMapState(initialCameraPosition);
+                Navigator.pushNamed(ctx, MapScreen.id);
               }
             ),
 
