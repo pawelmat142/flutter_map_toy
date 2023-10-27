@@ -224,15 +224,20 @@ class MapCubit extends Cubit<MapState> {
 
   replaceMarker(LatLng point, { required markerId }) async {
     Log.log('Moving marker: $markerId to lat: ${point.latitude}, lng: ${point.longitude}', source: state.runtimeType.toString());
-
-    //TODO replace drawing marker
-    final mapIconPoints = state.mapIconPoints.map((mapIconPoint) {
+    final mapIconPoints = state.isIcon(markerId) ? state.mapIconPoints.map((mapIconPoint) {
       if (mapIconPoint.id == markerId) mapIconPoint.coordinates = point.coordinates;
       return mapIconPoint;
-    });
+    }) : null;
+
+    final drawings = state.isDrawing(markerId) ? state.drawings.map((drawing) {
+      if (drawing.id == markerId) drawing.coordinates = point.coordinates;
+      return drawing;
+    }) : null;
+
     emit(state.copyWith(
-      mapIconPoints: mapIconPoints.toSet(),
-      markers: await _getAllMarkers(mapIcons: mapIconPoints),
+      mapIconPoints: mapIconPoints?.toSet(),
+      drawings: drawings?.toSet(),
+      markers: await _getAllMarkers(mapIcons: mapIconPoints, drawings: drawings),
     ));
   }
 
@@ -241,7 +246,6 @@ class MapCubit extends Cubit<MapState> {
     final factor = state.initialDiagonalDistance! / distance;
     if (factor != state.rescaleFactor) {
       state.rescaleFactor = factor;
-      //TODO resize drawings
       emit(state.copyWith(
           rescaleFactor: factor,
           markers: await _getAllMarkers()

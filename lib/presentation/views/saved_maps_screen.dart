@@ -26,7 +26,8 @@ class SavedMapsScreen extends StatelessWidget {
         valueListenable: MapModel.hiveBox.listenable(),
         builder: (context, box, widget) {
 
-          //TODO sort by date
+          final values = box.values.toList();
+          values.sort((a, b) => a.modified.compareTo(b.modified));
 
           return ListView.separated(
               itemBuilder: (ctx, index) {
@@ -34,7 +35,7 @@ class SavedMapsScreen extends StatelessWidget {
 
                 return mapModel == null ? const SizedBox.shrink() : ListTile(
                   title: Text(mapModel.name),
-                  subtitle: Text(mapModel.modified?.format ?? ''),
+                  subtitle: Text(mapModel.modified.format),
                   onTap: () async {
                     //TODO get map center by markers
                     mapCubit.loadStateFromModel(mapModel);

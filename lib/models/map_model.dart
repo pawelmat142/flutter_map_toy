@@ -29,7 +29,7 @@ class MapModel extends HiveObject {
   List<double> mainCoordinates;
   
   @HiveField(5)
-  DateTime? modified;
+  DateTime modified;
 
   MapModel(
     this.name,
@@ -40,7 +40,7 @@ class MapModel extends HiveObject {
     this.modified,
   );
 
-  static const String hiveKey = 'map_model_hive_key';
+  static const String hiveKey = 'map_model_hive_key_x';
 
   static Box<MapModel> get hiveBox => Hive.box<MapModel>(hiveKey);
 

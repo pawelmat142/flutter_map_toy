@@ -22,7 +22,7 @@ class MapModelAdapter extends TypeAdapter<MapModel> {
       (fields[2] as List).cast<MapIconModel>(),
       (fields[3] as List).cast<MapDrawingModel>(),
       (fields[4] as List).cast<double>(),
-      fields[5] as DateTime?,
+      fields[5] as DateTime,
     );
   }
 

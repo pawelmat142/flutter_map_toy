@@ -45,6 +45,14 @@ class MapState {
     );
   }
 
+  bool isIcon(String markerId) {
+    return mapIconPoints.any((point) => point.id == markerId);
+  }
+
+  bool isDrawing(String markerId) {
+    return drawings.any((drawing) => drawing.id == markerId);
+  }
+
   MapState(
     this.state,
     this.mapModelId,
