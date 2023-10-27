@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
-import 'package:flutter_map_toy/models/map_drawing_model.dart';
+import 'package:flutter_map_toy/global/drawing/map_drawing_model.dart';
 import 'package:flutter_map_toy/models/map_icon_model.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:hive_flutter/hive_flutter.dart';

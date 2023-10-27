@@ -4,8 +4,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_line.dart';
+import 'package:flutter_map_toy/global/drawing/drawing_state.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
-import 'package:flutter_map_toy/models/map_drawing_model.dart';
+import 'package:flutter_map_toy/global/drawing/map_drawing_model.dart';
 import 'package:flutter_map_toy/models/map_icon_model.dart';
 import 'package:flutter_map_toy/models/map_model.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
@@ -186,6 +187,21 @@ class MapCubit extends Cubit<MapState> {
       drawingMode: false,
       ctx: context,
     ));
+  }
+
+  editDrawing(BuildContext context) async {
+    final drawingCubit = BlocProvider.of<DrawingCubit>(context);
+    final drawings = state.drawings.where((drawing) => drawing.id != state.selectedMarkerId);
+
+    final mapDrawingModel = state.drawings.firstWhere((drawing) => drawing.id == state.selectedMarkerId);
+
+    emit(state.copyWith(
+      drawingMode: true,
+      ctx: context,
+      drawings: drawings.toSet(),
+      markers: await _getAllMarkers(drawings: drawings)
+    ));
+    drawingCubit.emitStateToEditDrawing(mapDrawingModel);
   }
 
 

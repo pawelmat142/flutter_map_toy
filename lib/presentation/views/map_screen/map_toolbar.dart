@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_state.dart';
@@ -91,12 +90,7 @@ class MapToolbar extends StatelessWidget {
           barLabel: 'edit line',
           icon: AppIcon.editLine,
           onTap: () {
-
-
-            //TODO edit drawing
-            if (kDebugMode){
-              print('EDIT LINE');
-            }
+            cubit.editDrawing(context);
           }
       ) : ToolBarItem(
           label: 'draw_line',

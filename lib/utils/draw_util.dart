@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_line.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_painter.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
-import 'package:flutter_map_toy/models/map_drawing_model.dart';
+import 'package:flutter_map_toy/global/drawing/map_drawing_model.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:uuid/uuid.dart';

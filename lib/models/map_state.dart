@@ -4,7 +4,7 @@ import 'package:flutter_map_toy/global/drawing/drawing_state.dart';
 import 'package:flutter_map_toy/models/map_icon_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import 'map_drawing_model.dart';
+import '../global/drawing/map_drawing_model.dart';
 
 enum BlocState {
   empty,

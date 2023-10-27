@@ -4,15 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'drawing_initializer.dart';
 import 'drawing_painter.dart';
 import 'drawing_line.dart';
-
-enum BlocState {
-  on,
-  off
-}
+import 'map_drawing_model.dart';
 
 class DrawingState {
 
-  BlocState state;
   bool on;
   Color color;
   double width;
@@ -22,7 +17,6 @@ class DrawingState {
   DrawingPainter drawingPainter;
 
   DrawingState(
-    this.state,
     this.on,
     this.color,
     this.width,
@@ -33,7 +27,6 @@ class DrawingState {
   );
 
   DrawingState copyWith({
-    BlocState? state,
     bool? on,
     Color? color,
     double? width,
@@ -42,7 +35,6 @@ class DrawingState {
     bool cleanCurrentDrawingLine = false,
     DrawingPainter? drawingPainter,
   }) => DrawingState(
-    state ?? this.state,
     on ?? this.on,
     color ?? this.color,
     width ?? this.width,
@@ -57,7 +49,7 @@ class DrawingState {
 class DrawingCubit extends Cubit<DrawingState> {
 
   DrawingCubit(DrawingInitializer initializer)
-      : super(DrawingState(BlocState.off, false, Colors.black, 2, [], null, initializer, DrawingPainter(drawingLines: [])));
+      : super(DrawingState(false, Colors.black, 2, [], null, initializer, DrawingPainter(drawingLines: [])));
 
   turn({ required bool on }) {
     if (on) {
@@ -143,6 +135,16 @@ class DrawingCubit extends Cubit<DrawingState> {
     emit(state.copyWith(
       width: width,
       drawingLines: drawingLines,
+      drawingPainter: DrawingPainter(drawingLines: drawingLines)
+    ));
+  }
+
+  emitStateToEditDrawing(MapDrawingModel mapDrawingModel) {
+    final drawingLines = mapDrawingModel.restoreLines();
+    emit(state.copyWith(
+      drawingLines: drawingLines,
+      color: Color(mapDrawingModel.colorInt),
+      width: mapDrawingModel.width,
       drawingPainter: DrawingPainter(drawingLines: drawingLines)
     ));
   }

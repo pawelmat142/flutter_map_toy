@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flutter_map_toy/global/drawing/drawing_line.dart';
 import 'package:hive_flutter/hive_flutter.dart';
