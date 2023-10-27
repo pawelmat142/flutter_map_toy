@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_state.dart';
 import 'package:flutter_map_toy/models/map_icon_model.dart';
-import 'package:flutter_map_toy/services/log.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'map_drawing_model.dart';
@@ -83,10 +82,9 @@ class MapState {
     BuildContext? ctx,
     double? initialDiagonalDistance,
   }) {
-    Log.log('New MapState', source: runtimeType.toString());
     if (drawingMode is bool) {
       if (ctx == null) throw 'context is needed when change drawingMode!';
-      if (this.drawingMode == drawingMode) return this;
+      // if (this.drawingMode == drawingMode) return this;
       final drawingCubit = BlocProvider.of<DrawingCubit>(ctx);
       _validateDrawingMode(drawingCubit);
       drawingCubit.turn(on: drawingMode);

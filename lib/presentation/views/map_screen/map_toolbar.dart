@@ -28,9 +28,17 @@ class MapToolbar extends StatelessWidget {
     final drawingCubit = BlocProvider.of<DrawingCubit>(context);
     return [
       ToolBarItem(
+          label: 'confirm',
+          barLabel: 'confirm',
+          icon: AppIcon.confirm,
+          onTap: () {
+            cubit.addDrawingAsMarker(context: context, drawingLines: drawingCubit.state.drawingLines);
+          }
+      ),
+      ToolBarItem(
         label: 'cancel',
         barLabel: 'cancel',
-        icon: AppIcon.drawCancel,
+        icon: AppIcon.cancel,
         onTap: () => cubit.turnDrawingMode(context: context, on: false)
       ),
       ToolBarItem(
@@ -44,14 +52,6 @@ class MapToolbar extends StatelessWidget {
           barLabel: 'width',
           icon: AppIcon.drawWidth,
           onTap: () => drawingCubit.selectWidth(context)
-      ),
-      ToolBarItem(
-          label: 'test',
-          barLabel: 'test',
-          icon: AppIcon.defaultIcon,
-          onTap: () {
-            cubit.addDrawingAsMarker(context: context, drawingLines: drawingCubit.state.drawingLines);
-          }
       ),
       ToolBarItem(
         label: Toolbar.menuLabel,
@@ -76,17 +76,13 @@ class MapToolbar extends StatelessWidget {
         barLabel: 'add point',
         menuLabel: 'add point',
         icon: AppIcon.addPoint,
-        onTap: () async =>
-            cubit.addIconMarker(context,
-                mapViewCenter: await state.mapViewCenter,
-            ),
+        onTap: () => cubit.addIconMarker(context),
       ) : ToolBarItem(
         label: 'edit_marker',
         barLabel: 'edit',
         icon: AppIcon.editPoint,
         disabled: cubit.state.selectedMarkerId.isEmpty,
-        onTap: () =>
-            cubit.updateIconMarker(context, rescaleFactor: state.rescaleFactor),
+        onTap: () => cubit.updateIconMarker(context),
       ),
 
       state.isAnyDrawingSelected ?
@@ -95,6 +91,8 @@ class MapToolbar extends StatelessWidget {
           barLabel: 'edit line',
           icon: AppIcon.editLine,
           onTap: () {
+
+
             //TODO edit drawing
             if (kDebugMode){
               print('EDIT LINE');

@@ -9,6 +9,9 @@ abstract class AppIcon {
   static const edit = Icons.edit_note;
   static const add = Icons.playlist_add;
 
+  static const confirm = Icons.done_outline_rounded;
+  static const cancel = Icons.cancel;
+
   static const addPoint = Icons.add_location_alt_rounded;
   static const editPoint = Icons.edit_location_alt_rounded;
   static const cleanPoint = Icons.wrong_location_rounded;
@@ -16,7 +19,6 @@ abstract class AppIcon {
 
   static const drawLine = Icons.drive_file_rename_outline_sharp;
   static const editLine = Icons.drive_file_rename_outline;
-  static const drawCancel = Icons.cancel;
   static const drawColor = Icons.color_lens;
   static const drawWidth = Icons.open_in_full_rounded;
   static const drawWidth1 = Icons.expand_rounded;

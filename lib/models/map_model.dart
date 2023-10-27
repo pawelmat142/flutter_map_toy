@@ -40,7 +40,7 @@ class MapModel extends HiveObject {
     this.modified,
   );
 
-  static const String hiveKey = 'map_model_hive_key_x';
+  static const String hiveKey = 'map_model_hive_key_xx';
 
   static Box<MapModel> get hiveBox => Hive.box<MapModel>(hiveKey);
 

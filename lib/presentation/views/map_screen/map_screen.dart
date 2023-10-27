@@ -25,8 +25,8 @@ class MapScreen extends StatelessWidget {
       if (state.initialCameraPosition == null) {
         return const SizedBox.shrink();
       }
-
       Log.log('Build MapState, markers: ${state.markers.length}', source: state.runtimeType.toString());
+      Log.log('Build MapState, markerId: ${state.selectedMarkerId}', source: state.runtimeType.toString());
 
       return WillPopScope(
         onWillPop: () async {
@@ -44,10 +44,10 @@ class MapScreen extends StatelessWidget {
               GoogleMap(
                 initialCameraPosition: state.initialCameraPosition!,
                 mapType: state.mapType,
-                markers: _prepareMarkers(state, cubit),
-                onCameraMove: (position) => _onCameraMove(position, cubit, state),
+                markers: _prepareMarkers(state, cubit, context),
+                onCameraMove: (position) => _onCameraMove(position, cubit, state, context),
                 onMapCreated: (controller) => cubit.initMap(controller),
-                onTap: (point) => _onMapTap(point, cubit, state),
+                onTap: (point) => _onMapTap(point, cubit, state, context),
               ),
 
               const DrawingWidget(),
@@ -61,40 +61,42 @@ class MapScreen extends StatelessWidget {
     });
   }
 
-  _onMapTap(LatLng point, MapCubit mapCubit, MapState state) async {
+  _onMapTap(LatLng point, MapCubit mapCubit, MapState state, BuildContext context) async {
     if (state.selectedMarkerId.isEmpty) return;
-    mapCubit.selectMarker(null);
+    mapCubit.selectMarker(null, context);
   }
 
-  _onCameraMove(CameraPosition cameraPosition, MapCubit cubit, MapState state) {
+  _onCameraMove(CameraPosition cameraPosition, MapCubit cubit, MapState state, BuildContext context) {
     //workaround
-    cameraMoveEndHandler.handle(() async {
+    cameraMoveEndHandler.handle(() {
       //onCameraMoveEnd:
-      await cubit.updateRescaleFactor();
-      _unselectMarkerIfOutOfView(cubit, state);
+      cubit.updateRescaleFactor().then((_) {
+        _unselectMarkerIfOutOfView(cubit, state, context);
+      });
     });
   }
 
-  _unselectMarkerIfOutOfView(MapCubit cubit, MapState state) async {
+  _unselectMarkerIfOutOfView(MapCubit cubit, MapState state, BuildContext context) {
     if (state.selectedMarker != null) {
       //workaround solution, also in _onMarkerTap
       //GoogleMaps API doesn't share info about selected marker id or something
       //this solution should integrate google maps marker selection with this app marker selection
       //its not perfect so marker selection may be not synchronized
-      final visibleRegion = await state.mapController?.getVisibleRegion();
-      final markerVisible = visibleRegion?.contains(state.selectedMarker!.position) ?? false;
-      if (!markerVisible) {
-        cubit.selectMarker(null);
-      }
+      state.mapController?.getVisibleRegion().then((visibleRegion) {
+        final markerVisible = visibleRegion.contains(state.selectedMarker!.position);
+        if (!markerVisible) {
+          cubit.selectMarker(null, context);
+        }
+      });
     }
   }
 
-  Set<Marker> _prepareMarkers(MapState state, MapCubit cubit) {
+  Set<Marker> _prepareMarkers(MapState state, MapCubit cubit, BuildContext context) {
     return state.markers.map((marker) => Marker(
         markerId: marker.markerId,
         position: marker.position,
         icon: marker.icon,
-        onTap: () => _onMarkerTap(marker, cubit),
+        onTap: () => _onMarkerTap(marker, cubit, context),
         draggable: true,
         onDragEnd: (point) {
           cubit.replaceMarker(point, markerId: marker.markerId.value);
@@ -102,7 +104,7 @@ class MapScreen extends StatelessWidget {
     )).toSet();
   }
 
-  _onMarkerTap(Marker marker, MapCubit mapCubit) {
-    mapCubit.selectMarker(marker);
+  _onMarkerTap(Marker marker, MapCubit mapCubit, BuildContext context) {
+    mapCubit.selectMarker(marker, context);
   }
 }

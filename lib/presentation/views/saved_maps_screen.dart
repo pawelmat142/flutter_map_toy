@@ -29,6 +29,8 @@ class SavedMapsScreen extends StatelessWidget {
           final values = box.values.toList();
           values.sort((a, b) => a.modified.compareTo(b.modified));
 
+          //TODO new map button
+
           return ListView.separated(
               itemBuilder: (ctx, index) {
                 var mapModel = box.getAt(index);

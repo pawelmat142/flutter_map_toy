@@ -19,26 +19,36 @@ class MapDrawingModelAdapter extends TypeAdapter<MapDrawingModel> {
     return MapDrawingModel(
       fields[0] as String,
       fields[1] as String,
-      fields[2] as Uint8List,
-      fields[3] as String,
-      (fields[4] as List).cast<double>(),
+      fields[2] as String,
+      (fields[3] as List).cast<double>(),
+      fields[4] as int,
+      fields[5] as double,
+      (fields[6] as List)
+          .map((dynamic e) => (e as List)
+              .map((dynamic e) => (e as List).cast<double>())
+              .toList())
+          .toList(),
     );
   }
 
   @override
   void write(BinaryWriter writer, MapDrawingModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
       ..write(obj.description)
       ..writeByte(2)
-      ..write(obj.bitmap)
-      ..writeByte(3)
       ..write(obj.id)
+      ..writeByte(3)
+      ..write(obj.coordinates)
       ..writeByte(4)
-      ..write(obj.coordinates);
+      ..write(obj.colorInt)
+      ..writeByte(5)
+      ..write(obj.width)
+      ..writeByte(6)
+      ..write(obj.points);
   }
 
   @override

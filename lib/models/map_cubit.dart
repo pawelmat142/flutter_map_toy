@@ -14,6 +14,7 @@ import 'package:flutter_map_toy/presentation/dialogs/map_name_popup.dart';
 import 'package:flutter_map_toy/presentation/views/home_screen.dart';
 import 'package:flutter_map_toy/presentation/views/saved_maps_screen.dart';
 import 'package:flutter_map_toy/services/log.dart';
+import 'package:flutter_map_toy/utils/draw_util.dart';
 import 'package:flutter_map_toy/utils/icon_util.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -99,14 +100,12 @@ class MapCubit extends Cubit<MapState> {
 
   /// ICONS MANAGEMENT
   ///
-  addIconMarker(BuildContext context, {
-    required LatLng mapViewCenter,
-  }) {
+  addIconMarker(BuildContext context) {
     final wizard = IconWizard();
     wizard.run(context);
     wizard.onComplete = (craft) async {
       if (craft.incomplete) return;
-      final mapIconPoint = IconUtil.mapIconPointFromCraft(craft, mapViewCenter);
+      final mapIconPoint = IconUtil.mapIconPointFromCraft(craft, await state.mapViewCenter);
       final mapIconPoints = state.mapIconPoints;
       mapIconPoints.add(mapIconPoint);
 
@@ -129,10 +128,7 @@ class MapCubit extends Cubit<MapState> {
     return markers.toSet();
   }
 
-  updateIconMarker(BuildContext context, {
-    required double rescaleFactor
-  }) {
-
+  updateIconMarker(BuildContext context) {
     final mapIconPoint = state.selectedMapIconPoint;
     if (mapIconPoint == null) throw 'mapIconPoint == null ';
 
@@ -153,6 +149,7 @@ class MapCubit extends Cubit<MapState> {
       emit(state.copyWith(
         mapIconPoints: points.toSet(),
         markers: await _getAllMarkers(mapIcons: points),
+        selectedMarkerId: '',
       ));
     };
   }
@@ -163,6 +160,7 @@ class MapCubit extends Cubit<MapState> {
     emit(state.copyWith(
       drawingMode: on,
       ctx: context,
+      selectedMarkerId: '',
     ));
   }
 
@@ -174,7 +172,7 @@ class MapCubit extends Cubit<MapState> {
         ? MediaQuery.of(context).devicePixelRatio
         : 1.0;
 
-    final drawingModel = await MapUtil.getModelFromDrawing(
+    final drawingModel = await DrawUtil.getModelFromDrawing(
         devicePixelRatio: devicePixelRatio,
         mapController: state.mapController!,
         drawingLines: drawingLines,
@@ -199,7 +197,7 @@ class MapCubit extends Cubit<MapState> {
   }) async {
     return  {
       ...(await _markersFromPoints(mapIcons ?? state.mapIconPoints)),
-      ...(drawings ?? state.drawings).map((drawing) => MapUtil.getMarkerFromDrawingModel(drawing))
+      ...(await DrawUtil.getMarkersFromDrawingModels(drawings ?? state.drawings))
     };
   }
 
@@ -213,12 +211,14 @@ class MapCubit extends Cubit<MapState> {
     Log.log('Markers cleaned', source: state.runtimeType.toString());
   }
 
-  selectMarker(Marker? marker) {
+  selectMarker(Marker? marker, BuildContext context) {
     final markerId = marker == null ? '' : marker.markerId.value;
     if (markerId == state.selectedMarkerId) return;
     Log.log('Selecting marker with id: $markerId', source: runtimeType.toString());
     emit(state.copyWith(
-        selectedMarkerId: markerId
+      selectedMarkerId: markerId,
+      drawingMode: false,
+      ctx: context
     ));
   }
 
