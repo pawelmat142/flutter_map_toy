@@ -108,6 +108,27 @@ class MapToolbar extends StatelessWidget {
           onTap: cubit.cleanMarkers
       ),
       ToolBarItem(
+          label: 'remove',
+          barLabel: 'remove',
+          icon: AppIcon.delete,
+          disabled: !state.isAnyMarkerSelected,
+          onTap: () {
+            showDialog<bool?>(context: context, builder: (ctx) => AlertDialog(
+              title: const Text('Are you sure?'),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancel')
+                ),
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () => Navigator.pop(context, true),
+                )
+              ],
+            )).then(cubit.removeMarker);
+          }
+      ),
+      ToolBarItem(
           label: 'save_map',
           barLabel: 'save',
           menuLabel: 'save',

@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 
 abstract class AppIcon {
 
+  static const defaultIcon = Icons.question_mark_rounded;
   static const menu = Icons.menu;
+  static const confirm = Icons.done_outline_rounded;
+  static const cancel = Icons.cancel;
+  static const delete = Icons.delete_outline_rounded;
 
   static const save = Icons.playlist_add_check;
   static const remove = Icons.playlist_remove_rounded;
   static const edit = Icons.edit_note;
   static const add = Icons.playlist_add;
-
-  static const confirm = Icons.done_outline_rounded;
-  static const cancel = Icons.cancel;
 
   static const addPoint = Icons.add_location_alt_rounded;
   static const editPoint = Icons.edit_location_alt_rounded;
@@ -28,7 +29,6 @@ abstract class AppIcon {
   static const mapTypeTerrain = Icons.terrain_rounded;
   static const mapTypeSatellite = Icons.satellite_alt_rounded;
 
-  static const defaultIcon = Icons.question_mark_rounded;
 
   static List<IconData> mapFlutterIcons = [
     Icons.cottage_rounded,

@@ -16,7 +16,7 @@ class MapState {
   BlocState state;
   String mapModelId;
   Set<Marker> markers;
-  Set<MapIconModel> mapIconPoints;
+  Set<MapIconModel> icons;
   Set<MapDrawingModel> drawings;
   String selectedMarkerId;
   MapType mapType;
@@ -27,14 +27,14 @@ class MapState {
   double? initialDiagonalDistance;
 
   bool get isAnyMarkerSelected => selectedMarkerId.isNotEmpty;
-  bool get isAnyIconSelected => mapIconPoints.any((point) => point.id == selectedMarkerId);
+  bool get isAnyIconSelected => icons.any((point) => point.id == selectedMarkerId);
   bool get isAnyDrawingSelected => isAnyMarkerSelected && !isAnyIconSelected;
 
   Marker? get selectedMarker => selectedMarkerId.isEmpty ? null
       : markers.firstWhere((marker) => marker.markerId.value == selectedMarkerId);
 
   MapIconModel? get selectedMapIconPoint => selectedMarkerId.isEmpty ? null
-      : mapIconPoints.firstWhere((point) => point.id == selectedMarkerId);
+      : icons.firstWhere((point) => point.id == selectedMarkerId);
 
   Future<LatLng> get mapViewCenter async {
     final visibleRegion = await mapController!.getVisibleRegion();
@@ -45,7 +45,7 @@ class MapState {
   }
 
   bool isIcon(String markerId) {
-    return mapIconPoints.any((point) => point.id == markerId);
+    return icons.any((point) => point.id == markerId);
   }
 
   bool isDrawing(String markerId) {
@@ -58,7 +58,7 @@ class MapState {
     this.state,
     this.mapModelId,
     this.markers,
-    this.mapIconPoints,
+    this.icons,
     this.drawings,
     this.selectedMarkerId,
     this.mapType,
@@ -73,7 +73,7 @@ class MapState {
     BlocState? state,
     String? mapModelId,
     Set<Marker>? markers,
-    Set<MapIconModel>? mapIconPoints,
+    Set<MapIconModel>? icons,
     Set<MapDrawingModel>? drawings,
     String? selectedMarkerId,
     MapType? mapType,
@@ -95,7 +95,7 @@ class MapState {
       state ?? this.state,
       mapModelId ?? this.mapModelId,
       markers ?? this.markers,
-      mapIconPoints ?? this.mapIconPoints,
+      icons ?? this.icons,
       drawings ?? this.drawings,
       selectedMarkerId ?? this.selectedMarkerId,
       mapType ?? this.mapType,

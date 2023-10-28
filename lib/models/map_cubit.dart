@@ -52,7 +52,7 @@ class MapCubit extends Cubit<MapState> {
     emit(state.copyWith(
         mapModelId: '',
         markers: {},
-        mapIconPoints: {},
+        icons: {},
         drawings: {},
         selectedMarkerId: '',
         rescaleFactor: 1,
@@ -71,7 +71,7 @@ class MapCubit extends Cubit<MapState> {
     emit(state.copyWith(
         mapModelId: mapModel.id,
         drawings: drawings,
-        mapIconPoints: mapIcons,
+        icons: mapIcons,
         markers: await _getAllMarkers(mapIcons: mapIcons, drawings: drawings),
         selectedMarkerId: '',
         initialCameraPosition: MapUtil.getCameraPosition(MapUtil.pointFromCoordinates(mapModel.mainCoordinates))
@@ -110,12 +110,12 @@ class MapCubit extends Cubit<MapState> {
     wizard.onComplete = (craft) async {
       if (craft.incomplete) return;
       final mapIconModel = IconUtil.mapIconPointFromCraft(craft, await state.mapViewCenter);
-      final mapIconModels = state.mapIconPoints;
+      final mapIconModels = state.icons;
       mapIconModels.add(mapIconModel);
 
       emit(state.copyWith(
           selectedMarkerId: '',
-          mapIconPoints: mapIconModels,
+          icons: mapIconModels,
           markers: await _getAllMarkers(mapIcons: mapIconModels)
       ));
       Log.log('Added marker with id: ${mapIconModel.id}', source: runtimeType.toString());
@@ -141,7 +141,7 @@ class MapCubit extends Cubit<MapState> {
     wizard.run(context, edit: craft);
     wizard.onComplete = (newCraft) async {
       newCraft.id = craft.id;
-      final points = state.mapIconPoints.map((point) {
+      final points = state.icons.map((point) {
         if (point.id == newCraft.id) {
           point = IconUtil.mapIconPointFromCraft(newCraft,
               MapUtil.pointFromCoordinates(mapIconPoint.coordinates)
@@ -151,7 +151,7 @@ class MapCubit extends Cubit<MapState> {
       });
 
       emit(state.copyWith(
-        mapIconPoints: points.toSet(),
+        icons: points.toSet(),
         markers: await _getAllMarkers(mapIcons: points),
         selectedMarkerId: '',
       ));
@@ -225,7 +225,7 @@ class MapCubit extends Cubit<MapState> {
     Iterable<MapDrawingModel>? drawings,
   }) async {
     return  {
-      ...(await _markersFromPoints(mapIcons ?? state.mapIconPoints)),
+      ...(await _markersFromPoints(mapIcons ?? state.icons)),
       ...(await _markersFromDrawings(drawings ?? state.drawings))
     };
   }
@@ -233,7 +233,7 @@ class MapCubit extends Cubit<MapState> {
   cleanMarkers() {
     emit(state.copyWith(
         selectedMarkerId: '',
-        mapIconPoints: {},
+        icons: {},
         drawings: {},
         markers: {},
     ));
@@ -253,7 +253,7 @@ class MapCubit extends Cubit<MapState> {
 
   replaceMarker(LatLng point, { required markerId }) async {
     Log.log('Moving marker: $markerId to lat: ${point.latitude}, lng: ${point.longitude}', source: state.runtimeType.toString());
-    final mapIconPoints = state.isIcon(markerId) ? state.mapIconPoints.map((mapIconPoint) {
+    final mapIconPoints = state.isIcon(markerId) ? state.icons.map((mapIconPoint) {
       if (mapIconPoint.id == markerId) mapIconPoint.coordinates = point.coordinates;
       return mapIconPoint;
     }) : null;
@@ -264,7 +264,7 @@ class MapCubit extends Cubit<MapState> {
     }) : null;
 
     emit(state.copyWith(
-      mapIconPoints: mapIconPoints?.toSet(),
+      icons: mapIconPoints?.toSet(),
       drawings: drawings?.toSet(),
       markers: await _getAllMarkers(mapIcons: mapIconPoints, drawings: drawings),
     ));
@@ -280,6 +280,19 @@ class MapCubit extends Cubit<MapState> {
           markers: await _getAllMarkers()
       ));
     }
+  }
+
+  removeMarker(bool? remove) async {
+    if (remove == null || !remove) return;
+    if (state.isDrawing(state.selectedMarkerId)) {
+      state.drawings.removeWhere((drawing) => drawing.id == state.selectedMarkerId);
+    } else {
+      state.icons.removeWhere((icon) => icon.id == state.selectedMarkerId);
+    }
+    emit(state.copyWith(
+      selectedMarkerId: '',
+      markers: await _getAllMarkers()
+    ));
   }
 
 }

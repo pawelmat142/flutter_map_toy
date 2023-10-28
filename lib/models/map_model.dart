@@ -62,7 +62,7 @@ class MapModel extends HiveObject {
     return MapModel(
       name,
       id ?? const Uuid().v1(),
-      state.mapIconPoints.toList(),
+      state.icons.toList(),
       state.drawings.toList(),
       (await state.mapViewCenter).coordinates,
       DateTime.now()
