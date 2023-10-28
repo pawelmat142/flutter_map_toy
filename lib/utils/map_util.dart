@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter_map_toy/models/map_icon_model.dart';
+import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/utils/icon_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:widget_to_marker/widget_to_marker.dart';
@@ -8,7 +9,7 @@ import 'package:widget_to_marker/widget_to_marker.dart';
 abstract class MapUtil {
 
   static const double kZoomDefault = 16;
-  static const double kZoomInitial = 14.5;
+  static const double kZoomInitial = 18;
 
   static const double earthRadius = 6371; // Earth's radius in kilometers
 
@@ -45,6 +46,9 @@ abstract class MapUtil {
     return distanceBetweenPoints(viewPort.southwest, viewPort.northeast);
   }
 
+  //TODO name and description marker
+  //TODO button for find map
+
   static Future<Marker> getMarkerFromIcon(MapIconModel mapIconPoint) async {
     final craft = IconUtil.craftFromMapIconPoint(mapIconPoint);
     if (craft.incomplete) throw 'craft incomplete!';
@@ -52,66 +56,33 @@ abstract class MapUtil {
     return Marker(
       markerId: MarkerId(craft.id!),
       position: MapUtil.pointFromCoordinates(mapIconPoint.coordinates),
-      icon: await craft.widget.toBitmapDescriptor(),
+      icon: await craft.widget().toBitmapDescriptor(),
     );
   }
 
+  static void animateInitialCameraForSavedMap(MapState state) {
+    if (state.mapModelId.isEmpty || state.markers.isEmpty) return;
 
-  //   static Future<Marker> getMarkerFromIcon(MapIconPoint mapIconPoint) async {
-  //   final iconData = IconData(mapIconPoint.iconDataPoint, fontFamily: 'MaterialIcons');
-  //   final iconStr = String.fromCharCode(iconData.codePoint);
-  //
-  //   final pictureRecorder = PictureRecorder();
-  //   final canvas = Canvas(pictureRecorder);
-  //
-  //   const iconProportion = 0.8;
-  //   final size = mapIconPoint.size/2;
-  //   final rectOffset = size*0.025;
-  //   final iconOffset = (size*(1-iconProportion)/2)+rectOffset;
-  //   final color = Color(mapIconPoint.colorInt);
-  //   final radius = size*0.2;
-  //
-  //   final rect = RRect.fromLTRBR(rectOffset, rectOffset, size, size, Radius.circular(radius));
-  //
-  //   canvas.drawRRect(rect, Paint()..color = color.withAlpha(50));
-  //
-  //   canvas.drawPath(
-  //     Path()
-  //       ..addRRect(rect),
-  //     Paint()
-  //       ..color = color
-  //       ..strokeWidth = size*0.05
-  //       ..style = PaintingStyle.stroke
-  //   );
-  //
-  //   final textPainter = TextPainter(textDirection: TextDirection.ltr);
-  //   textPainter.text = TextSpan(
-  //       text: iconStr,
-  //       style: TextStyle(
-  //         letterSpacing: 0.0,
-  //         fontSize: size*iconProportion,
-  //         fontWeight: FontWeight.w200,
-  //         fontFamily: iconData.fontFamily,
-  //         color: Color(mapIconPoint.colorInt),
-  //       )
-  //   );
-  //   textPainter.layout();
-  //   textPainter.paint(canvas, Offset(iconOffset, iconOffset));
-  //
-  //   final imgSize = (size*1.05).toInt();
-  //   final image = await pictureRecorder.endRecording().toImage(imgSize, imgSize);
-  //   final bytes = await image.toByteData(format: ImageByteFormat.png);
-  //
-  //   if (bytes == null) throw "bytes == null";
-  //
-  //   final bitmapDescriptor = BitmapDescriptor.fromBytes(bytes.buffer.asUint8List());
-  //   final marker = Marker(
-  //     markerId: MarkerId(mapIconPoint.id),
-  //     position: IconUtil.pointFromCoordinates(mapIconPoint.coordinates),
-  //     icon: bitmapDescriptor,
-  //   );
-  //
-  //   return marker;
-  // }
+    if (state.markers.length == 1) {
+      state.mapController?.animateCamera(CameraUpdate.newLatLng(state.markers.first.position));
+      return;
+    }
+
+    Set<double> latitudes = {};
+    Set<double> longitudes = {};
+    for (var marker in state.markers) {
+      longitudes.add(marker.position.longitude);
+      latitudes.add(marker.position.latitude);
+    }
+    final minY = longitudes.reduce(min);
+    final maxY = longitudes.reduce(max);
+    final minX = latitudes.reduce(min);
+    final maxX = latitudes.reduce(max);
+    final bounds = LatLngBounds(
+        southwest: LatLng(minX, minY),
+        northeast: LatLng(maxX, maxY)
+    );
+    state.mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 100));
+  }
 
 }

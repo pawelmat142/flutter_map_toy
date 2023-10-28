@@ -39,7 +39,6 @@ class SavedMapsScreen extends StatelessWidget {
                   title: Text(mapModel.name),
                   subtitle: Text(mapModel.modified.format),
                   onTap: () async {
-                    //TODO get map center by markers
                     mapCubit.loadStateFromModel(mapModel);
                     Navigator.pushNamed(context, MapScreen.id);
                   },

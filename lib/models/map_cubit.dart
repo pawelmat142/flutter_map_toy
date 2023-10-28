@@ -41,11 +41,8 @@ class MapCubit extends Cubit<MapState> {
         selectedMarkerId: '',
         initialDiagonalDistance: diagonalDistance
       ));
+      MapUtil.animateInitialCameraForSavedMap(state);
     }
-  }
-
-  setInitialCameraPosition(CameraPosition initialCameraPosition) {
-    emit(state.copyWith(initialCameraPosition: initialCameraPosition));
   }
 
   emitNewMapState(CameraPosition initialCameraPosition) {
@@ -72,7 +69,7 @@ class MapCubit extends Cubit<MapState> {
         mapModelId: mapModel.id,
         drawings: drawings,
         icons: mapIcons,
-        markers: await _getAllMarkers(mapIcons: mapIcons, drawings: drawings),
+        markers: await _getAllMarkers(icons: mapIcons, drawings: drawings),
         selectedMarkerId: '',
         initialCameraPosition: MapUtil.getCameraPosition(MapUtil.pointFromCoordinates(mapModel.mainCoordinates))
     ));
@@ -116,13 +113,13 @@ class MapCubit extends Cubit<MapState> {
       emit(state.copyWith(
           selectedMarkerId: '',
           icons: mapIconModels,
-          markers: await _getAllMarkers(mapIcons: mapIconModels)
+          markers: await _getAllMarkers(icons: mapIconModels)
       ));
       Log.log('Added marker with id: ${mapIconModel.id}', source: runtimeType.toString());
     };
   }
 
-  Future<Set<Marker>> _markersFromPoints(
+  Future<Set<Marker>> _markersFromIcons(
       Iterable<MapIconModel> icons,
       ) async {
     final futures = icons.map((mapIconModel) {
@@ -152,7 +149,7 @@ class MapCubit extends Cubit<MapState> {
 
       emit(state.copyWith(
         icons: points.toSet(),
-        markers: await _getAllMarkers(mapIcons: points),
+        markers: await _getAllMarkers(icons: points),
         selectedMarkerId: '',
       ));
     };
@@ -221,11 +218,11 @@ class MapCubit extends Cubit<MapState> {
   /// MARKERS MANAGEMENT
   ///
   Future<Set<Marker>> _getAllMarkers({
-    Iterable<MapIconModel>? mapIcons,
+    Iterable<MapIconModel>? icons,
     Iterable<MapDrawingModel>? drawings,
   }) async {
     return  {
-      ...(await _markersFromPoints(mapIcons ?? state.icons)),
+      ...(await _markersFromIcons(icons ?? state.icons)),
       ...(await _markersFromDrawings(drawings ?? state.drawings))
     };
   }
@@ -266,7 +263,7 @@ class MapCubit extends Cubit<MapState> {
     emit(state.copyWith(
       icons: mapIconPoints?.toSet(),
       drawings: drawings?.toSet(),
-      markers: await _getAllMarkers(mapIcons: mapIconPoints, drawings: drawings),
+      markers: await _getAllMarkers(icons: mapIconPoints, drawings: drawings),
     ));
   }
 

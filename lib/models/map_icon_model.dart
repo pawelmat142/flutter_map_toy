@@ -20,7 +20,7 @@ class MapIconModel extends HiveObject {
   String id;
 
   @HiveField(4)
-  List<double> coordinates;
+  List<double> coordinates; // [ longitude, latitude ]
 
   @HiveField(5)
   String type;

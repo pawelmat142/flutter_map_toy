@@ -86,7 +86,7 @@ class MapState {
       if (ctx == null) throw 'context is needed when change drawingMode!';
       // if (this.drawingMode == drawingMode) return this;
       final drawingCubit = BlocProvider.of<DrawingCubit>(ctx);
-      _validateDrawingMode(drawingCubit);
+      // _validateDrawingMode(drawingCubit);
       drawingCubit.turn(on: drawingMode);
     }
     return MapState(
@@ -105,8 +105,4 @@ class MapState {
     );
   }
 
-  _validateDrawingMode(DrawingCubit drawingCubit) {
-    if (drawingCubit.state.on == drawingMode) return;
-    throw 'Drawing state mode error!';
-  }
 }

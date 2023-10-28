@@ -98,7 +98,7 @@ class MapToolbar extends StatelessWidget {
           icon: AppIcon.drawLine,
           onTap: () {
             cubit.turnDrawingMode(
-                context: context, on: state.drawingMode == false);
+                context: context, on: !state.drawingMode);
           }
       ),
       ToolBarItem(

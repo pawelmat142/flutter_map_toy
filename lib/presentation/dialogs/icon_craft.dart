@@ -6,12 +6,16 @@ import 'package:uuid/uuid.dart';
 
 class IconCraft {
 
-  static const double maxSize = 100;
-  static const double minSize = 20;
+  static const double maxSize = 500;
+  static const double minSize = 100;
 
-  static const double defaultSize = 70;
+  static const double iconCraftDisplayFactor = 0.2;
+
+  static const double defaultSize = 200;
   static const IconData defaultIcon = Icons.question_mark_rounded;
   static const Color defaultIconColor = AppColor.white30;
+
+  static double get iconDisplaySize => maxSize * iconCraftDisplayFactor;
 
   IconData? iconData;
   Color? color;
@@ -43,31 +47,36 @@ class IconCraft {
       ..id = const Uuid().v1();
   }
 
-  StatelessWidget get widget => IconCraftWidget(this);
+  StatelessWidget widget({ bool rescaled = false }) => IconCraftWidget(this, rescaled);
 }
 
 class IconCraftWidget extends StatelessWidget {
 
   final IconCraft craft;
+  final bool rescaled;
 
-  const IconCraftWidget(this.craft,
+  const IconCraftWidget(this.craft, this.rescaled,
       {Key? key}) : super(key: key);
+
+  double get displayFactor => rescaled ? IconCraft.iconCraftDisplayFactor : 1;
 
   @override
   Widget build(BuildContext context) {
 
-    final radius = craft.size!*0.2;
-    final iconSize = craft.size!*0.8;
+    final radius = craft.size!*0.2 * displayFactor;
+    final iconSize = craft.size!*0.8 * displayFactor;
+
+    final size = craft.size == null ? null : craft.size! * displayFactor;
 
     return Container(
-      width: craft.size,
-      height: craft.size,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
           color: craft.color!.withAlpha(50),
           borderRadius: BorderRadius.circular(radius),
           border: Border.all(
               color: craft.color!,
-              width: craft.size!*0.05
+              width: size!*0.05
           )
       ),
       child: Center(

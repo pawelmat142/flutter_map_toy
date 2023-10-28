@@ -102,9 +102,10 @@ class IconWizardSizeStep extends StatelessWidget {
             children: [
 
               SizedBox(
-                width: IconCraft.maxSize,
-                height: IconCraft.maxSize,
-                child: Center(child: IconCraft.byWizardBlocState(context).widget),
+                width: IconCraft.iconDisplaySize,
+                height: IconCraft.iconDisplaySize,
+                child: Center(child: IconCraft.byWizardBlocState(context)
+                    .widget(rescaled: true)),
               ),
               AppStyle.verticalDefaultDistance,
 

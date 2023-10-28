@@ -49,6 +49,8 @@ class MapScreen extends StatelessWidget {
           body: Stack(
             children: [
 
+              //TODO rotate drawing bug on rotate map
+              //TODO bug - drawing changes position on edit
               GoogleMap(
                 initialCameraPosition: state.initialCameraPosition!,
                 mapType: state.mapType,
