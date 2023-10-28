@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/models/map_cubit.dart';
 import 'package:flutter_map_toy/models/map_model.dart';
+import 'package:flutter_map_toy/presentation/components/new_map_button.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
+import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 import 'package:flutter_map_toy/presentation/views/map_screen/map_screen.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -29,8 +31,6 @@ class SavedMapsScreen extends StatelessWidget {
           final values = box.values.toList();
           values.sort((a, b) => a.modified.compareTo(b.modified));
 
-          //TODO new map button
-
           return ListView.separated(
               itemBuilder: (ctx, index) {
                 var mapModel = box.getAt(index);
@@ -55,6 +55,14 @@ class SavedMapsScreen extends StatelessWidget {
           );
         },
       ),
+
+      bottomNavigationBar: const Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: AppStyle.defaultPaddingVal,
+          vertical: AppStyle.defaultPaddingVal/4
+        ),
+        child: NewMapButton()
+      )
     );
   }
 }

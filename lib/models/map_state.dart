@@ -52,8 +52,6 @@ class MapState {
     return drawings.any((drawing) => drawing.id == markerId);
   }
 
-  //TODO delete marker
-
   MapState(
     this.state,
     this.mapModelId,
