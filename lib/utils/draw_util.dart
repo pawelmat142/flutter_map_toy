@@ -76,47 +76,6 @@ abstract class DrawUtil {
       );
   }
 
-
-  // static Future<MapDrawingModel> getModelFromDrawing({
-  //   required double devicePixelRatio,
-  //   required List<DrawingLine> drawingLines,
-  //   required GoogleMapController mapController
-  // }) async {
-  //   final dxs = drawingLines.expand((drawingLine) => drawingLine.offsets.map((o) => o.dx).toList());
-  //   final minX = dxs.reduce(min);
-  //   final maxX = dxs.reduce(max);
-  //   final dys = drawingLines.expand((drawingLine) => drawingLine.offsets.map((o) => o.dy).toList());
-  //   final minY = dys.reduce(min);
-  //   final maxY = dys.reduce(max);
-  //   final height = maxY - minY;
-  //
-  //   var drawing = addOffset(
-  //       drawingLines: drawingLines,
-  //       dx: minX,
-  //       dy: minY
-  //   );
-  //
-  //   final widget = CustomPaint(
-  //     painter: DrawingPainter(drawingLines: drawing),
-  //     child: SizedBox(
-  //       width: maxX - minX,
-  //       height: height,
-  //     ),
-  //   );
-  //   final bitmap = await createImageFromWidget(widget,
-  //     waitToRender: Duration.zero,
-  //   );
-  //
-  //   final drawingCenter = Point((minX + maxX)/2 , (minY + maxY)/2 + height/2);
-  //   final drawingPosition = await mapController.getLatLng(ScreenCoordinate(
-  //     x: (drawingCenter.x * devicePixelRatio).toInt(),
-  //     y: (drawingCenter.y * devicePixelRatio).toInt(),
-  //   ));
-  //   final id = const Uuid().v1();
-  //
-  //   return MapDrawingModel(id, id, bitmap, id, drawingPosition.coordinates);
-  // }
-
   static List<DrawingLine> addOffset({ required List<DrawingLine> drawingLines, double? dx, double? dy }) {
     return drawingLines.map((point) => DrawingLine(
         width: point.width,
