@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'drawing_initializer.dart';
 import 'drawing_painter.dart';
 import 'drawing_line.dart';
-import 'map_drawing_model.dart';
 
 class DrawingState {
 
@@ -49,7 +48,11 @@ class DrawingState {
 class DrawingCubit extends Cubit<DrawingState> {
 
   DrawingCubit(DrawingInitializer initializer)
-      : super(DrawingState(false, Colors.black, 2, [], null, initializer, DrawingPainter(drawingLines: [])));
+      : super(DrawingState(false,
+      initializer.defaultColor,
+      initializer.defaultWidth,
+      [], null, initializer,
+      DrawingPainter(drawingLines: [])));
 
   turn({ required bool on }) {
     if (on) {
@@ -139,12 +142,11 @@ class DrawingCubit extends Cubit<DrawingState> {
     ));
   }
 
-  emitStateToEditDrawing(MapDrawingModel mapDrawingModel) {
-    final drawingLines = mapDrawingModel.restoreLines();
+  emitStateToEditDrawing(List<DrawingLine> drawingLines) {
     emit(state.copyWith(
       drawingLines: drawingLines,
-      color: Color(mapDrawingModel.colorInt),
-      width: mapDrawingModel.width,
+      color: drawingLines.first.color,
+      width: drawingLines.first.width,
       drawingPainter: DrawingPainter(drawingLines: drawingLines)
     ));
   }

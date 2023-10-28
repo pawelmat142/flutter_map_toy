@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -12,11 +13,6 @@ import 'package:widget_to_marker/widget_to_marker.dart';
 
 abstract class DrawUtil {
 
-  static Future<Set<Marker>> getMarkersFromDrawingModels(Iterable<MapDrawingModel> drawingModels) async {
-    final futures = drawingModels.map((drawingModel) => getMarkerFromDrawingModel(drawingModel));
-    return (await Future.wait(futures)).toSet();
-  }
-
   static Future<Marker> getMarkerFromDrawingModel(MapDrawingModel mapDrawingModel) async {
     return Marker(
       markerId: MarkerId(mapDrawingModel.id),
@@ -27,45 +23,41 @@ abstract class DrawUtil {
 
   static Future<BitmapDescriptor> bitmapFromModel(MapDrawingModel mapDrawingModel) async {
     final drawingLines = mapDrawingModel.restoreLines();
-    final dxs = drawingLines.expand((drawingLine) => drawingLine.offsets.map((o) => o.dx).toList());
-    final minX = dxs.reduce(min);
-    final maxX = dxs.reduce(max);
-    final dys = drawingLines.expand((drawingLine) => drawingLine.offsets.map((o) => o.dy).toList());
-    final minY = dys.reduce(min);
-    final maxY = dys.reduce(max);
-
     return await CustomPaint(
       painter: DrawingPainter(drawingLines: drawingLines),
       child: SizedBox(
-        width: maxX - minX,
-        height: maxY - minY,
+        width: DrawUtil.width(drawingLines),
+        height: DrawUtil.height(drawingLines),
       ),
     ).toBitmapDescriptor(waitToRender: Duration.zero);
   }
 
   static Future<MapDrawingModel> getModelFromDrawing({
-    required double devicePixelRatio,
+    required BuildContext context,
     required List<DrawingLine> drawingLines,
     required GoogleMapController mapController
   }) async {
-      final dxs = drawingLines.expand((drawingLine) => drawingLine.offsets.map((o) => o.dx).toList());
-      final minX = dxs.reduce(min);
-      final maxX = dxs.reduce(max);
-      final dys = drawingLines.expand((drawingLine) => drawingLine.offsets.map((o) => o.dy).toList());
-      final minY = dys.reduce(min);
-      final maxY = dys.reduce(max);
+      //remove drawing offset between screen edge
+      final xs = dxs(drawingLines);
+      final minX = xs.reduce(min);
+      final maxX = xs.reduce(max);
+      final ys = dys(drawingLines);
+      final minY = ys.reduce(min);
+      final maxY = ys.reduce(max);
       final height = maxY - minY;
-
       var drawing = addOffset(
           drawingLines: drawingLines,
           dx: minX,
           dy: minY
       );
 
+      //TODO add padding - stroke width is cut when create marker
+
+      final pixelRatio = getPixelRatio(context);
       final drawingCenter = Point((minX + maxX)/2 , (minY + maxY)/2 + height/2);
       final drawingPosition = await mapController.getLatLng(ScreenCoordinate(
-        x: (drawingCenter.x * devicePixelRatio).toInt(),
-        y: (drawingCenter.y * devicePixelRatio).toInt(),
+        x: (drawingCenter.x * pixelRatio).toInt(),
+        y: (drawingCenter.y * pixelRatio).toInt(),
       ));
 
       return MapDrawingModel('', '', const Uuid().v1(),
@@ -76,6 +68,26 @@ abstract class DrawUtil {
       );
   }
 
+  static List<DrawingLine> prepareDrawingOffsetToEdit({
+    required MapDrawingModel mapDrawingModel,
+    required ScreenCoordinate screenCoordinate,
+    required BuildContext context,
+  }) {
+    final pixelRatio = getPixelRatio(context);
+    final drawingLines = mapDrawingModel.restoreLines();
+    return addOffset(
+        drawingLines: drawingLines,
+        dy: (screenCoordinate.y.toDouble() / -pixelRatio) + height(drawingLines),
+        dx: (screenCoordinate.x.toDouble() / -pixelRatio) + width(drawingLines)/2,
+    );
+  }
+
+  static double getPixelRatio(BuildContext context) {
+    return Platform.isAndroid
+        ? MediaQuery.of(context).devicePixelRatio
+        : 1.0;
+  }
+
   static List<DrawingLine> addOffset({ required List<DrawingLine> drawingLines, double? dx, double? dy }) {
     return drawingLines.map((point) => DrawingLine(
         width: point.width,
@@ -83,4 +95,23 @@ abstract class DrawUtil {
         offsets: point.offsets.map((o) => Offset(o.dx - (dx ?? 0), o.dy - (dy ?? 0))).toList()
     )).toList();
   }
+
+  static Iterable<double> dxs(List<DrawingLine> drawingLines) {
+    return drawingLines.expand((drawingLine) => drawingLine.offsets.map((o) => o.dx));
+  }
+
+  static Iterable<double> dys(List<DrawingLine> drawingLines) {
+    return drawingLines.expand((drawingLine) => drawingLine.offsets.map((o) => o.dy));
+  }
+
+  static double width(List<DrawingLine> drawingLines) {
+    final xs = dxs(drawingLines);
+    return xs.reduce(max) - xs.reduce(min);
+  }
+
+  static double height(List<DrawingLine> drawingLines) {
+    final ys = dys(drawingLines);
+    return ys.reduce(max) - ys.reduce(min);
+  }
+
 }

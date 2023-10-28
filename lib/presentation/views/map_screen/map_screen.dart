@@ -48,9 +48,8 @@ class MapScreen extends StatelessWidget {
 
           body: Stack(
             children: [
-
-              //TODO rotate drawing bug on rotate map
-              //TODO bug - drawing changes position on edit
+              //TODO: when start edit drawing and map is rotated - bearing != 0
+              //TODO when edit drawing save current state in bg (cancel edit should not delete current state)
               GoogleMap(
                 initialCameraPosition: state.initialCameraPosition!,
                 mapType: state.mapType,
@@ -106,15 +105,24 @@ class MapScreen extends StatelessWidget {
         markerId: marker.markerId,
         position: marker.position,
         icon: marker.icon,
-        onTap: () => _onMarkerTap(marker, cubit, context),
         draggable: true,
+        flat: state.isDrawing(marker.markerId.value),
+        consumeTapEvents: true,
+        infoWindow: InfoWindow(
+          title: 'Example title',
+          snippet: 'Example snippet',
+          onTap: () {
+            print('on InfoWindow tap!');
+          }
+        ),
+        onTap: () {
+          state.mapController?.showMarkerInfoWindow(marker.markerId);
+          cubit.selectMarker(marker, context);
+        },
         onDragEnd: (point) {
           cubit.replaceMarker(point, markerId: marker.markerId.value);
         },
     )).toSet();
   }
 
-  _onMarkerTap(Marker marker, MapCubit mapCubit, BuildContext context) {
-    mapCubit.selectMarker(marker, context);
-  }
 }

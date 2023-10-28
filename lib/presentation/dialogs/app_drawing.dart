@@ -12,6 +12,9 @@ import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 class AppDrawing extends DrawingInitializer {
 
   @override
+  Color get defaultColor => AppColor.blue;
+
+  @override
   Future<Color?> selectColor(BuildContext context) {
     return showModalBottomSheet(context: context, backgroundColor: Colors.transparent, builder: (ctx) {
       return AppModal(showBack: false, lineOnTop: false,

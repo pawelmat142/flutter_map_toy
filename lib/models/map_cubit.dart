@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_line.dart';
@@ -169,20 +167,13 @@ class MapCubit extends Cubit<MapState> {
     required BuildContext context,
     required List<DrawingLine> drawingLines
   }) async {
-    final devicePixelRatio = Platform.isAndroid
-        ? MediaQuery.of(context).devicePixelRatio
-        : 1.0;
-
-    final drawingModel = await DrawUtil.getModelFromDrawing(
-        devicePixelRatio: devicePixelRatio,
+    final mapDrawingModel = await DrawUtil.getModelFromDrawing(
+        context: context,
         mapController: state.mapController!,
         drawingLines: drawingLines,
     );
-
-    final rescaled = drawingModel.rescale(1/state.rescaleFactor);
-
     final drawings = state.drawings;
-    drawings.add(rescaled);
+    drawings.add(mapDrawingModel.rescale(1/state.rescaleFactor));
     emit(state.copyWith(
       drawings: drawings,
       markers: await _getAllMarkers(drawings: drawings),
@@ -195,7 +186,9 @@ class MapCubit extends Cubit<MapState> {
     final drawingCubit = BlocProvider.of<DrawingCubit>(context);
     final drawings = state.drawings.where((drawing) => drawing.id != state.selectedMarkerId);
 
-    final mapDrawingModel = state.drawings.firstWhere((drawing) => drawing.id == state.selectedMarkerId);
+    final mapDrawingModel = state.drawings
+        .firstWhere((drawing) => drawing.id == state.selectedMarkerId)
+        .rescale(state.rescaleFactor);
 
     emit(state.copyWith(
       drawingMode: true,
@@ -203,7 +196,18 @@ class MapCubit extends Cubit<MapState> {
       drawings: drawings.toSet(),
       markers: await _getAllMarkers(drawings: drawings)
     ));
-    drawingCubit.emitStateToEditDrawing(mapDrawingModel);
+
+    if (state.mapController == null) throw 'state.mapController == null';
+    final screenCoordinate = await state.mapController!
+        .getScreenCoordinate(MapUtil.pointFromCoordinates(mapDrawingModel.coordinates));
+
+    final drawingLines = DrawUtil.prepareDrawingOffsetToEdit(
+        mapDrawingModel: mapDrawingModel,
+        screenCoordinate: screenCoordinate,
+        context: context
+    );
+
+    drawingCubit.emitStateToEditDrawing(drawingLines);
   }
 
   Future<Set<Marker>> _markersFromDrawings(Iterable<MapDrawingModel> drawings) async {
