@@ -22,7 +22,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapCubit extends Cubit<MapState> {
 
-  MapCubit(): super(MapState(BlocState.empty, '', {}, {}, {}, '', MapType.normal, 1, false, null, null, null));
+  MapCubit(): super(MapState(BlocState.empty, '', {}, {}, {}, '', MapType.satellite, 1, false, null, null, null));
 
 
   initMap(GoogleMapController controller) async {
