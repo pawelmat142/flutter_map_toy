@@ -165,14 +165,21 @@ class MapCubit extends Cubit<MapState> {
 
   addDrawingAsMarker({
     required BuildContext context,
-    required List<DrawingLine> drawingLines
+    required List<DrawingLine> drawingLines,
+    String? drawingModelId,
   }) async {
-    final mapDrawingModel = await DrawUtil.getModelFromDrawing(
-        context: context,
-        mapController: state.mapController!,
-        drawingLines: drawingLines,
-    );
+    final markers = state.markers;
     final drawings = state.drawings;
+    markers.removeWhere((marker) => marker.markerId.value == drawingModelId);
+    drawings.removeWhere((drawing) => drawing.id == drawingModelId);
+
+    final mapDrawingModel = await DrawUtil.getModelFromDrawing(
+      context: context,
+      mapController: state.mapController!,
+      drawingLines: drawingLines,
+      drawingModelId: drawingModelId,
+    );
+
     drawings.add(mapDrawingModel.rescale(1/state.rescaleFactor));
     emit(state.copyWith(
       drawings: drawings,
@@ -184,18 +191,10 @@ class MapCubit extends Cubit<MapState> {
 
   editDrawing(BuildContext context) async {
     final drawingCubit = BlocProvider.of<DrawingCubit>(context);
-    final drawings = state.drawings.where((drawing) => drawing.id != state.selectedMarkerId);
 
     final mapDrawingModel = state.drawings
         .firstWhere((drawing) => drawing.id == state.selectedMarkerId)
         .rescale(state.rescaleFactor);
-
-    emit(state.copyWith(
-      drawingMode: true,
-      ctx: context,
-      drawings: drawings.toSet(),
-      markers: await _getAllMarkers(drawings: drawings)
-    ));
 
     if (state.mapController == null) throw 'state.mapController == null';
     final screenCoordinate = await state.mapController!
@@ -207,7 +206,8 @@ class MapCubit extends Cubit<MapState> {
         context: context
     );
 
-    drawingCubit.emitStateToEditDrawing(drawingLines);
+    drawingCubit.emitStateToEditDrawing(drawingLines, mapDrawingModel.id);
+    turnDrawingMode(context: context, on: true);
   }
 
   Future<Set<Marker>> _markersFromDrawings(Iterable<MapDrawingModel> drawings) async {

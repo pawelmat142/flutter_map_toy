@@ -14,7 +14,7 @@ class DrawingLine {
     this.width = 2
   });
 
-  DrawingLine currentDrawingLine({List<Offset>? offsets}) {
+  DrawingLine copyWith({List<Offset>? offsets}) {
     return DrawingLine(
       id: id,
       color: color,

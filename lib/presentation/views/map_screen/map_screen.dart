@@ -49,7 +49,6 @@ class MapScreen extends StatelessWidget {
           body: Stack(
             children: [
               //TODO: when start edit drawing and map is rotated - bearing != 0
-              //TODO when edit drawing save current state in bg (cancel edit should not delete current state)
               GoogleMap(
                 initialCameraPosition: state.initialCameraPosition!,
                 mapType: state.mapType,

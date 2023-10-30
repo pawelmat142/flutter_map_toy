@@ -10,7 +10,8 @@ class ToolBarItem {
     this.menuLabel,
     required this.icon,
     this.disabled = false,
-    required this.onTap
+    required this.onTap,
+    this.color = Colors.white,
   });
   String label;
   String? barLabel;
@@ -18,6 +19,7 @@ class ToolBarItem {
   IconData icon;
   bool disabled;
   VoidCallback onTap;
+  Color color;
 }
 
 class Toolbar extends StatelessWidget {
@@ -41,12 +43,11 @@ class Toolbar extends StatelessWidget {
       showUnselectedLabels: true,
       type: BottomNavigationBarType.fixed,
       onTap: (i) => _onItemTap(i, context),
-      items: onlyToolbarItems
-          .map((i) => BottomNavigationBarItem(
-            icon: Icon(i.icon, color: i.disabled ? AppColor.primary : null,),
-            label: i.barLabel!.capitalize(),
-      )
-      ).toList(),
+      items: onlyToolbarItems.map((i) => BottomNavigationBarItem(
+        icon: Icon(i.icon,
+          color: i.disabled ? AppColor.primary : i.color),
+          label: i.barLabel!.capitalize(),
+      )).toList(),
     );
   }
 

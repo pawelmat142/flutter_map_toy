@@ -14,6 +14,7 @@ class DrawingState {
   DrawingLine? currentDrawingLine;
   DrawingInitializer drawingInitializer;
   DrawingPainter drawingPainter;
+  String drawingModelId; // filled if edit
 
   DrawingState(
     this.on,
@@ -23,6 +24,7 @@ class DrawingState {
     this.currentDrawingLine,
     this.drawingInitializer,
     this.drawingPainter,
+    this.drawingModelId,
   );
 
   DrawingState copyWith({
@@ -33,15 +35,19 @@ class DrawingState {
     DrawingLine? currentDrawingLine,
     bool cleanCurrentDrawingLine = false,
     DrawingPainter? drawingPainter,
-  }) => DrawingState(
-    on ?? this.on,
-    color ?? this.color,
-    width ?? this.width,
-    drawingLines ?? this.drawingLines,
-    cleanCurrentDrawingLine ? null : currentDrawingLine ?? this.currentDrawingLine,
-    drawingInitializer,
-    drawingPainter ?? this.drawingPainter,
-  );
+    String? drawingModelId,
+  }) {
+    return DrawingState(
+      on ?? this.on,
+      color ?? this.color,
+      width ?? this.width,
+      drawingLines ?? this.drawingLines,
+      cleanCurrentDrawingLine ? null : currentDrawingLine ?? this.currentDrawingLine,
+      drawingInitializer,
+      drawingPainter ?? this.drawingPainter,
+      drawingModelId ?? this.drawingModelId,
+    );
+  }
 
 }
 
@@ -52,7 +58,7 @@ class DrawingCubit extends Cubit<DrawingState> {
       initializer.defaultColor,
       initializer.defaultWidth,
       [], null, initializer,
-      DrawingPainter(drawingLines: [])));
+      DrawingPainter(drawingLines: []), ''));
 
   turn({ required bool on }) {
     if (on) {
@@ -62,7 +68,8 @@ class DrawingCubit extends Cubit<DrawingState> {
         drawingPainter: DrawingPainter(drawingLines: []),
         drawingLines: [],
         cleanCurrentDrawingLine: true,
-        currentDrawingLine: null
+        currentDrawingLine: null,
+        drawingModelId: '',
       ));
     }
   }
@@ -89,12 +96,12 @@ class DrawingCubit extends Cubit<DrawingState> {
   drawUpdate(DragUpdateDetails details) {
     if (state.currentDrawingLine == null) return;
 
-    final currentDrawingLine = state.currentDrawingLine!.currentDrawingLine(
+    final currentDrawingLine = state.currentDrawingLine!.copyWith(
       offsets: state.currentDrawingLine!.offsets
           ..add(details.localPosition)
     );
     final drawingLines = List.of(state.drawingLines);
-    drawingLines.last = currentDrawingLine;
+    drawingLines.add(currentDrawingLine);
 
     emit(state.copyWith(
       currentDrawingLine: currentDrawingLine,
@@ -142,8 +149,10 @@ class DrawingCubit extends Cubit<DrawingState> {
     ));
   }
 
-  emitStateToEditDrawing(List<DrawingLine> drawingLines) {
+  emitStateToEditDrawing(List<DrawingLine> drawingLines, String drawingModelId) {
     emit(state.copyWith(
+      currentDrawingLine: drawingLines.last,
+      drawingModelId: drawingModelId,
       drawingLines: drawingLines,
       color: drawingLines.first.color,
       width: drawingLines.first.width,

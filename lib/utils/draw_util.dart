@@ -35,9 +35,10 @@ abstract class DrawUtil {
   static Future<MapDrawingModel> getModelFromDrawing({
     required BuildContext context,
     required List<DrawingLine> drawingLines,
-    required GoogleMapController mapController
+    required GoogleMapController mapController,
+    String? drawingModelId,
   }) async {
-      //remove drawing offset between screen edge
+      //removes drawing offset between screen edge
       final xs = dxs(drawingLines);
       final minX = xs.reduce(min);
       final maxX = xs.reduce(max);
@@ -60,7 +61,8 @@ abstract class DrawUtil {
         y: (drawingCenter.y * pixelRatio).toInt(),
       ));
 
-      return MapDrawingModel('', '', const Uuid().v1(),
+      return MapDrawingModel('', '',
+        drawingModelId ?? const Uuid().v1(),
         drawingPosition.coordinates,
         drawing.first.color.value,
         drawing.first.width,

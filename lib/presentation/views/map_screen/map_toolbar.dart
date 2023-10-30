@@ -4,6 +4,7 @@ import 'package:flutter_map_toy/global/drawing/drawing_state.dart';
 import 'package:flutter_map_toy/models/map_cubit.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/presentation/components/toolbar.dart';
+import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -25,14 +26,19 @@ class MapToolbar extends StatelessWidget {
 
   List<ToolBarItem> drawingToolbar(BuildContext context, MapCubit cubit, MapState state) {
     final drawingCubit = BlocProvider.of<DrawingCubit>(context);
+    final drawingState = drawingCubit.state;
     return [
       ToolBarItem(
-          label: 'confirm',
-          barLabel: 'confirm',
-          icon: AppIcon.confirm,
-          onTap: () {
-            cubit.addDrawingAsMarker(context: context, drawingLines: drawingCubit.state.drawingLines);
-          }
+        label: 'confirm',
+        barLabel: 'confirm',
+        icon: AppIcon.confirm,
+        onTap: () {
+          cubit.addDrawingAsMarker(
+            context: context,
+            drawingLines: drawingCubit.state.drawingLines,
+            drawingModelId: drawingState.drawingModelId.isEmpty ? null : drawingState.drawingModelId
+          );
+        }
       ),
       ToolBarItem(
         label: 'cancel',
@@ -80,6 +86,7 @@ class MapToolbar extends StatelessWidget {
         label: 'edit_marker',
         barLabel: 'edit',
         icon: AppIcon.editPoint,
+        color: AppColor.secondary,
         disabled: cubit.state.selectedMarkerId.isEmpty,
         onTap: () => cubit.updateIconMarker(context),
       ),
@@ -89,6 +96,7 @@ class MapToolbar extends StatelessWidget {
           label: 'edit_line',
           barLabel: 'edit line',
           icon: AppIcon.editLine,
+          color: AppColor.secondary,
           onTap: () {
             cubit.editDrawing(context);
           }
