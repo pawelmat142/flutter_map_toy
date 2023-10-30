@@ -6,6 +6,7 @@ import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/presentation/components/toolbar.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
+import 'package:flutter_map_toy/utils/map_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapToolbar extends StatelessWidget {
@@ -166,6 +167,12 @@ class MapToolbar extends StatelessWidget {
           menuLabel: 'Satellite',
           icon: AppIcon.mapTypeSatellite,
           onTap: () => cubit.setType(MapType.satellite)
+      ),
+      if (state.mapModelId.isNotEmpty) ToolBarItem(
+          label: 'find_map',
+          menuLabel: 'Find map',
+          icon: AppIcon.search,
+          onTap: () => MapUtil.animateCameraToMapCenter(state)
       ),
     ];
   }

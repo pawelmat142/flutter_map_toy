@@ -7,6 +7,7 @@ abstract class AppIcon {
   static const confirm = Icons.done_outline_rounded;
   static const cancel = Icons.cancel;
   static const delete = Icons.delete_outline_rounded;
+  static const search = Icons.search;
 
   static const save = Icons.playlist_add_check;
   static const remove = Icons.playlist_remove_rounded;

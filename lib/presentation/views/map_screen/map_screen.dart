@@ -94,6 +94,10 @@ class MapScreen extends StatelessWidget {
         final markerVisible = visibleRegion.contains(state.selectedMarker!.position);
         if (!markerVisible) {
           cubit.selectMarker(null, context);
+          final selectedMarker = state.selectedMarker;
+          if (selectedMarker is Marker) {
+            state.mapController?.hideMarkerInfoWindow(selectedMarker.markerId);
+          }
         }
       });
     }

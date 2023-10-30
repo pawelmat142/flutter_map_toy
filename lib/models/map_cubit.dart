@@ -39,7 +39,7 @@ class MapCubit extends Cubit<MapState> {
         selectedMarkerId: '',
         initialDiagonalDistance: diagonalDistance
       ));
-      MapUtil.animateInitialCameraForSavedMap(state);
+      MapUtil.animateCameraToMapCenter(state);
     }
   }
 
@@ -91,6 +91,10 @@ class MapCubit extends Cubit<MapState> {
         SavedMapsScreen.id,
         ModalRoute.withName(HomeScreen.id)
     );
+  }
+
+  findMap() {
+    ;
   }
 
 

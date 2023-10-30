@@ -47,7 +47,6 @@ abstract class MapUtil {
   }
 
   //TODO name and description marker
-  //TODO button for find map
 
   static Future<Marker> getMarkerFromIcon(MapIconModel mapIconPoint) async {
     final craft = IconUtil.craftFromMapIconPoint(mapIconPoint);
@@ -60,7 +59,7 @@ abstract class MapUtil {
     );
   }
 
-  static void animateInitialCameraForSavedMap(MapState state) {
+  static void animateCameraToMapCenter(MapState state) {
     if (state.mapModelId.isEmpty || state.markers.isEmpty) return;
 
     if (state.markers.length == 1) {
@@ -82,7 +81,7 @@ abstract class MapUtil {
         southwest: LatLng(minX, minY),
         northeast: LatLng(maxX, maxY)
     );
-    state.mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 100));
+    state.mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
   }
 
 }
