@@ -23,13 +23,15 @@ class MapIconModelAdapter extends TypeAdapter<MapIconModel> {
       fields[3] as String,
       (fields[4] as List).cast<double>(),
       fields[5] as String,
+      fields[6] as String,
+      fields[7] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, MapIconModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.iconDataPoint)
       ..writeByte(1)
@@ -41,7 +43,11 @@ class MapIconModelAdapter extends TypeAdapter<MapIconModel> {
       ..writeByte(4)
       ..write(obj.coordinates)
       ..writeByte(5)
-      ..write(obj.type);
+      ..write(obj.type)
+      ..writeByte(6)
+      ..write(obj.name)
+      ..writeByte(7)
+      ..write(obj.description);
   }
 
   @override

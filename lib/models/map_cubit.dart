@@ -109,9 +109,14 @@ class MapCubit extends Cubit<MapState> {
     wizard.run(context);
     wizard.onComplete = (craft) async {
       if (craft.incomplete) return;
-      final mapIconModel = IconUtil.mapIconPointFromCraft(craft, await state.mapViewCenter);
+      final mapIconModel = IconUtil.mapIconPointFromCraft(craft,
+        point:  await state.mapViewCenter,
+        markerInfo: await MarkerInfo.dialog(context)
+      );
       final mapIconModels = state.icons;
       mapIconModels.add(mapIconModel);
+
+
 
       emit(state.copyWith(
           selectedMarkerId: '',
@@ -144,7 +149,10 @@ class MapCubit extends Cubit<MapState> {
       final points = state.icons.map((point) {
         if (point.id == newCraft.id) {
           point = IconUtil.mapIconPointFromCraft(newCraft,
-              MapUtil.pointFromCoordinates(mapIconPoint.coordinates)
+            point: MapUtil.pointFromCoordinates(mapIconPoint.coordinates),
+            markerInfo: mapIconPoint.name.isEmpty
+                ? null
+                : (MarkerInfo(mapIconPoint.name)..description = mapIconPoint.description)
           );
         }
         return point;

@@ -46,16 +46,17 @@ abstract class MapUtil {
     return distanceBetweenPoints(viewPort.southwest, viewPort.northeast);
   }
 
-  //TODO name and description icon marker
+  //TODO edit marker info feature
 
-  static Future<Marker> getMarkerFromIcon(MapIconModel mapIconPoint) async {
-    final craft = IconUtil.craftFromMapIconPoint(mapIconPoint);
+  static Future<Marker> getMarkerFromIcon(MapIconModel mapIconModel) async {
+    final craft = IconUtil.craftFromMapIconPoint(mapIconModel);
     if (craft.incomplete) throw 'craft incomplete!';
     craft.size = craft.size! / 5;
     return Marker(
       markerId: MarkerId(craft.id!),
-      position: MapUtil.pointFromCoordinates(mapIconPoint.coordinates),
+      position: MapUtil.pointFromCoordinates(mapIconModel.coordinates),
       icon: await craft.widget().toBitmapDescriptor(),
+      infoWindow: IconUtil.getInfoWindow(mapIconModel)
     );
   }
 

@@ -25,13 +25,21 @@ class MapIconModel extends HiveObject {
   @HiveField(5)
   String type;
 
+  @HiveField(6)
+  String name;
+
+  @HiveField(7)
+  String description;
+
   MapIconModel(
       this.iconDataPoint,
       this.colorInt,
       this.size,
       this.id,
       this.coordinates,
-      this.type
+      this.type,
+      this.name,
+      this.description,
   );
 
   MapIconModel rescale(double rescaleFactor) {
@@ -41,7 +49,9 @@ class MapIconModel extends HiveObject {
         size * rescaleFactor,
         id,
         coordinates,
-        type
+        type,
+        name,
+        description
     );
   }
 
