@@ -87,4 +87,15 @@ abstract class MapUtil {
     state.mapController?.animateCamera(cameraUpdate);
   }
 
+  static Future<void> animateCameraToDefaultRotation(MapState state) async {
+    if (state.cameraPosition == null) {
+      return;
+    }
+    return state.mapController?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+      target: state.cameraPosition!.target,
+      zoom: state.cameraPosition!.zoom,
+      bearing: 0
+    )));
+  }
+
 }

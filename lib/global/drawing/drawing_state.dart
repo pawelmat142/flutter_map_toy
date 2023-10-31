@@ -16,6 +16,8 @@ class DrawingState {
   DrawingPainter drawingPainter;
   String drawingModelId; // filled if edit
 
+  bool get editMode => on && drawingModelId.isNotEmpty;
+
   DrawingState(
     this.on,
     this.color,

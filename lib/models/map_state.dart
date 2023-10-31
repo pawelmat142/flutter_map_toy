@@ -25,6 +25,7 @@ class MapState {
   GoogleMapController? mapController;
   CameraPosition? initialCameraPosition;
   double? initialDiagonalDistance;
+  CameraPosition? cameraPosition;
 
   bool get isAnyMarkerSelected => selectedMarkerId.isNotEmpty;
   bool get isAnyIconSelected => icons.any((point) => point.id == selectedMarkerId);
@@ -43,6 +44,8 @@ class MapState {
       (visibleRegion.northeast.longitude + visibleRegion.southwest.longitude) / 2,
     );
   }
+
+  double get angle => cameraPosition?.bearing ?? 0;
 
   bool isIcon(String markerId) {
     return icons.any((point) => point.id == markerId);
@@ -65,6 +68,7 @@ class MapState {
     this.mapController,
     this.initialCameraPosition,
     this.initialDiagonalDistance,
+    this.cameraPosition,
   );
 
   MapState copyWith({
@@ -81,6 +85,7 @@ class MapState {
     CameraPosition? initialCameraPosition,
     BuildContext? ctx,
     double? initialDiagonalDistance,
+    CameraPosition? cameraPosition,
   }) {
     if (drawingMode is bool) {
       if (ctx == null) throw 'context is needed when change drawingMode!';
@@ -102,6 +107,7 @@ class MapState {
       mapController ?? this.mapController,
       initialCameraPosition ?? this.initialCameraPosition,
       initialDiagonalDistance ?? this.initialDiagonalDistance,
+      cameraPosition ?? this.cameraPosition,
     );
   }
 

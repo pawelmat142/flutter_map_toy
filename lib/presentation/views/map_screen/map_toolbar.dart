@@ -51,12 +51,14 @@ class MapToolbar extends StatelessWidget {
           label: 'color',
           barLabel: 'color',
           icon: AppIcon.drawColor,
+          color: drawingState.editMode ? AppColor.secondary : Colors.white,
           onTap: () => drawingCubit.selectColor(context)
       ),
       ToolBarItem(
           label: 'width',
           barLabel: 'width',
           icon: AppIcon.drawWidth,
+          color: drawingState.editMode ? AppColor.secondary : Colors.white,
           onTap: () => drawingCubit.selectWidth(context)
       ),
       ToolBarItem(
@@ -105,7 +107,26 @@ class MapToolbar extends StatelessWidget {
           label: 'draw_line',
           barLabel: 'draw line',
           icon: AppIcon.drawLine,
-          onTap: () {
+          onTap: () async {
+            if (state.angle != 0) {
+              final resetRotation = await showDialog<bool?>(context: context, builder: (ctx) => AlertDialog(
+                  title: const Text('You can\'t draw on rotated map'),
+                  content: const Text('Do you want to reset the map to its default orientation?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('No')
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text('Yes'),
+                    )
+                  ],
+              ));
+              if (resetRotation == true) {
+                await MapUtil.animateCameraToDefaultRotation(state);
+              }
+            }
             cubit.turnDrawingMode(
                 context: context, on: !state.drawingMode);
           }

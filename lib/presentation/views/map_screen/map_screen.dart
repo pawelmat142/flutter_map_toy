@@ -48,12 +48,11 @@ class MapScreen extends StatelessWidget {
 
           body: Stack(
             children: [
-              //TODO: when start edit drawing and map is rotated - bearing != 0
               GoogleMap(
                 initialCameraPosition: state.initialCameraPosition!,
                 mapType: state.mapType,
                 markers: _prepareMarkers(state, cubit, context),
-                onCameraMove: (position) => _onCameraMove(position, cubit, state, context),
+                onCameraMove: (position) => cubit.updateCameraPosition(position, context),
                 onMapCreated: (controller) => cubit.initMap(controller),
                 onTap: (point) => _onMapTap(point, cubit, state, context),
               ),
@@ -72,35 +71,6 @@ class MapScreen extends StatelessWidget {
   _onMapTap(LatLng point, MapCubit mapCubit, MapState state, BuildContext context) async {
     if (state.selectedMarkerId.isEmpty) return;
     mapCubit.selectMarker(null, context);
-  }
-
-  _onCameraMove(CameraPosition cameraPosition, MapCubit cubit, MapState state, BuildContext context) {
-    //workaround
-    cameraMoveEndHandler.handle(() {
-      //onCameraMoveEnd:
-      cubit.updateRescaleFactor().then((_) {
-        _unselectMarkerIfOutOfView(cubit, state, context);
-      });
-    });
-  }
-
-  _unselectMarkerIfOutOfView(MapCubit cubit, MapState state, BuildContext context) {
-    if (state.selectedMarker != null) {
-      //workaround solution, also in _onMarkerTap
-      //GoogleMaps API doesn't share info about selected marker id or something
-      //this solution should integrate google maps marker selection with this app marker selection
-      //its not perfect so marker selection may be not synchronized
-      state.mapController?.getVisibleRegion().then((visibleRegion) {
-        final markerVisible = visibleRegion.contains(state.selectedMarker!.position);
-        if (!markerVisible) {
-          cubit.selectMarker(null, context);
-          final selectedMarker = state.selectedMarker;
-          if (selectedMarker is Marker) {
-            state.mapController?.hideMarkerInfoWindow(selectedMarker.markerId);
-          }
-        }
-      });
-    }
   }
 
   Set<Marker> _prepareMarkers(MapState state, MapCubit cubit, BuildContext context) {

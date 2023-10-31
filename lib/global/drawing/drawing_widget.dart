@@ -1,8 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-
 import 'drawing_state.dart';
 
 class DrawingWidget extends StatelessWidget {
@@ -23,22 +21,25 @@ class DrawingWidget extends StatelessWidget {
           final height = constraints.maxHeight;
 
           return BlocBuilder<DrawingCubit, DrawingState>(builder: (ctx, state) {
-            return state.on == false ? const SizedBox.shrink() :
-            GestureDetector(
-                onPanStart: cubit.drawStart,
-                onPanUpdate: cubit.drawUpdate,
-                onPanEnd: cubit.drawEnd,
+            if (state.on == false) {
+              return const SizedBox.shrink();
+            } else {
+              return GestureDetector(
+                  onPanStart: state.editMode ? null : cubit.drawStart,
+                  onPanUpdate: state.editMode ? null : cubit.drawUpdate,
+                  onPanEnd: state.editMode ? null : cubit.drawEnd,
 
-                child: CustomPaint(
-                  painter: state.drawingPainter,
-                  child: SizedBox(
-                    width: width,
-                    height: height,
-                  ),
-                )
-            );
+                  child: CustomPaint(
+                    painter: state.drawingPainter,
+                    child: SizedBox(
+                      width: width,
+                      height: height,
+                    ),
+                  )
+              );
+            }
           });
-        });
+    });
   }
 
 }

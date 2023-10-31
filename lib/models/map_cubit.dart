@@ -16,11 +16,14 @@ import 'package:flutter_map_toy/services/log.dart';
 import 'package:flutter_map_toy/utils/draw_util.dart';
 import 'package:flutter_map_toy/utils/icon_util.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
+import 'package:flutter_map_toy/utils/timer_handler.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapCubit extends Cubit<MapState> {
 
-  MapCubit(): super(MapState(BlocState.empty, '', {}, {}, {}, '', MapType.satellite, 1, false, null, null, null));
+  static final cameraMoveEndHandler = TimerHandler(milliseconds: 50);
+
+  MapCubit(): super(MapState(BlocState.empty, '', {}, {}, {}, '', MapType.satellite, 1, false, null, null, null, null));
 
 
   initMap(GoogleMapController controller) async {
@@ -37,7 +40,8 @@ class MapCubit extends Cubit<MapState> {
         state: BlocState.ready,
         mapController: controller,
         selectedMarkerId: '',
-        initialDiagonalDistance: diagonalDistance
+        initialDiagonalDistance: diagonalDistance,
+        cameraPosition: state.initialCameraPosition
       ));
       MapUtil.animateCameraToMapCenter(state);
     }
@@ -271,18 +275,6 @@ class MapCubit extends Cubit<MapState> {
     ));
   }
 
-  updateRescaleFactor() async {
-    final distance = await MapUtil.calcMapViewDiagonalDistance(state.mapController!);
-    final factor = state.initialDiagonalDistance! / distance;
-    if (factor != state.rescaleFactor) {
-      state.rescaleFactor = factor;
-      emit(state.copyWith(
-          rescaleFactor: factor,
-          markers: await _getAllMarkers()
-      ));
-    }
-  }
-
   removeMarker(bool? remove) async {
     if (remove == null || !remove) return;
     if (state.isDrawing(state.selectedMarkerId)) {
@@ -294,6 +286,49 @@ class MapCubit extends Cubit<MapState> {
       selectedMarkerId: '',
       markers: await _getAllMarkers()
     ));
+  }
+
+  updateCameraPosition(CameraPosition cameraPosition, BuildContext context) async {
+    emit(state.copyWith(
+        cameraPosition: cameraPosition
+    ));
+    cameraMoveEndHandler.handle(() {
+      //onCameraMoveEnd:
+      updateRescaleFactor().then((_) {
+        _unselectMarkerIfOutOfView(context);
+      });
+    });
+  }
+
+  Future<void> updateRescaleFactor() async {
+    final distance = await MapUtil.calcMapViewDiagonalDistance(
+        state.mapController!);
+    final factor = state.initialDiagonalDistance! / distance;
+    if (factor != state.rescaleFactor) {
+      emit(state.copyWith(
+        rescaleFactor: factor,
+        markers: await _getAllMarkers(),
+      ));
+    }
+  }
+
+  _unselectMarkerIfOutOfView(BuildContext context) {
+    if (state.selectedMarker != null) {
+      //workaround solution, also in _onMarkerTap
+      //GoogleMaps API doesn't share info about selected marker id or something
+      //this solution should integrate google maps marker selection with this app marker selection
+      //its not perfect so marker selection may be not synchronized
+      state.mapController?.getVisibleRegion().then((visibleRegion) {
+        final markerVisible = visibleRegion.contains(state.selectedMarker!.position);
+        if (!markerVisible) {
+          selectMarker(null, context);
+          final selectedMarker = state.selectedMarker;
+          if (selectedMarker is Marker) {
+            state.mapController?.hideMarkerInfoWindow(selectedMarker.markerId);
+          }
+        }
+      });
+    }
   }
 
 }
