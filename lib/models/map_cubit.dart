@@ -93,10 +93,6 @@ class MapCubit extends Cubit<MapState> {
     );
   }
 
-  findMap() {
-    ;
-  }
-
 
   /// ICONS MANAGEMENT
   ///

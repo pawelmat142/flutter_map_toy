@@ -62,26 +62,29 @@ abstract class MapUtil {
   static void animateCameraToMapCenter(MapState state) {
     if (state.mapModelId.isEmpty || state.markers.isEmpty) return;
 
-    if (state.markers.length == 1) {
-      state.mapController?.animateCamera(CameraUpdate.newLatLng(state.markers.first.position));
-      return;
-    }
+    CameraUpdate cameraUpdate;
 
-    Set<double> latitudes = {};
-    Set<double> longitudes = {};
-    for (var marker in state.markers) {
-      longitudes.add(marker.position.longitude);
-      latitudes.add(marker.position.latitude);
+    if (state.markers.length == 1) {
+      cameraUpdate = CameraUpdate.newCameraPosition(CameraPosition(
+          target: state.markers.first.position, zoom: kZoomInitial));
+    } else {
+      Set<double> latitudes = {};
+      Set<double> longitudes = {};
+      for (var marker in state.markers) {
+        longitudes.add(marker.position.longitude);
+        latitudes.add(marker.position.latitude);
+      }
+      final minY = longitudes.reduce(min);
+      final maxY = longitudes.reduce(max);
+      final minX = latitudes.reduce(min);
+      final maxX = latitudes.reduce(max);
+      final bounds = LatLngBounds(
+          southwest: LatLng(minX, minY),
+          northeast: LatLng(maxX, maxY)
+      );
+      cameraUpdate = CameraUpdate.newLatLngBounds(bounds, 50);
     }
-    final minY = longitudes.reduce(min);
-    final maxY = longitudes.reduce(max);
-    final minX = latitudes.reduce(min);
-    final maxX = latitudes.reduce(max);
-    final bounds = LatLngBounds(
-        southwest: LatLng(minX, minY),
-        northeast: LatLng(maxX, maxY)
-    );
-    state.mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
+    state.mapController?.animateCamera(cameraUpdate);
   }
 
 }
