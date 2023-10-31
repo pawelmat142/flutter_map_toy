@@ -6,6 +6,7 @@ import 'package:flutter_map_toy/global/drawing/drawing_line.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_painter.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/global/drawing/map_drawing_model.dart';
+import 'package:flutter_map_toy/models/marker_info.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -18,7 +19,16 @@ abstract class DrawUtil {
       markerId: MarkerId(mapDrawingModel.id),
       position: MapUtil.pointFromCoordinates(mapDrawingModel.coordinates),
       icon: await bitmapFromModel(mapDrawingModel),
+      infoWindow: getInfoWindow(mapDrawingModel)
     );
+  }
+
+  static InfoWindow getInfoWindow(MapDrawingModel mapDrawingModel) {
+    if (mapDrawingModel.name.isEmpty) {
+      return InfoWindow.noText;
+    }
+    return InfoWindow(title: mapDrawingModel.name,
+        snippet: mapDrawingModel.description.isEmpty ? null : mapDrawingModel.description);
   }
 
   static Future<BitmapDescriptor> bitmapFromModel(MapDrawingModel mapDrawingModel) async {
@@ -37,6 +47,7 @@ abstract class DrawUtil {
     required List<DrawingLine> drawingLines,
     required GoogleMapController mapController,
     String? drawingModelId,
+    MarkerInfo? markerInfo
   }) async {
       //removes drawing offset between screen edge
       final xs = dxs(drawingLines);
@@ -61,7 +72,9 @@ abstract class DrawUtil {
         y: (drawingCenter.y * pixelRatio).toInt(),
       ));
 
-      return MapDrawingModel('', '',
+      return MapDrawingModel(
+        markerInfo?.name ?? '',
+        markerInfo?.getDescription() ?? '',
         drawingModelId ?? const Uuid().v1(),
         drawingPosition.coordinates,
         drawing.first.color.value,

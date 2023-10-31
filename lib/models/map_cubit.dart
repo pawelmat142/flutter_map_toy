@@ -8,6 +8,7 @@ import 'package:flutter_map_toy/global/drawing/map_drawing_model.dart';
 import 'package:flutter_map_toy/models/map_icon_model.dart';
 import 'package:flutter_map_toy/models/map_model.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
+import 'package:flutter_map_toy/models/marker_info.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_wizard.dart';
 import 'package:flutter_map_toy/presentation/dialogs/map_name_popup.dart';
 import 'package:flutter_map_toy/presentation/views/home_screen.dart';
@@ -171,6 +172,7 @@ class MapCubit extends Cubit<MapState> {
     required BuildContext context,
     required List<DrawingLine> drawingLines,
     String? drawingModelId,
+    MarkerInfo? markerInfo
   }) async {
     final markers = state.markers;
     final drawings = state.drawings;
@@ -182,6 +184,7 @@ class MapCubit extends Cubit<MapState> {
       mapController: state.mapController!,
       drawingLines: drawingLines,
       drawingModelId: drawingModelId,
+      markerInfo: markerInfo,
     );
 
     drawings.add(mapDrawingModel.rescale(1/state.rescaleFactor));

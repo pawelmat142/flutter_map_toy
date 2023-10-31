@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_state.dart';
 import 'package:flutter_map_toy/models/map_cubit.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
+import 'package:flutter_map_toy/models/marker_info.dart';
 import 'package:flutter_map_toy/presentation/components/toolbar.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
@@ -33,11 +34,12 @@ class MapToolbar extends StatelessWidget {
         label: 'confirm',
         barLabel: 'confirm',
         icon: AppIcon.confirm,
-        onTap: () {
+        onTap: () async {
           cubit.addDrawingAsMarker(
             context: context,
             drawingLines: drawingCubit.state.drawingLines,
-            drawingModelId: drawingState.drawingModelId.isEmpty ? null : drawingState.drawingModelId
+            drawingModelId: drawingState.drawingModelId.isEmpty ? null : drawingState.drawingModelId,
+            markerInfo: await MarkerInfo.dialog(context)
           );
         }
       ),

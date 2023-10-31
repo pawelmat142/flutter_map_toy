@@ -81,13 +81,7 @@ class MapScreen extends StatelessWidget {
         draggable: true,
         flat: state.isDrawing(marker.markerId.value),
         consumeTapEvents: true,
-        infoWindow: InfoWindow(
-          title: 'Example title',
-          snippet: 'Example snippet',
-          onTap: () {
-            print('on InfoWindow tap!');
-          }
-        ),
+        infoWindow: marker.infoWindow,
         onTap: () {
           state.mapController?.showMarkerInfoWindow(marker.markerId);
           cubit.selectMarker(marker, context);

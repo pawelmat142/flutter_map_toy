@@ -46,7 +46,7 @@ abstract class MapUtil {
     return distanceBetweenPoints(viewPort.southwest, viewPort.northeast);
   }
 
-  //TODO name and description marker
+  //TODO name and description icon marker
 
   static Future<Marker> getMarkerFromIcon(MapIconModel mapIconPoint) async {
     final craft = IconUtil.craftFromMapIconPoint(mapIconPoint);
