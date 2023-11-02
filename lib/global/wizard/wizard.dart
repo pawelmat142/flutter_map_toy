@@ -23,7 +23,7 @@ abstract class Wizard<T> {
 
   Widget getSubmitButton();
 
-  run(BuildContext ctx, { T? edit }) {
+  Wizard<T> run(BuildContext ctx, { T? edit }) {
     this.ctx = ctx;
     data = dataBuilder(edit);
     _initialize();
@@ -35,6 +35,7 @@ abstract class Wizard<T> {
       _stop();
       _clear(ctx);
     });
+    return this;
   }
 
   _initialize() {

@@ -7,6 +7,8 @@ import 'package:flutter_map_toy/models/marker_info.dart';
 import 'package:flutter_map_toy/presentation/components/toolbar.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
+import 'package:flutter_map_toy/presentation/views/home_screen.dart';
+import 'package:flutter_map_toy/presentation/views/saved_maps_screen.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -196,6 +198,16 @@ class MapToolbar extends StatelessWidget {
           menuLabel: 'Find map',
           icon: AppIcon.search,
           onTap: () => MapUtil.animateCameraToMapCenter(state)
+      ),
+      ToolBarItem(
+          label: 'saved_maps',
+          menuLabel: 'Saved maps',
+          icon: AppIcon.savedMaps,
+          onTap: () => Navigator.pushNamedAndRemoveUntil(
+            context,
+            SavedMapsScreen.id,
+            ModalRoute.withName(HomeScreen.id)
+          ),
       ),
     ];
   }

@@ -105,25 +105,23 @@ class MapCubit extends Cubit<MapState> {
     emit(state.copyWith(
       selectedMarkerId: ''
     ));
-    final wizard = IconWizard();
-    wizard.run(context);
-    wizard.onComplete = (craft) async {
-      if (craft.incomplete) return;
-      final mapIconModel = IconUtil.mapIconPointFromCraft(craft,
-        point:  await state.mapViewCenter,
-        markerInfo: await MarkerInfo.dialog(context)
-      );
-      final mapIconModels = state.icons;
-      mapIconModels.add(mapIconModel);
+    IconWizard()
+      .run(context)
+      .onComplete = (craft) async {
+        if (craft.incomplete) return;
+        final mapIconModel = IconUtil.mapIconPointFromCraft(craft,
+          point:  await state.mapViewCenter,
+          markerInfo: await MarkerInfo.dialog(context)
+        );
+        final mapIconModels = state.icons;
+        mapIconModels.add(mapIconModel);
 
-
-
-      emit(state.copyWith(
-          selectedMarkerId: '',
-          icons: mapIconModels,
-          markers: await _getAllMarkers(icons: mapIconModels)
-      ));
-      Log.log('Added marker with id: ${mapIconModel.id}', source: runtimeType.toString());
+        emit(state.copyWith(
+            selectedMarkerId: '',
+            icons: mapIconModels,
+            markers: await _getAllMarkers(icons: mapIconModels)
+        ));
+        Log.log('Added marker with id: ${mapIconModel.id}', source: runtimeType.toString());
     };
   }
 
@@ -142,21 +140,21 @@ class MapCubit extends Cubit<MapState> {
     if (mapIconPoint == null) throw 'mapIconPoint == null ';
 
     final craft = IconUtil.craftFromMapIconPoint(mapIconPoint);
-    final wizard = IconWizard();
-    wizard.run(context, edit: craft);
-    wizard.onComplete = (newCraft) async {
-      newCraft.id = craft.id;
-      final points = state.icons.map((point) {
-        if (point.id == newCraft.id) {
-          point = IconUtil.mapIconPointFromCraft(newCraft,
-            point: MapUtil.pointFromCoordinates(mapIconPoint.coordinates),
-            markerInfo: mapIconPoint.name.isEmpty
-                ? null
-                : (MarkerInfo(mapIconPoint.name)..description = mapIconPoint.description)
-          );
-        }
-        return point;
-      });
+    IconWizard()
+      .run(context, edit: craft)
+      .onComplete = (newCraft) async {
+        newCraft.id = craft.id;
+        final points = state.icons.map((point) {
+          if (point.id == newCraft.id) {
+            point = IconUtil.mapIconPointFromCraft(newCraft,
+              point: MapUtil.pointFromCoordinates(mapIconPoint.coordinates),
+              markerInfo: mapIconPoint.name.isEmpty
+                  ? null
+                  : (MarkerInfo(mapIconPoint.name)..description = mapIconPoint.description)
+            );
+          }
+          return point;
+        });
 
       emit(state.copyWith(
         icons: points.toSet(),
