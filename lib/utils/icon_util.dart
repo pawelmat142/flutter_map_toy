@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
+import 'package:flutter_map_toy/models/map_cubit.dart';
 import 'package:flutter_map_toy/models/map_icon_model.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_craft.dart';
 import 'package:flutter_map_toy/services/log.dart';
@@ -41,15 +43,26 @@ abstract class IconUtil {
     );
   }
 
-  static Future<Marker> getMarkerFromIcon(MapIconModel mapIconModel) async {
+  static Future<Marker> getMarkerFromIcon(MapIconModel mapIconModel, BuildContext context) async {
     final craft = IconUtil.craftFromMapIconPoint(mapIconModel);
     if (craft.incomplete) throw 'craft incomplete!';
     craft.size = craft.size! / 5;
+    final cubit = BlocProvider.of<MapCubit>(context);
+    final markerId = MarkerId(mapIconModel.id);
     return Marker(
         markerId: MarkerId(craft.id!),
         position: MapUtil.pointFromCoordinates(mapIconModel.coordinates),
         icon: await craft.widget().toBitmapDescriptor(),
-        infoWindow: IconUtil.getInfoWindow(mapIconModel)
+        infoWindow: getInfoWindow(mapIconModel),
+        draggable: true,
+        consumeTapEvents: true,
+        onDragEnd: (point) {
+          cubit.replaceMarker(context, point, markerId: markerId.value);
+        },
+        onTap: () {
+          cubit.state.mapController?.showMarkerInfoWindow(markerId);
+          cubit.selectMarker(markerId.value, context);
+        }
     );
   }
 

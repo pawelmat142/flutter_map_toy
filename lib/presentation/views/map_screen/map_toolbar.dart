@@ -162,7 +162,7 @@ class MapToolbar extends StatelessWidget {
                   onPressed: () => Navigator.pop(context, true),
                 )
               ],
-            )).then(cubit.removeMarker);
+            )).then((doRemove) => cubit.removeMarker(doRemove, context));
           }
       ),
       ToolBarItem(
@@ -232,7 +232,8 @@ class MarkerInfoToolbarItem extends ToolBarItem {
           cubit.state.mapController?.hideMarkerInfoWindow(selectedMarker.markerId);
           final markerInfo = await MarkerInfo.dialog(context, selectedMarker);
           if (markerInfo is MarkerInfo) {
-            cubit.setMarkerInfo(markerInfo);
+            // ignore: use_build_context_synchronously
+            cubit.setMarkerInfo(context, markerInfo);
           }
         }
       }

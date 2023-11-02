@@ -39,7 +39,7 @@ class SavedMapsScreen extends StatelessWidget {
                   title: Text(mapModel.name),
                   subtitle: Text(mapModel.modified.format),
                   onTap: () async {
-                    mapCubit.loadStateFromModel(mapModel);
+                    mapCubit.loadStateFromModel(context, mapModel);
                     Navigator.pushNamed(context, MapScreen.id);
                   },
                   onLongPress: () {

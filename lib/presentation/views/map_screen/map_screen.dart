@@ -70,26 +70,11 @@ class MapScreen extends StatelessWidget {
 
   _onMapTap(LatLng point, MapCubit mapCubit, MapState state, BuildContext context) async {
     if (state.selectedMarkerId.isEmpty) return;
-    mapCubit.selectMarker(null, context);
+    mapCubit.selectMarker('', context);
   }
 
   Set<Marker> _prepareMarkers(MapState state, MapCubit cubit, BuildContext context) {
-    return state.markers.map((marker) => Marker(
-        markerId: marker.markerId,
-        position: marker.position,
-        icon: marker.icon,
-        draggable: true,
-        flat: state.isDrawing(marker.markerId.value),
-        consumeTapEvents: true,
-        infoWindow: marker.infoWindow,
-        onTap: () {
-          state.mapController?.showMarkerInfoWindow(marker.markerId);
-          cubit.selectMarker(marker, context);
-        },
-        onDragEnd: (point) {
-          cubit.replaceMarker(point, markerId: marker.markerId.value);
-        },
-    )).toSet();
+    return state.markers;
   }
 
 }

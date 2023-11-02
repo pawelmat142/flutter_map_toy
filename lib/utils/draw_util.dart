@@ -2,10 +2,12 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_line.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_painter.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/global/drawing/map_drawing_model.dart';
+import 'package:flutter_map_toy/models/map_cubit.dart';
 import 'package:flutter_map_toy/models/marker_info.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -14,12 +16,21 @@ import 'package:widget_to_marker/widget_to_marker.dart';
 
 abstract class DrawUtil {
 
-  static Future<Marker> getMarkerFromDrawingModel(MapDrawingModel mapDrawingModel) async {
+  static Future<Marker> getMarkerFromDrawingModel(MapDrawingModel mapDrawingModel, BuildContext context) async {
+    final cubit = BlocProvider.of<MapCubit>(context);
+    final markerId = MarkerId(mapDrawingModel.id);
     return Marker(
-      markerId: MarkerId(mapDrawingModel.id),
+      markerId: markerId,
       position: MapUtil.pointFromCoordinates(mapDrawingModel.coordinates),
       icon: await bitmapFromModel(mapDrawingModel),
-      infoWindow: getInfoWindow(mapDrawingModel)
+      infoWindow: getInfoWindow(mapDrawingModel),
+      flat: true,
+      draggable: false,
+      consumeTapEvents: true,
+      onTap: () {
+        cubit.state.mapController?.showMarkerInfoWindow(markerId);
+        cubit.selectMarker(markerId.value, context);
+      },
     );
   }
 

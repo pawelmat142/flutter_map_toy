@@ -65,14 +65,14 @@ class MapCubit extends Cubit<MapState> {
     Log.log('Selected: ${mapType.toString()}', source: state.runtimeType.toString());
   }
 
-  loadStateFromModel(MapModel mapModel) async {
+  loadStateFromModel(BuildContext context, MapModel mapModel) async {
     final mapIcons = mapModel.icons.toSet();
     final drawings = mapModel.drawings.toSet();
     emit(state.copyWith(
         mapModelId: mapModel.id,
         drawings: drawings,
         icons: mapIcons,
-        markers: await _getAllMarkers(icons: mapIcons, drawings: drawings),
+        markers: await _getAllMarkers(context, icons: mapIcons, drawings: drawings),
         selectedMarkerId: '',
         initialCameraPosition: MapUtil.getCameraPosition(MapUtil.pointFromCoordinates(mapModel.mainCoordinates))
     ));
@@ -118,17 +118,19 @@ class MapCubit extends Cubit<MapState> {
         emit(state.copyWith(
             selectedMarkerId: '',
             icons: mapIconModels,
-            markers: await _getAllMarkers(icons: mapIconModels)
+            // ignore: use_build_context_synchronously
+            markers: await _getAllMarkers(context, icons: mapIconModels)
         ));
         Log.log('Added marker with id: ${mapIconModel.id}', source: runtimeType.toString());
     };
   }
 
   Future<Set<Marker>> _markersFromIcons(
-      Iterable<MapIconModel> icons,
-      ) async {
+    Iterable<MapIconModel> icons,
+    BuildContext context
+  ) async {
     final futures = icons.map((mapIconModel) {
-      return IconUtil.getMarkerFromIcon(mapIconModel.rescale(state.rescaleFactor));
+      return IconUtil.getMarkerFromIcon(mapIconModel.rescale(state.rescaleFactor), context);
     });
     final markers = await Future.wait(futures);
     return markers.toSet();
@@ -154,7 +156,7 @@ class MapCubit extends Cubit<MapState> {
 
       emit(state.copyWith(
         icons: points.toSet(),
-        markers: await _getAllMarkers(icons: points),
+        markers: await _getAllMarkers(context, icons: points),
         selectedMarkerId: '',
       ));
     };
@@ -192,7 +194,8 @@ class MapCubit extends Cubit<MapState> {
     drawings.add(mapDrawingModel.rescale(1/state.rescaleFactor));
     emit(state.copyWith(
       drawings: drawings,
-      markers: await _getAllMarkers(drawings: drawings),
+      // ignore: use_build_context_synchronously
+      markers: await _getAllMarkers(context, drawings: drawings),
       drawingMode: false,
       ctx: context,
     ));
@@ -219,9 +222,9 @@ class MapCubit extends Cubit<MapState> {
     turnDrawingMode(context: context, on: true);
   }
 
-  Future<Set<Marker>> _markersFromDrawings(Iterable<MapDrawingModel> drawings) async {
+  Future<Set<Marker>> _markersFromDrawings(Iterable<MapDrawingModel> drawings, BuildContext context) async {
     final futures = drawings.map((mapDrawingModel) {
-      return DrawUtil.getMarkerFromDrawingModel(mapDrawingModel.rescale(state.rescaleFactor));
+      return DrawUtil.getMarkerFromDrawingModel(mapDrawingModel.rescale(state.rescaleFactor), context);
     });
     final markers = await Future.wait(futures);
     return markers.toSet();
@@ -230,13 +233,13 @@ class MapCubit extends Cubit<MapState> {
 
   /// MARKERS MANAGEMENT
   ///
-  Future<Set<Marker>> _getAllMarkers({
+  Future<Set<Marker>> _getAllMarkers(BuildContext context, {
     Iterable<MapIconModel>? icons,
     Iterable<MapDrawingModel>? drawings,
   }) async {
     return  {
-      ...(await _markersFromIcons(icons ?? state.icons)),
-      ...(await _markersFromDrawings(drawings ?? state.drawings))
+      ...(await _markersFromIcons(icons ?? state.icons, context)),
+      ...(await _markersFromDrawings(drawings ?? state.drawings, context))
     };
   }
 
@@ -250,8 +253,7 @@ class MapCubit extends Cubit<MapState> {
     Log.log('Markers cleaned', source: state.runtimeType.toString());
   }
 
-  selectMarker(Marker? marker, BuildContext context) {
-    final markerId = marker == null ? '' : marker.markerId.value;
+  selectMarker(String markerId, BuildContext context) {
     if (markerId == state.selectedMarkerId) return;
     Log.log('Selecting marker with id: $markerId', source: runtimeType.toString());
     emit(state.copyWith(
@@ -261,7 +263,7 @@ class MapCubit extends Cubit<MapState> {
     ));
   }
 
-  replaceMarker(LatLng point, { required markerId }) async {
+  replaceMarker(BuildContext context, LatLng point, { required markerId }) async {
     Log.log('Moving marker: $markerId to lat: ${point.latitude}, lng: ${point.longitude}', source: state.runtimeType.toString());
     final mapIconPoints = state.isIcon(markerId) ? state.icons.map((mapIconPoint) {
       if (mapIconPoint.id == markerId) mapIconPoint.coordinates = point.coordinates;
@@ -276,11 +278,11 @@ class MapCubit extends Cubit<MapState> {
     emit(state.copyWith(
       icons: mapIconPoints?.toSet(),
       drawings: drawings?.toSet(),
-      markers: await _getAllMarkers(icons: mapIconPoints, drawings: drawings),
+      markers: await _getAllMarkers(context, icons: mapIconPoints, drawings: drawings),
     ));
   }
 
-  removeMarker(bool? remove) async {
+  removeMarker(bool? remove, BuildContext context) async {
     if (remove == null || !remove) return;
     if (state.isDrawing(state.selectedMarkerId)) {
       state.drawings.removeWhere((drawing) => drawing.id == state.selectedMarkerId);
@@ -289,7 +291,7 @@ class MapCubit extends Cubit<MapState> {
     }
     emit(state.copyWith(
       selectedMarkerId: '',
-      markers: await _getAllMarkers()
+      markers: await _getAllMarkers(context)
     ));
   }
 
@@ -299,20 +301,21 @@ class MapCubit extends Cubit<MapState> {
     ));
     cameraMoveEndHandler.handle(() {
       //onCameraMoveEnd:
-      updateRescaleFactor().then((_) {
+      updateRescaleFactor(context).then((_) {
         _unselectMarkerIfOutOfView(context);
       });
     });
   }
 
-  Future<void> updateRescaleFactor() async {
+  Future<void> updateRescaleFactor(BuildContext context) async {
     final distance = await MapUtil.calcMapViewDiagonalDistance(
         state.mapController!);
     final factor = state.initialDiagonalDistance! / distance;
     if (factor != state.rescaleFactor) {
       emit(state.copyWith(
         rescaleFactor: factor,
-        markers: await _getAllMarkers(),
+        // ignore: use_build_context_synchronously
+        markers: await _getAllMarkers(context),
       ));
     }
   }
@@ -326,7 +329,7 @@ class MapCubit extends Cubit<MapState> {
       state.mapController?.getVisibleRegion().then((visibleRegion) {
         final markerVisible = visibleRegion.contains(state.selectedMarker!.position);
         if (!markerVisible) {
-          selectMarker(null, context);
+          selectMarker('', context);
           final selectedMarker = state.selectedMarker;
           if (selectedMarker is Marker) {
             state.mapController?.hideMarkerInfoWindow(selectedMarker.markerId);
@@ -336,7 +339,7 @@ class MapCubit extends Cubit<MapState> {
     }
   }
 
-  setMarkerInfo(MarkerInfo markerInfo) async {
+  setMarkerInfo(BuildContext context, MarkerInfo markerInfo) async {
     final marker = state.selectedMarker;
     if (marker is Marker) {
 
@@ -365,7 +368,7 @@ class MapCubit extends Cubit<MapState> {
       emit(state.copyWith(
         drawings: drawings?.toSet(),
         icons: icons?.toSet(),
-        markers: await _getAllMarkers(icons: icons, drawings: drawings)
+        markers: await _getAllMarkers(context, icons: icons, drawings: drawings)
       ));
     }
 
