@@ -55,6 +55,16 @@ class MapState {
     return drawings.any((drawing) => drawing.id == markerId);
   }
 
+  unselectMarker() async {
+    final marker = selectedMarker;
+    if (marker is Marker) {
+      final isSelected = await mapController?.isMarkerInfoWindowShown(marker.markerId) ?? false;
+      if (isSelected) {
+        mapController?.hideMarkerInfoWindow(marker.markerId);
+      }
+    }
+  }
+
   MapState(
     this.state,
     this.mapModelId,

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/models/map_icon_model.dart';
-import 'package:flutter_map_toy/models/marker_info.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_craft.dart';
 import 'package:flutter_map_toy/services/log.dart';
+import 'package:flutter_map_toy/utils/map_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:widget_to_marker/widget_to_marker.dart';
 
 abstract class IconUtil {
 
@@ -23,7 +24,6 @@ abstract class IconUtil {
 
   static MapIconModel mapIconPointFromCraft(IconCraft craft, {
     required LatLng point,
-    MarkerInfo? markerInfo
   }) {
     Log.log('IconData: ${craft.iconData?.codePoint.toString()}');
     Log.log('Color: ${craft.color.hashCode.toString()}');
@@ -36,16 +36,25 @@ abstract class IconUtil {
         craft.id!,
         point.coordinates,
         'default',
-        markerInfo?.name ?? '',
-        markerInfo?.getDescription() ?? '',
+        '',
+        ''
+    );
+  }
+
+  static Future<Marker> getMarkerFromIcon(MapIconModel mapIconModel) async {
+    final craft = IconUtil.craftFromMapIconPoint(mapIconModel);
+    if (craft.incomplete) throw 'craft incomplete!';
+    craft.size = craft.size! / 5;
+    return Marker(
+        markerId: MarkerId(craft.id!),
+        position: MapUtil.pointFromCoordinates(mapIconModel.coordinates),
+        icon: await craft.widget().toBitmapDescriptor(),
+        infoWindow: IconUtil.getInfoWindow(mapIconModel)
     );
   }
 
   static InfoWindow getInfoWindow(MapIconModel mapIconModel) {
-    if (mapIconModel.name.isEmpty) {
-      return InfoWindow.noText;
-    }
-    return InfoWindow(title: mapIconModel.name,
+    return InfoWindow(title: MapUtil.getMarkerName(mapIconModel.name),
         snippet: mapIconModel.description.isEmpty ? null : mapIconModel.description);
   }
 

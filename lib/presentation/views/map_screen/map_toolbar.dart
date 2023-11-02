@@ -41,7 +41,6 @@ class MapToolbar extends StatelessWidget {
             context: context,
             drawingLines: drawingCubit.state.drawingLines,
             drawingModelId: drawingState.drawingModelId.isEmpty ? null : drawingState.drawingModelId,
-            markerInfo: await MarkerInfo.dialog(context)
           );
         }
       ),
@@ -82,24 +81,25 @@ class MapToolbar extends StatelessWidget {
 
   List<ToolBarItem> mapToolbar(BuildContext context, MapCubit cubit, MapState state) {
     return [
-      !state.isAnyIconSelected ?
-      ToolBarItem(
-        label: 'add_point',
-        barLabel: 'add point',
-        menuLabel: 'add point',
-        icon: AppIcon.addPoint,
-        onTap: () => cubit.addIconMarker(context),
-      ) : ToolBarItem(
-        label: 'edit_marker',
+
+      state.isAnyIconSelected ? ToolBarItem(
+        label: 'edit_icon',
         barLabel: 'edit',
         icon: AppIcon.editPoint,
         color: AppColor.secondary,
         disabled: cubit.state.selectedMarkerId.isEmpty,
         onTap: () => cubit.updateIconMarker(context),
+      ) : state.isAnyDrawingSelected ? MarkerInfoToolbarItem(context, cubit)
+        : ToolBarItem(
+        label: 'add_point',
+        barLabel: 'add point',
+        menuLabel: 'add point',
+        icon: AppIcon.addPoint,
+        onTap: () => cubit.addIconMarker(context),
       ),
 
-      state.isAnyDrawingSelected ?
-      ToolBarItem(
+      state.isAnyIconSelected ? MarkerInfoToolbarItem(context, cubit)
+        : state.isAnyDrawingSelected ? ToolBarItem(
           label: 'edit_line',
           barLabel: 'edit line',
           icon: AppIcon.editLine,
@@ -107,25 +107,25 @@ class MapToolbar extends StatelessWidget {
           onTap: () {
             cubit.editDrawing(context);
           }
-      ) : ToolBarItem(
+      ) :  ToolBarItem(
           label: 'draw_line',
           barLabel: 'draw line',
           icon: AppIcon.drawLine,
           onTap: () async {
             if (state.angle != 0) {
               final resetRotation = await showDialog<bool?>(context: context, builder: (ctx) => AlertDialog(
-                  title: const Text('You can\'t draw on rotated map'),
-                  content: const Text('Do you want to reset the map to its default orientation?'),
-                  actions: [
-                    TextButton(
+                title: const Text('You can\'t draw on rotated map'),
+                content: const Text('Do you want to reset the map to its default orientation?'),
+                actions: [
+                  TextButton(
                       onPressed: () => Navigator.pop(context),
                       child: const Text('No')
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Yes'),
-                    )
-                  ],
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, true),
+                    child: const Text('Yes'),
+                  )
+                ],
               ));
               if (resetRotation == true) {
                 await MapUtil.animateCameraToDefaultRotation(state);
@@ -135,6 +135,9 @@ class MapToolbar extends StatelessWidget {
                 context: context, on: !state.drawingMode);
           }
       ),
+
+
+          // : null,
       ToolBarItem(
           label: 'clean_map',
           menuLabel: 'clean markers',
@@ -212,4 +215,26 @@ class MapToolbar extends StatelessWidget {
     ];
   }
 
+}
+
+
+
+class MarkerInfoToolbarItem extends ToolBarItem {
+  MarkerInfoToolbarItem(BuildContext context, MapCubit cubit) : super(
+      label: 'set_info',
+      barLabel: 'Set info',
+      icon: AppIcon.nameMarker,
+      color: AppColor.secondary,
+      onTap: () async {
+        final selectedMarker = cubit.state.selectedMarker;
+        cubit.state.unselectMarker();
+        if (selectedMarker is Marker) {
+          cubit.state.mapController?.hideMarkerInfoWindow(selectedMarker.markerId);
+          final markerInfo = await MarkerInfo.dialog(context, selectedMarker);
+          if (markerInfo is MarkerInfo) {
+            cubit.setMarkerInfo(markerInfo);
+          }
+        }
+      }
+  );
 }

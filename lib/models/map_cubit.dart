@@ -111,7 +111,6 @@ class MapCubit extends Cubit<MapState> {
         if (craft.incomplete) return;
         final mapIconModel = IconUtil.mapIconPointFromCraft(craft,
           point:  await state.mapViewCenter,
-          markerInfo: await MarkerInfo.dialog(context)
         );
         final mapIconModels = state.icons;
         mapIconModels.add(mapIconModel);
@@ -129,7 +128,7 @@ class MapCubit extends Cubit<MapState> {
       Iterable<MapIconModel> icons,
       ) async {
     final futures = icons.map((mapIconModel) {
-      return MapUtil.getMarkerFromIcon(mapIconModel.rescale(state.rescaleFactor));
+      return IconUtil.getMarkerFromIcon(mapIconModel.rescale(state.rescaleFactor));
     });
     final markers = await Future.wait(futures);
     return markers.toSet();
@@ -148,9 +147,6 @@ class MapCubit extends Cubit<MapState> {
           if (point.id == newCraft.id) {
             point = IconUtil.mapIconPointFromCraft(newCraft,
               point: MapUtil.pointFromCoordinates(mapIconPoint.coordinates),
-              markerInfo: mapIconPoint.name.isEmpty
-                  ? null
-                  : (MarkerInfo(mapIconPoint.name)..description = mapIconPoint.description)
             );
           }
           return point;
@@ -338,6 +334,41 @@ class MapCubit extends Cubit<MapState> {
         }
       });
     }
+  }
+
+  setMarkerInfo(MarkerInfo markerInfo) async {
+    final marker = state.selectedMarker;
+    if (marker is Marker) {
+
+      Iterable<MapDrawingModel>? drawings;
+      Iterable<MapIconModel>? icons;
+
+      if (state.isDrawing(marker.markerId.value)) {
+        drawings = state.drawings.map((drawing) {
+          if (drawing.id == marker.markerId.value) {
+            drawing.name = markerInfo.name;
+            drawing.description = markerInfo.description ?? '';
+          }
+          return drawing;
+        });
+      }
+      if (state.isIcon(marker.markerId.value)) {
+        icons = state.icons.map((icon) {
+          if (icon.id == marker.markerId.value) {
+            icon.name = markerInfo.name;
+            icon.description = markerInfo.description ?? '';
+          }
+          return icon;
+        });
+      }
+
+      emit(state.copyWith(
+        drawings: drawings?.toSet(),
+        icons: icons?.toSet(),
+        markers: await _getAllMarkers(icons: icons, drawings: drawings)
+      ));
+    }
+
   }
 
 }

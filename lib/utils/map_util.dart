@@ -1,10 +1,7 @@
 import 'dart:math';
 
-import 'package:flutter_map_toy/models/map_icon_model.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
-import 'package:flutter_map_toy/utils/icon_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:widget_to_marker/widget_to_marker.dart';
 
 abstract class MapUtil {
 
@@ -46,20 +43,6 @@ abstract class MapUtil {
     return distanceBetweenPoints(viewPort.southwest, viewPort.northeast);
   }
 
-  //TODO edit marker info feature
-
-  static Future<Marker> getMarkerFromIcon(MapIconModel mapIconModel) async {
-    final craft = IconUtil.craftFromMapIconPoint(mapIconModel);
-    if (craft.incomplete) throw 'craft incomplete!';
-    craft.size = craft.size! / 5;
-    return Marker(
-      markerId: MarkerId(craft.id!),
-      position: MapUtil.pointFromCoordinates(mapIconModel.coordinates),
-      icon: await craft.widget().toBitmapDescriptor(),
-      infoWindow: IconUtil.getInfoWindow(mapIconModel)
-    );
-  }
-
   static void animateCameraToMapCenter(MapState state) {
     if (state.mapModelId.isEmpty || state.markers.isEmpty) return;
 
@@ -97,6 +80,10 @@ abstract class MapUtil {
       zoom: state.cameraPosition!.zoom,
       bearing: 0
     )));
+  }
+
+  static getMarkerName(String name) {
+    return name.isEmpty ? ' ' : name;
   }
 
 }

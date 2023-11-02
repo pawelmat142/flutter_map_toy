@@ -24,10 +24,7 @@ abstract class DrawUtil {
   }
 
   static InfoWindow getInfoWindow(MapDrawingModel mapDrawingModel) {
-    if (mapDrawingModel.name.isEmpty) {
-      return InfoWindow.noText;
-    }
-    return InfoWindow(title: mapDrawingModel.name,
+    return InfoWindow(title: MapUtil.getMarkerName(mapDrawingModel.name),
         snippet: mapDrawingModel.description.isEmpty ? null : mapDrawingModel.description);
   }
 

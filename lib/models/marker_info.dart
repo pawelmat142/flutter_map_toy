@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MarkerInfo {
   String name;
@@ -10,80 +11,61 @@ class MarkerInfo {
     return description == null || description!.isEmpty ? '' : description!;
   }
 
-  static Future<MarkerInfo?> dialog(BuildContext context) async {
-    final doAddName = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
-      title: const Text('Add drawing name?'),
-      actions: [
-        TextButton(child: const Text('No'),
-          onPressed: () => Navigator.pop(context),
-        ),
-        TextButton(child: const Text('Yes'),
-          onPressed: () => Navigator.pop(context, true),
-        )
-      ],
-    ));
+  static Future<MarkerInfo?> dialog(BuildContext context, Marker marker) async {
+    MarkerInfo? result;
+    final infoWindow = marker.infoWindow;
 
-    if (doAddName == true) {
-      String nameValue = '';
-
-      final name = await showDialog<String>(context: context, builder: (ctx) => AlertDialog(
-        title: const Text('Enter the name'),
-        content: TextField(
-          autofocus: true,
-          onChanged: (value) => nameValue = value,
-        ),
-        actions: [
-          TextButton(child: const Text('Cancel'),
-            onPressed: () => Navigator.pop(context),
+    final nameController = TextEditingController(text: infoWindow.title);
+    final name = await showDialog<String>(context: context, builder: (ctx) =>
+        AlertDialog(
+          title: const Text('Enter the name'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Tap OK to set description'),
+              TextField(
+                autofocus: true,
+                controller: nameController,
+              ),
+            ],
           ),
-          TextButton(child: const Text('OK'),
-            onPressed: () => Navigator.pop(context, nameValue),
-          ),
-        ],
-      ));
-
-      if (name is String && name.isNotEmpty) {
-
-        final doAddDescription = await showDialog<bool>(context: context, builder: (ctx) => AlertDialog(
-          title: const Text('Add description?'),
           actions: [
-            TextButton(child: const Text('No'),
+            TextButton(child: const Text('Cancel'),
               onPressed: () => Navigator.pop(context),
             ),
-            TextButton(child: const Text('Yes'),
-              onPressed: () => Navigator.pop(context, true),
-            )
+            TextButton(child: const Text('OK'),
+              onPressed: () => Navigator.pop(context, nameController.text),
+            ),
           ],
         ));
 
-        if (doAddDescription == true) {
+    if (name is String && name.isNotEmpty) {
+      result = MarkerInfo(name);
 
-          String descriptionValue = '';
-          final description = await showDialog<String>(context: context, builder: (ctx) => AlertDialog(
+      final descriptionController = TextEditingController(text: infoWindow.snippet);
+      final description = await showDialog<String>(
+          context: context, builder: (ctx) =>
+          AlertDialog(
             title: const Text('Enter the description.'),
             content: TextField(
               autofocus: true,
-              onChanged: (value) => descriptionValue = value,
+              controller: descriptionController,
             ),
             actions: [
               TextButton(child: const Text('Cancel'),
                 onPressed: () => Navigator.pop(context),
               ),
               TextButton(child: const Text('OK'),
-                onPressed: () => Navigator.pop(context, descriptionValue),
+                onPressed: () => Navigator.pop(context, descriptionController.text),
               ),
             ],
           ));
 
-          if (description is String && description.isNotEmpty) {
-            return MarkerInfo(name)
-              ..description = description;
-          }
-        } else {
-          return MarkerInfo(name);
-        }
+      if (description is String && description.isNotEmpty) {
+        result.description = description;
       }
     }
-    return null;
+    return result;
   }
+
 }
