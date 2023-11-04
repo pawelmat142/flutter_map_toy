@@ -46,7 +46,7 @@ class MapIconModel extends HiveObject {
     return MapIconModel(
         iconDataPoint,
         colorInt,
-        size * rescaleFactor,
+        size / rescaleFactor,
         id,
         coordinates,
         type,

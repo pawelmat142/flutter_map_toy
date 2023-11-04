@@ -49,7 +49,7 @@ class MapDrawingModel extends HiveObject {
     return MapDrawingModel(
       name, description, id, coordinates, colorInt, width,
       points.map((line) => line.map((offset) =>
-          offset.map((point) => point * rescaleFactor)
+          offset.map((point) => point / rescaleFactor)
               .toList()).toList()).toList()
     );
   }

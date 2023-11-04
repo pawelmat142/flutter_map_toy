@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_line.dart';
@@ -25,7 +24,7 @@ class MapCubit extends Cubit<MapState> {
 
   static final cameraMoveEndHandler = TimerHandler(milliseconds: 50);
 
-  MapCubit(): super(MapState(BlocState.empty, '', {}, {}, {}, '', MapType.satellite, 1, false, null, null, null, null));
+  MapCubit(): super(MapState(BlocState.empty, '', {}, {}, {}, '', MapType.satellite, false, null, null, null, null));
 
 
   initMap(GoogleMapController controller) async {
@@ -56,7 +55,6 @@ class MapCubit extends Cubit<MapState> {
         icons: {},
         drawings: {},
         selectedMarkerId: '',
-        rescaleFactor: 1,
         initialCameraPosition: initialCameraPosition,
     ));
   }
@@ -299,29 +297,21 @@ class MapCubit extends Cubit<MapState> {
   updateCameraPosition(CameraPosition cameraPosition, BuildContext context) async {
     Log.log('New CameraPosition, zoom: ${cameraPosition.zoom}, angle: ${cameraPosition.bearing}');
     emit(state.copyWith(
-        cameraPosition: cameraPosition
+        cameraPosition: cameraPosition,
     ));
     cameraMoveEndHandler.handle(() {
       //onCameraMoveEnd:
-      updateRescaleFactor(context).then((_) {
+      rescaleMarkers(context).then((_) {
         _unselectMarkerIfOutOfView(context);
       });
     });
   }
 
-  //TODO refactor rescale factor depended not to diagonal distance but zoom/bearing
-
-  Future<void> updateRescaleFactor(BuildContext context) async {
-    final distance = await MapUtil.calcMapViewDiagonalDistance(
-        state.mapController!);
-    final factor = state.initialDiagonalDistance! / distance;
-    if (factor != state.rescaleFactor) {
-      emit(state.copyWith(
-        rescaleFactor: factor,
-        // ignore: use_build_context_synchronously
-        markers: await _getAllMarkers(context),
-      ));
-    }
+  Future<void> rescaleMarkers(BuildContext context) async {
+    final markers = await _getAllMarkers(context);
+    emit(state.copyWith(
+      markers: markers,
+    ));
   }
 
   _unselectMarkerIfOutOfView(BuildContext context) {

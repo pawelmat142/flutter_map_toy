@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_state.dart';
 import 'package:flutter_map_toy/models/map_icon_model.dart';
+import 'package:flutter_map_toy/utils/map_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../global/drawing/map_drawing_model.dart';
@@ -20,7 +23,7 @@ class MapState {
   Set<MapDrawingModel> drawings;
   String selectedMarkerId;
   MapType mapType;
-  double rescaleFactor;
+  // double rescaleFactor;
   bool drawingMode;
   GoogleMapController? mapController;
   CameraPosition? initialCameraPosition;
@@ -46,6 +49,9 @@ class MapState {
   }
 
   double get angle => cameraPosition?.bearing ?? 0;
+
+  double get rescaleFactor => cameraPosition is CameraPosition ? pow(2, MapUtil.kZoomInitial - cameraPosition!.zoom).toDouble() : 1;
+
 
   bool isIcon(String markerId) {
     return icons.any((point) => point.id == markerId);
@@ -73,7 +79,6 @@ class MapState {
     this.drawings,
     this.selectedMarkerId,
     this.mapType,
-    this.rescaleFactor,
     this.drawingMode,
     this.mapController,
     this.initialCameraPosition,
@@ -89,7 +94,6 @@ class MapState {
     Set<MapDrawingModel>? drawings,
     String? selectedMarkerId,
     MapType? mapType,
-    double? rescaleFactor,
     bool? drawingMode,
     GoogleMapController? mapController,
     CameraPosition? initialCameraPosition,
@@ -112,7 +116,6 @@ class MapState {
       drawings ?? this.drawings,
       selectedMarkerId ?? this.selectedMarkerId,
       mapType ?? this.mapType,
-      rescaleFactor ?? this.rescaleFactor,
       drawingMode ?? this.drawingMode,
       mapController ?? this.mapController,
       initialCameraPosition ?? this.initialCameraPosition,
