@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_line.dart';
@@ -31,7 +32,7 @@ class MapCubit extends Cubit<MapState> {
     final completer = Completer<GoogleMapController>();
     completer.complete(controller);
     controller = await completer.future;
-    final diagonalDistance = await MapUtil.calcMapViewDiagonalDistance(controller);
+    final diagonalDistance = await MapUtil.calculateDistance(controller);
     if (diagonalDistance == 0) {
       Future.delayed(const Duration(milliseconds: 500), () {
         initMap(controller);
@@ -296,6 +297,7 @@ class MapCubit extends Cubit<MapState> {
   }
 
   updateCameraPosition(CameraPosition cameraPosition, BuildContext context) async {
+    Log.log('New CameraPosition, zoom: ${cameraPosition.zoom}, angle: ${cameraPosition.bearing}');
     emit(state.copyWith(
         cameraPosition: cameraPosition
     ));
@@ -306,6 +308,8 @@ class MapCubit extends Cubit<MapState> {
       });
     });
   }
+
+  //TODO refactor rescale factor depended not to diagonal distance but zoom/bearing
 
   Future<void> updateRescaleFactor(BuildContext context) async {
     final distance = await MapUtil.calcMapViewDiagonalDistance(

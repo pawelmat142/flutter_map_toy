@@ -51,7 +51,7 @@ class MapScreen extends StatelessWidget {
               GoogleMap(
                 initialCameraPosition: state.initialCameraPosition!,
                 mapType: state.mapType,
-                markers: _prepareMarkers(state, cubit, context),
+                markers: state.markers,
                 onCameraMove: (position) => cubit.updateCameraPosition(position, context),
                 onMapCreated: (controller) => cubit.initMap(controller),
                 onTap: (point) => _onMapTap(point, cubit, state, context),
@@ -71,10 +71,6 @@ class MapScreen extends StatelessWidget {
   _onMapTap(LatLng point, MapCubit mapCubit, MapState state, BuildContext context) async {
     if (state.selectedMarkerId.isEmpty) return;
     mapCubit.selectMarker('', context);
-  }
-
-  Set<Marker> _prepareMarkers(MapState state, MapCubit cubit, BuildContext context) {
-    return state.markers;
   }
 
 }
