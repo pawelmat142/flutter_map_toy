@@ -324,8 +324,6 @@ class MapCubit extends Cubit<MapState> {
     }
   }
 
-  }
-
   _unselectMarkerIfOutOfView(BuildContext context) {
     if (state.selectedMarker != null) {
       //workaround solution, also in _onMarkerTap
