@@ -32,7 +32,7 @@ class MapCubit extends Cubit<MapState> {
     final completer = Completer<GoogleMapController>();
     completer.complete(controller);
     controller = await completer.future;
-    final diagonalDistance = await MapUtil.calculateDistance(controller);
+    final diagonalDistance = await MapUtil.calcMapViewDiagonalDistance(controller);
     if (diagonalDistance == 0) {
       Future.delayed(const Duration(milliseconds: 500), () {
         initMap(controller);
@@ -322,6 +322,8 @@ class MapCubit extends Cubit<MapState> {
         markers: await _getAllMarkers(context),
       ));
     }
+  }
+
   }
 
   _unselectMarkerIfOutOfView(BuildContext context) {
