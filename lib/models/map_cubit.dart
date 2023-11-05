@@ -226,6 +226,13 @@ class MapCubit extends Cubit<MapState> {
         .firstWhere((drawing) => drawing.id == state.selectedMarkerId)
         .rescale(state.rescaleFactor);
 
+    final drawings = state.drawings;
+    drawings.removeWhere((drawing) => drawing.id == state.selectedMarkerId);
+    emit(state.copyWith(
+      drawings: drawings,
+      markers: await _getAllMarkers(context, drawings: drawings)
+    ));
+
     if (state.mapController == null) throw 'state.mapController == null';
     final screenCoordinate = await state.mapController!
         .getScreenCoordinate(MapUtil.pointFromCoordinates(mapDrawingModel.coordinates));
@@ -266,14 +273,18 @@ class MapCubit extends Cubit<MapState> {
     };
   }
 
-  cleanMarkers() {
-    emit(state.copyWith(
+  cleanMarkers(BuildContext context) {
+    AppPopup(context)
+      .title('Are you sure?')
+      .content('Map will be cleaned!')
+      .onOk(() => emit(state.copyWith(
         selectedMarkerId: '',
         icons: {},
         drawings: {},
         markers: {},
-    ));
-    Log.log('Markers cleaned', source: state.runtimeType.toString());
+    ))).then((value) {
+      Log.log('Markers cleaned', source: state.runtimeType.toString());
+    });
   }
 
   selectMarker(String markerId, BuildContext context) {

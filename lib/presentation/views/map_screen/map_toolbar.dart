@@ -73,9 +73,9 @@ class MapToolbar extends StatelessWidget {
       ),
       ToolBarItem(
           label: 'clean_map',
-          menuLabel: 'clean markers',
+          menuLabel: 'clean all markers',
           icon: AppIcon.cleanPoint,
-          onTap: cubit.cleanMarkers
+          onTap: () => cubit.cleanMarkers(context)
       ),
     ];
   }
@@ -118,7 +118,7 @@ class MapToolbar extends StatelessWidget {
           label: 'clean_map',
           menuLabel: 'clean markers',
           icon: AppIcon.cleanPoint,
-          onTap: cubit.cleanMarkers
+          onTap: () => cubit.cleanMarkers(context)
       ),
       ToolBarItem(
           label: 'remove',

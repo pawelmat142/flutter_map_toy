@@ -43,9 +43,9 @@ class AppPopup<T> {
     return this;
   }
 
-  onOk(VoidCallback callback) {
+  Future<T?> onOk(VoidCallback callback) {
     _onOk = callback;
-    show();
+    return show();
   }
 
   Future<T?> show() {
