@@ -33,9 +33,9 @@ class SavedMapsScreen extends StatelessWidget {
 
           return ListView.separated(
               itemBuilder: (ctx, index) {
-                var mapModel = box.getAt(index);
+                var mapModel = values[index];
 
-                return mapModel == null ? const SizedBox.shrink() : ListTile(
+                return ListTile(
                   title: Text(mapModel.name),
                   subtitle: Text(mapModel.modified.format),
                   onTap: () async {

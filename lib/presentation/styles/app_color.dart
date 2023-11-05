@@ -30,15 +30,48 @@ abstract class AppColor {
 
   static const Color purple = Color(0xFFCC00FF);
 
+  // static List<Color> mapFlutterIconColors = [
+  //   secondary,
+  //   blue,
+  //   red,
+  //   green,
+  //   lightBlue,
+  //   purple,
+  //   Colors.black,
+  //   Colors.white,
+  // ];
+
+  // static List<Color> mapFlutterIconColors = [
+  //   Color(0xFF007FFF),
+  //   Color(0xFF000080),
+  //   Color(0xFF00FF00),
+  //   Color(0xFF008000),
+  //   Color(0xFFFF0000),
+  //   Color(0xFF800000),
+  //   Color(0xFFFFFF00),
+  //   Color(0xFF800080),
+  // ];
+
   static List<Color> mapFlutterIconColors = [
-    secondary,
-    blue,
-    red,
-    green,
-    lightBlue,
-    purple,
-    Colors.black,
-    Colors.white,
+    Color(0xFFFF0000),
+    Color(0xFF00FF00),
+    Color(0xFF0000FF),
+    Color(0xFFFFFF00),
+    Color(0xFF800080),
+    Color(0xFFFFA500),
+    Color(0xFFFFC0CB),
+    Color(0xFFFFFFFF),
   ];
+
+  // static List<Color> mapFlutterIconColors = [
+  //   Color(0xFF),
+  //   Color(0xFF),
+  //   Color(0xFF),
+  //   Color(0xFF),
+  //   Color(0xFF),
+  //   Color(0xFF),
+  //   Color(0xFF),
+  //   Color(0xFF),
+  // ];
 
 }
