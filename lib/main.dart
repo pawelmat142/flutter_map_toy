@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_state.dart';
+import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/global/hive.dart';
 import 'package:flutter_map_toy/global/wizard/wizard_state.dart';
 import 'package:flutter_map_toy/models/map_cubit.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_map_toy/presentation/views/map_screen/map_screen.dart';
 import 'package:flutter_map_toy/presentation/views/saved_maps_screen.dart';
 import 'package:flutter_map_toy/services/get_it.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:navigation_history_observer/navigation_history_observer.dart';
 
 void main() async {
 
@@ -48,8 +50,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
 
   //TODO add google locations search feature
-  //TODO spinner
-
+  //TODO popup text input styling
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -59,12 +60,42 @@ class _MyAppState extends State<MyApp> {
 
       scaffoldMessengerKey: GlobalKey<ScaffoldMessengerState>(),
 
+      navigatorKey: Navi.navigatorKey,
+      navigatorObservers: [NavigationHistoryObserver()],
       initialRoute: HomeScreen.id,
       routes: {
         HomeScreen.id: (context) => const HomeScreen(),
         MapScreen.id: (context) => const MapScreen(),
         SavedMapsScreen.id: (context) => const SavedMapsScreen(),
+        Spinner.id: (context) => const Spinner(),
       },
+    );
+  }
+}
+
+class Spinner extends StatelessWidget {
+
+  static const String id = 'spinner';
+
+  static show(BuildContext context) {
+    if (!Navi.inStack(id)) {
+      Navigator.pushNamed(context, id);
+    }
+  }
+
+  static pop(BuildContext context) {
+    if (Navi.inStack(id)) {
+      Navi.remove(context, id);
+    }
+  }
+
+  const Spinner({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: const Center(child: CircularProgressIndicator()),
     );
   }
 }

@@ -38,9 +38,9 @@ class SavedMapsScreen extends StatelessWidget {
                 return ListTile(
                   title: Text(mapModel.name),
                   subtitle: Text(mapModel.modified.format),
-                  onTap: () async {
-                    mapCubit.loadStateFromModel(context, mapModel);
+                  onTap: () {
                     Navigator.pushNamed(context, MapScreen.id);
+                    mapCubit.loadStateFromModel(context, mapModel);
                   },
                   onLongPress: () {
                     mapModel.delete();

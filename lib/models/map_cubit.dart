@@ -14,6 +14,8 @@ import 'package:flutter_map_toy/presentation/dialogs/popups/app_popup.dart';
 import 'package:flutter_map_toy/presentation/dialogs/popups/text_input_popup.dart';
 import 'package:flutter_map_toy/presentation/views/home_screen.dart';
 import 'package:flutter_map_toy/presentation/views/saved_maps_screen.dart';
+import 'package:flutter_map_toy/services/get_it.dart';
+import 'package:flutter_map_toy/services/location_service.dart';
 import 'package:flutter_map_toy/services/log.dart';
 import 'package:flutter_map_toy/utils/draw_util.dart';
 import 'package:flutter_map_toy/utils/icon_util.dart';
@@ -25,39 +27,45 @@ class MapCubit extends Cubit<MapState> {
 
   static final cameraMoveEndHandler = TimerHandler(milliseconds: 50);
 
-  MapCubit(): super(MapState(BlocState.empty, '', {}, {}, {}, '', MapType.satellite, false, null, null, null, null));
+  final locationService = getIt.get<LocationService>();
 
+  MapCubit(): super(MapState(BlocState.loading, '', {}, {}, {}, '', MapType.satellite, false, null, null, null));
+
+  setInitialPosition() async {
+    Log.log('Set initial position', source: runtimeType.toString());
+    final initialPosition = await locationService.getMyInitialCameraPosition();
+    emit(state.copyWith(
+      state: BlocState.initializing,
+      initialCameraPosition: initialPosition,
+    ));
+  }
+
+  dispose(BuildContext context) {
+    emit(state.copyWith(
+      state: BlocState.loading,
+      mapModelId: '',
+      markers: {},
+      icons: {},
+      drawings: {},
+      selectedMarkerId: '',
+      drawingMode: false,
+      ctx: context,
+    )
+    ..initialCameraPosition = null);
+    Log.log('Map disposed!', source: runtimeType.toString());
+  }
 
   initMap(GoogleMapController controller) async {
     final completer = Completer<GoogleMapController>();
     completer.complete(controller);
     controller = await completer.future;
-    final diagonalDistance = await MapUtil.calcMapViewDiagonalDistance(controller);
-    if (diagonalDistance == 0) {
-      Future.delayed(const Duration(milliseconds: 500), () {
-        initMap(controller);
-      });
-    } else {
-      emit(state.copyWith(
-        state: BlocState.ready,
-        mapController: controller,
-        selectedMarkerId: '',
-        initialDiagonalDistance: diagonalDistance,
-        cameraPosition: state.initialCameraPosition
-      ));
-      MapUtil.animateCameraToMapCenter(state);
-    }
-  }
-
-  emitNewMapState(CameraPosition initialCameraPosition) {
     emit(state.copyWith(
-        mapModelId: '',
-        markers: {},
-        icons: {},
-        drawings: {},
-        selectedMarkerId: '',
-        initialCameraPosition: initialCameraPosition,
+      state: BlocState.ready,
+      mapController: controller,
+      selectedMarkerId: '',
     ));
+    Log.log('Map initialized', source: runtimeType.toString());
+    MapUtil.animateCameraToMapCenter(state);
   }
 
   setType(MapType mapType) {
@@ -69,6 +77,7 @@ class MapCubit extends Cubit<MapState> {
     final mapIcons = mapModel.icons.toSet();
     final drawings = mapModel.drawings.toSet();
     emit(state.copyWith(
+        state: BlocState.ready,
         mapModelId: mapModel.id,
         drawings: drawings,
         icons: mapIcons,

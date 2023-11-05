@@ -37,6 +37,7 @@ class MapToolbar extends StatelessWidget {
         label: 'confirm',
         barLabel: 'confirm',
         icon: AppIcon.confirm,
+        color: AppColor.blue,
         onTap: () async {
           cubit.addDrawingAsMarker(
             context: context,
@@ -48,6 +49,7 @@ class MapToolbar extends StatelessWidget {
       ToolBarItem(
         label: 'cancel',
         barLabel: 'cancel',
+        color: AppColor.red,
         icon: AppIcon.cancel,
         onTap: () => cubit.turnDrawingMode(context: context, on: false)
       ),
@@ -95,6 +97,7 @@ class MapToolbar extends StatelessWidget {
         label: 'add_point',
         barLabel: 'add point',
         menuLabel: 'add point',
+        color: AppColor.secondary,
         icon: AppIcon.addPoint,
         onTap: () => cubit.addIconMarker(context),
       ),
@@ -111,6 +114,7 @@ class MapToolbar extends StatelessWidget {
       ) :  ToolBarItem(
           label: 'draw_line',
           barLabel: 'draw line',
+          color: AppColor.secondary,
           icon: AppIcon.drawLine,
           onTap: () => cubit.turnOnDrawingMode(context: context),
           ),
@@ -125,6 +129,7 @@ class MapToolbar extends StatelessWidget {
           barLabel: 'remove',
           icon: AppIcon.delete,
           disabled: !state.isAnyMarkerSelected,
+          color: AppColor.red,
           onTap: () {
             AppPopup(context)
               .title('Are you sure?')

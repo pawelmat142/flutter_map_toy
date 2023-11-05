@@ -11,7 +11,9 @@ import '../global/drawing/map_drawing_model.dart';
 
 enum BlocState {
   empty,
-  ready
+  ready,
+  loading,
+  initializing
 }
 
 class MapState {
@@ -27,7 +29,6 @@ class MapState {
   bool drawingMode;
   GoogleMapController? mapController;
   CameraPosition? initialCameraPosition;
-  double? initialDiagonalDistance;
   CameraPosition? cameraPosition;
 
   bool get isAnyMarkerSelected => selectedMarkerId.isNotEmpty;
@@ -52,6 +53,7 @@ class MapState {
 
   double get rescaleFactor => cameraPosition is CameraPosition ? pow(2, MapUtil.kZoomInitial - cameraPosition!.zoom).toDouble() : 1;
 
+  bool get initializing => state == BlocState.initializing;
 
   bool isIcon(String markerId) {
     return icons.any((point) => point.id == markerId);
@@ -82,7 +84,6 @@ class MapState {
     this.drawingMode,
     this.mapController,
     this.initialCameraPosition,
-    this.initialDiagonalDistance,
     this.cameraPosition,
   );
 
@@ -98,7 +99,6 @@ class MapState {
     GoogleMapController? mapController,
     CameraPosition? initialCameraPosition,
     BuildContext? ctx,
-    double? initialDiagonalDistance,
     CameraPosition? cameraPosition,
   }) {
     if (drawingMode is bool) {
@@ -119,7 +119,6 @@ class MapState {
       drawingMode ?? this.drawingMode,
       mapController ?? this.mapController,
       initialCameraPosition ?? this.initialCameraPosition,
-      initialDiagonalDistance ?? this.initialDiagonalDistance,
       cameraPosition ?? this.cameraPosition,
     );
   }

@@ -112,8 +112,6 @@ abstract class DrawUtil {
     );
   }
 
-  //TODO add popup when clear all markers
-
   static double getPixelRatio(BuildContext context) {
     return Platform.isAndroid
         ? MediaQuery.of(context).devicePixelRatio
