@@ -10,7 +10,7 @@ import 'package:flutter_map_toy/models/map_model.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/models/marker_info.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_wizard.dart';
-import 'package:flutter_map_toy/presentation/dialogs/map_name_popup.dart';
+import 'package:flutter_map_toy/presentation/dialogs/popups/text_input_popup.dart';
 import 'package:flutter_map_toy/presentation/views/home_screen.dart';
 import 'package:flutter_map_toy/presentation/views/saved_maps_screen.dart';
 import 'package:flutter_map_toy/services/log.dart';
@@ -79,7 +79,10 @@ class MapCubit extends Cubit<MapState> {
 
   onSaveMapModel(BuildContext context) async {
     final mapModelName = state.mapModelId.isEmpty
-        ? await MapNamePopup.show(context)
+        ? await TextInputPopup(context)
+            .title('Please provide map name')
+            .cancel('Back')
+            .show()
         : MapModel.getById(state.mapModelId)?.name;
 
     if (mapModelName == null) return;
@@ -126,10 +129,11 @@ class MapCubit extends Cubit<MapState> {
 
   Future<Set<Marker>> _markersFromIcons(
     Iterable<MapIconModel> icons,
-    BuildContext context
+    BuildContext context,
+    double rescaleFactor,
   ) async {
     final futures = icons.map((mapIconModel) {
-      return IconUtil.getMarkerFromIcon(mapIconModel.rescale(state.rescaleFactor), context);
+      return IconUtil.getMarkerFromIcon(mapIconModel.rescale(rescaleFactor), context);
     });
     final markers = await Future.wait(futures);
     return markers.toSet();
@@ -221,9 +225,13 @@ class MapCubit extends Cubit<MapState> {
     turnDrawingMode(context: context, on: true);
   }
 
-  Future<Set<Marker>> _markersFromDrawings(Iterable<MapDrawingModel> drawings, BuildContext context) async {
+  Future<Set<Marker>> _markersFromDrawings(
+      Iterable<MapDrawingModel> drawings,
+      BuildContext context,
+      double rescaleFactor
+    ) async {
     final futures = drawings.map((mapDrawingModel) {
-      return DrawUtil.getMarkerFromDrawingModel(mapDrawingModel.rescale(state.rescaleFactor), context);
+      return DrawUtil.getMarkerFromDrawingModel(mapDrawingModel.rescale(rescaleFactor), context);
     });
     final markers = await Future.wait(futures);
     return markers.toSet();
@@ -236,9 +244,10 @@ class MapCubit extends Cubit<MapState> {
     Iterable<MapIconModel>? icons,
     Iterable<MapDrawingModel>? drawings,
   }) async {
-    return  {
-      ...(await _markersFromIcons(icons ?? state.icons, context)),
-      ...(await _markersFromDrawings(drawings ?? state.drawings, context))
+    final rescaleFactor = state.rescaleFactor;
+    return {
+      ...(await _markersFromIcons(icons ?? state.icons, context, rescaleFactor)),
+      ...(await _markersFromDrawings(drawings ?? state.drawings, context, rescaleFactor))
     };
   }
 

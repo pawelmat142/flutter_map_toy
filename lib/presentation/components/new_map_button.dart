@@ -9,7 +9,6 @@ import 'package:flutter_map_toy/services/location_service.dart';
 
 class NewMapButton extends StatelessWidget {
   const NewMapButton({Key? key}) : super(key: key);
-  //TODO spinner
   @override
   Widget build(BuildContext context) {
     return PrimaryButton('New map', onPressed: () {

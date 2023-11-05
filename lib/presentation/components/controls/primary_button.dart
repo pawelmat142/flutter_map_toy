@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
+import 'package:flutter_map_toy/presentation/components/controls/app_elevated_button.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 
 class PrimaryButton extends StatelessWidget {
@@ -23,11 +24,9 @@ class PrimaryButton extends StatelessWidget {
         }
       },
       style: ElevatedButton.styleFrom(
-          backgroundColor: active ? AppColor.secondary : AppColor.secondaryInactive
+        backgroundColor: active ? AppColor.secondary : AppColor.secondaryInactive,
       ),
-      child: Text(text.capitalize(), style: const TextStyle(
-          color: AppColor.secondaryContrast
-      ))
+      child: Text(text.capitalize(), style: AppElevatedButton.textStyle(active: onPressed != null)),
     );
   }
 }

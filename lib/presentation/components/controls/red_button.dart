@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
+import 'package:flutter_map_toy/presentation/components/controls/app_elevated_button.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 
 class RedButton extends StatelessWidget {
@@ -24,9 +25,7 @@ class RedButton extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: active ? AppColor.red : AppColor.redInactive
       ),
-      child: Text(text.capitalize(), style: const TextStyle(
-        color: AppColor.redContrast
-      )),
+      child: Text(text.capitalize(), style: AppElevatedButton.textStyle(active: onPressed != null)),
     );
   }
 

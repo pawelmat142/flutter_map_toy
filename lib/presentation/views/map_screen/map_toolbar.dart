@@ -5,6 +5,7 @@ import 'package:flutter_map_toy/models/map_cubit.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/models/marker_info.dart';
 import 'package:flutter_map_toy/presentation/components/toolbar.dart';
+import 'package:flutter_map_toy/presentation/dialogs/popups/app_popup.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
 import 'package:flutter_map_toy/presentation/views/home_screen.dart';
@@ -111,33 +112,17 @@ class MapToolbar extends StatelessWidget {
           label: 'draw_line',
           barLabel: 'draw line',
           icon: AppIcon.drawLine,
-          onTap: () async {
+          onTap: () {
             if (state.angle != 0) {
-              final resetRotation = await showDialog<bool?>(context: context, builder: (ctx) => AlertDialog(
-                title: const Text('You can\'t draw on rotated map'),
-                content: const Text('Do you want to reset the map to its default orientation?'),
-                actions: [
-                  TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('No')
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    child: const Text('Yes'),
-                  )
-                ],
-              ));
-              if (resetRotation == true) {
-                await MapUtil.animateCameraToDefaultRotation(state);
-              }
+              AppPopup(context).cancel('No').ok('Yes')
+                .title('You can\'t draw on rotated map')
+                .content('Do you want to reset the map to its default orientation?')
+                .onOk(() => MapUtil.animateCameraToDefaultRotation(state)
+                    .then((value) =>
+                    cubit.turnDrawingMode(
+                        context: context, on: !state.drawingMode)));
             }
-            cubit.turnDrawingMode(
-                context: context, on: !state.drawingMode);
-          }
-      ),
-
-
-          // : null,
+          }),
       ToolBarItem(
           label: 'clean_map',
           menuLabel: 'clean markers',
@@ -150,19 +135,9 @@ class MapToolbar extends StatelessWidget {
           icon: AppIcon.delete,
           disabled: !state.isAnyMarkerSelected,
           onTap: () {
-            showDialog<bool?>(context: context, builder: (ctx) => AlertDialog(
-              title: const Text('Are you sure?'),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel')
-                ),
-                TextButton(
-                  child: const Text('OK'),
-                  onPressed: () => Navigator.pop(context, true),
-                )
-              ],
-            )).then((doRemove) => cubit.removeMarker(doRemove, context));
+            AppPopup(context)
+              .title('Are you sure?')
+              .onOk(() => cubit.removeMarker(true, context));
           }
       ),
       ToolBarItem(

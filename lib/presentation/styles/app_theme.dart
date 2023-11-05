@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/styles/app_fonts.dart';
+import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 
 abstract class AppTheme {
 
@@ -13,19 +14,11 @@ abstract class AppTheme {
     primaryColorDark: AppColor.primaryDark,
     primaryColorLight: AppColor.primaryLight,
 
+    secondaryHeaderColor: AppColor.secondary,
 
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColor.primaryDark,
-      titleTextStyle: titleLargeTextStyle
-    ),
-
-    elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ButtonStyle(
-            textStyle: MaterialStateProperty.all<TextStyle>(const TextStyle(
-              fontFamily: AppFont.robotoMono,
-              fontWeight: FontWeight.w500
-            ))
-        )
+      titleTextStyle: AppStyle.titleLargeTextStyle
     ),
 
     fontFamily: AppFont.robotoMono,
@@ -35,23 +28,18 @@ abstract class AppTheme {
     ),
 
     textTheme: const TextTheme(
+      titleLarge: AppStyle.titleLargeTextStyle,
+      labelMedium: AppStyle.labelMediumTextStyle
+    ),
 
-      titleLarge: titleLargeTextStyle,
-
-      labelMedium: TextStyle(
-        fontSize: AppFontSize.medium,
-        fontWeight: FontWeight.w500,
-        color: AppColor.white80,
-        letterSpacing: 1.1
-      ),
-    )
+    dialogTheme: const DialogTheme(
+      titleTextStyle: AppStyle.titleLargeTextStyle,
+      contentTextStyle: AppStyle.labelMediumTextStyle,
+      iconColor: AppColor.redContrast,
+    ),
 
   );
 
-  static const titleLargeTextStyle = TextStyle(
-      fontSize: AppFontSize.big,
-      fontWeight: FontWeight.w500,
-      color: AppColor.secondary,
-      letterSpacing: 1.3
-  );
+
+
 }
