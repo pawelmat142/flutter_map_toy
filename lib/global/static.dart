@@ -14,10 +14,9 @@ class Static {
     radius: AppStyle.defaultRadiusVal,
   );
 
-  static double getModalTileSize(BuildContext context) {
+  static double getModalTileSize(BuildContext context, { int itemsPerRow = 4 }) {
     final size = MediaQuery.of(context).size;
     final screenWidth = size.width;
-    const itemsPerRow = 4;
-    return (screenWidth - itemsPerRow*AppStyle.wrapSpacing - 2*AppStyle.defaultPaddingVal) / itemsPerRow;
+    return (screenWidth - 2*AppStyle.defaultPaddingVal) / itemsPerRow;
   }
 }

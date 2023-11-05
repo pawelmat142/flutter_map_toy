@@ -112,17 +112,8 @@ class MapToolbar extends StatelessWidget {
           label: 'draw_line',
           barLabel: 'draw line',
           icon: AppIcon.drawLine,
-          onTap: () {
-            if (state.angle != 0) {
-              AppPopup(context).cancel('No').ok('Yes')
-                .title('You can\'t draw on rotated map')
-                .content('Do you want to reset the map to its default orientation?')
-                .onOk(() => MapUtil.animateCameraToDefaultRotation(state)
-                    .then((value) =>
-                    cubit.turnDrawingMode(
-                        context: context, on: !state.drawingMode)));
-            }
-          }),
+          onTap: () => cubit.turnOnDrawingMode(context: context),
+          ),
       ToolBarItem(
           label: 'clean_map',
           menuLabel: 'clean markers',

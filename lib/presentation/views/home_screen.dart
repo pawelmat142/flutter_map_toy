@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/presentation/components/controls/blue_button.dart';
 import 'package:flutter_map_toy/presentation/components/controls/red_button.dart';
 import 'package:flutter_map_toy/presentation/components/new_map_button.dart';
-import 'package:flutter_map_toy/presentation/dialogs/popups/app_popup.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 import 'package:flutter_map_toy/presentation/views/saved_maps_screen.dart';
 
@@ -35,11 +34,6 @@ class HomeScreen extends StatelessWidget {
             AppStyle.verticalDefaultDistance,
 
             RedButton('test', onPressed: () {
-              AppPopup(context)
-                .title('testing')
-                .content('Ala ma kota')
-                // ignore: avoid_print
-                .onOk(() => print('xx'));
             },),
             AppStyle.verticalDefaultDistance,
 
@@ -50,3 +44,4 @@ class HomeScreen extends StatelessWidget {
   }
 
 }
+

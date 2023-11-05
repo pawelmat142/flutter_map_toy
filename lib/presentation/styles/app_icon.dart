@@ -16,6 +16,7 @@ abstract class AppIcon {
   static const edit = Icons.edit_note;
   static const add = Icons.playlist_add;
 
+  static const marker = Icons.location_on_rounded;
   static const addPoint = Icons.add_location_alt_rounded;
   static const editPoint = Icons.edit_location_alt_rounded;
   static const cleanPoint = Icons.wrong_location_rounded;

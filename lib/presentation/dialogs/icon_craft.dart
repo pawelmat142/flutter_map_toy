@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/global/wizard/wizard_state.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
+import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
 import 'package:uuid/uuid.dart';
 
 class IconCraft {
@@ -50,38 +52,52 @@ class IconCraft {
   StatelessWidget widget({ bool rescaled = false }) => IconCraftWidget(this, rescaled);
 }
 
+
 class IconCraftWidget extends StatelessWidget {
+
+  double get displayFactor => rescaled ? IconCraft.iconCraftDisplayFactor : 1;
 
   final IconCraft craft;
   final bool rescaled;
 
-  const IconCraftWidget(this.craft, this.rescaled,
+  const IconCraftWidget(
+      this.craft,
+      this.rescaled,
       {Key? key}) : super(key: key);
-
-  double get displayFactor => rescaled ? IconCraft.iconCraftDisplayFactor : 1;
 
   @override
   Widget build(BuildContext context) {
 
-    final radius = craft.size!*0.2 * displayFactor;
-    final iconSize = craft.size!*0.8 * displayFactor;
+    final double size = craft.size! * displayFactor;
 
-    final size = craft.size == null ? null : craft.size! * displayFactor;
-
-    return Container(
+    return SizedBox(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-          color: craft.color!.withAlpha(50),
-          borderRadius: BorderRadius.circular(radius),
-          border: Border.all(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Icon(AppIcon.marker,
+            size: size,
+            color: craft.color!.darken(.2),
+          ),
+          Icon(AppIcon.marker,
+            size: size*0.95,
+            color: craft.color!,
+          ),
+
+          Padding(
+            padding: EdgeInsets.only(bottom: size*0.2),
+            child: Container(
               color: craft.color!,
-              width: size!*0.05
+              child: Icon(craft.iconData!,
+                size: size*0.4,
+                color: AppColor.white,
+              ),
+            ),
           )
-      ),
-      child: Center(
-        child: Icon(craft.iconData, size: iconSize, color: craft.color,),
+        ],
       ),
     );
   }
 }
+

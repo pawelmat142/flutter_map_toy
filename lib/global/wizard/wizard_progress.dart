@@ -31,9 +31,10 @@ class WizardProgress extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final theme = BlocProvider.of<WizardCubit>(context).state.theme!;
+    final padding = theme.padding;
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: theme.padding, horizontal: theme.padding),
+      padding: EdgeInsets.fromLTRB(padding, padding, padding, 0),
       child: Stack(
         alignment: Alignment.center,
         children: [

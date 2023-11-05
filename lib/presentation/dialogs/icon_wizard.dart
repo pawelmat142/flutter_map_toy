@@ -4,7 +4,6 @@ import 'package:flutter_map_toy/global/static.dart';
 import 'package:flutter_map_toy/global/wizard/wizard.dart';
 import 'package:flutter_map_toy/global/wizard/wizard_state.dart';
 import 'package:flutter_map_toy/presentation/components/controls/primary_button.dart';
-import 'package:flutter_map_toy/presentation/components/icon_tile.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_craft.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
@@ -12,6 +11,8 @@ import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 
 
 class IconWizard extends Wizard<IconCraft> {
+
+  static const int itemsPerRow = 4;
 
   @override
   IconCraft dataBuilder(IconCraft? edit) {
@@ -38,37 +39,66 @@ class IconWizard extends Wizard<IconCraft> {
 
   @override
   List<WizardStep> getSteps() {
-      final tileSize = Static.getModalTileSize(ctx!);
+      final tileSize = Static.getModalTileSize(ctx!, itemsPerRow: itemsPerRow);
       return [
         WizardStep<IconData>(index: 0,
-          stepData: data!.iconData,
-          builder: (ctx) => Wrap(
-            spacing: AppStyle.wrapSpacing,
-            runSpacing: AppStyle.wrapSpacing,
-            children: AppIcon.mapFlutterIcons.asMap()
-                .map((index, icon) => MapEntry(index, IconTile(
-              icon: icon,
-              onPressed: () => cubit.finishStep(WizardStepResult(AppIcon.mapFlutterIcons[index])),
-              size: tileSize,
-              color: BlocProvider.of<WizardCubit>(ctx).state.steps[1].stepData,
-            ))).values.toList(),
-          ),
-        ),
+          stepData: data!.iconData, builder: (ctx) {
+            final icons = AppIcon.mapFlutterIcons;
+            final length = icons.length;
+            final color = BlocProvider.of<WizardCubit>(ctx).state.steps[1].stepData
+                ?? AppColor.mapFlutterIconDefaultColor;
+
+            List<Widget> columns = [ const SizedBox(height: AppStyle.defaultPaddingVal) ];
+
+            for (var from = 0; from <= length; from+=itemsPerRow) {
+              int to = from + itemsPerRow;
+              if (to > length) {
+                to = length;
+              }
+              columns.add(Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: icons.getRange(from, to)
+                      .map((icon) => GestureDetector(
+                    onTap: () => cubit.finishStep(WizardStepResult(icon)),
+                    child: (IconCraft()
+                      ..size = tileSize
+                      ..color = color
+                      ..iconData = icon).widget(),
+                  )).toList()
+              ));
+            }
+            return Column(children: columns);
+        }),
 
         WizardStep<Color>(index: 1,
-          stepData: data!.color,
-          builder: (ctx) => Wrap(
-              spacing: AppStyle.wrapSpacing,
-              runSpacing: AppStyle.wrapSpacing,
-              children: AppColor.mapFlutterIconColors.asMap()
-                  .map((index, color) => MapEntry(index, IconTile(
-                icon: BlocProvider.of<WizardCubit>(ctx).state.steps[0].stepData,
-                onPressed: () => cubit.finishStep(WizardStepResult(AppColor.mapFlutterIconColors[index])),
-                size: tileSize,
-                color: color,
-              ))).values.toList()
-          ),
-        ),
+            stepData: data!.color, builder: (ctx) {
+              final colors = AppColor.mapFlutterIconColors;
+              final icon = BlocProvider.of<WizardCubit>(ctx).state.steps[0].stepData ??
+                AppIcon.mapFlutterIcons.first;
+              final length = colors.length;
+
+              List<Widget> columns = [ const SizedBox(height: AppStyle.defaultPaddingVal) ];
+
+              for (var from = 0; from <= length; from+=itemsPerRow) {
+                int to = from + itemsPerRow;
+                if (to > length) {
+                  to = length;
+                }
+                columns.add(Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: colors.getRange(from, to)
+                        .map((color) => GestureDetector(
+                      onTap: () => cubit.finishStep(WizardStepResult(color)),
+                      child: (IconCraft()
+                        ..size = tileSize
+                        ..color = color
+                        ..iconData = icon).widget(),
+                    )).toList()
+                ));
+              }
+              return Column(children: columns);
+            }),
+
 
         WizardStep<double>(index: 2,
             stepData: data!.size,

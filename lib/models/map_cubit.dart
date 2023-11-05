@@ -10,6 +10,7 @@ import 'package:flutter_map_toy/models/map_model.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/models/marker_info.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_wizard.dart';
+import 'package:flutter_map_toy/presentation/dialogs/popups/app_popup.dart';
 import 'package:flutter_map_toy/presentation/dialogs/popups/text_input_popup.dart';
 import 'package:flutter_map_toy/presentation/views/home_screen.dart';
 import 'package:flutter_map_toy/presentation/views/saved_maps_screen.dart';
@@ -167,6 +168,20 @@ class MapCubit extends Cubit<MapState> {
 
   /// DRAWINGS MANAGEMENT
   ///
+  turnOnDrawingMode({ required BuildContext context }) {
+    if (state.angle == 0) {
+      turnDrawingMode(context: context, on: true);
+    } else {
+      AppPopup(context)
+          .title('You can\'t draw on rotated map')
+          .content('Do you want to reset map rotation?')
+          .cancel('No').ok('Yes')
+          .onOk(() {
+            MapUtil.animateCameraToDefaultRotation(state);
+            turnDrawingMode(context: context, on: true);
+      });
+    }
+  }
   turnDrawingMode({ required BuildContext context, required bool on }) {
     emit(state.copyWith(
       drawingMode: on,

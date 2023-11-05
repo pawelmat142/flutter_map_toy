@@ -24,54 +24,17 @@ abstract class AppColor {
   static const Color redInactive = Color(0x74AD3922);
   static const Color redContrast = primaryDark;
 
-  static const Color green = Color(0xFF00FF00);
-
-  static const Color lightBlue = Color(0xFF00CCFF);
-
-  static const Color purple = Color(0xFFCC00FF);
-
-  // static List<Color> mapFlutterIconColors = [
-  //   secondary,
-  //   blue,
-  //   red,
-  //   green,
-  //   lightBlue,
-  //   purple,
-  //   Colors.black,
-  //   Colors.white,
-  // ];
-
-  // static List<Color> mapFlutterIconColors = [
-  //   Color(0xFF007FFF),
-  //   Color(0xFF000080),
-  //   Color(0xFF00FF00),
-  //   Color(0xFF008000),
-  //   Color(0xFFFF0000),
-  //   Color(0xFF800000),
-  //   Color(0xFFFFFF00),
-  //   Color(0xFF800080),
-  // ];
-
   static List<Color> mapFlutterIconColors = [
-    Color(0xFFFF0000),
-    Color(0xFF00FF00),
-    Color(0xFF0000FF),
-    Color(0xFFFFFF00),
-    Color(0xFF800080),
-    Color(0xFFFFA500),
-    Color(0xFFFFC0CB),
-    Color(0xFFFFFFFF),
+    const Color(0xFF4687C1),
+    const Color(0xFFC93D48),
+    const Color(0xFFA2A3A5),
+    const Color(0xFFC761AD),
+    const Color(0xFFF2A400),
+    const Color(0xFF4FA03B),
+    const Color(0xFF756CB7),
+    const Color(0xFF3B4043),
   ];
 
-  // static List<Color> mapFlutterIconColors = [
-  //   Color(0xFF),
-  //   Color(0xFF),
-  //   Color(0xFF),
-  //   Color(0xFF),
-  //   Color(0xFF),
-  //   Color(0xFF),
-  //   Color(0xFF),
-  //   Color(0xFF),
-  // ];
+  static Color mapFlutterIconDefaultColor = mapFlutterIconColors.first;
 
 }
