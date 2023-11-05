@@ -39,13 +39,17 @@ abstract class DrawUtil {
         snippet: mapDrawingModel.description.isEmpty ? null : mapDrawingModel.description);
   }
 
-  static Future<BitmapDescriptor> bitmapFromModel(MapDrawingModel mapDrawingModel) async {
+  static Future<BitmapDescriptor> bitmapFromModel(MapDrawingModel mapDrawingModel) {
     final drawingLines = mapDrawingModel.restoreLines();
-    return await CustomPaint(
+
+    //adding padding to avoid cut line bcs of its  width
+    final padding = mapDrawingModel.width;
+
+    return CustomPaint(
       painter: DrawingPainter(drawingLines: drawingLines),
       child: SizedBox(
-        width: DrawUtil.width(drawingLines),
-        height: DrawUtil.height(drawingLines),
+        width: DrawUtil.width(drawingLines) + padding,
+        height: DrawUtil.height(drawingLines) + padding,
       ),
     ).toBitmapDescriptor(waitToRender: Duration.zero);
   }
@@ -57,21 +61,23 @@ abstract class DrawUtil {
     String? drawingModelId,
     MarkerInfo? markerInfo
   }) async {
-      //removes drawing offset between screen edge
+      //adding padding to avoid cut line bcs of its width
+      final padding = drawingLines.first.width/2;
+
       final xs = dxs(drawingLines);
-      final minX = xs.reduce(min);
-      final maxX = xs.reduce(max);
+      final minX = xs.reduce(min) - padding;
+      final maxX = xs.reduce(max) + padding;
       final ys = dys(drawingLines);
-      final minY = ys.reduce(min);
-      final maxY = ys.reduce(max);
+      final minY = ys.reduce(min) - padding;
+      final maxY = ys.reduce(max) + padding;
       final height = maxY - minY;
+
+      //removes drawing offset between screen edge
       var drawing = addOffset(
           drawingLines: drawingLines,
           dx: minX,
-          dy: minY
+          dy: minY,
       );
-
-      //TODO add padding - stroke width is cut when create marker
 
       final pixelRatio = getPixelRatio(context);
       final drawingCenter = Point((minX + maxX)/2 , (minY + maxY)/2 + height/2);
@@ -98,12 +104,15 @@ abstract class DrawUtil {
   }) {
     final pixelRatio = getPixelRatio(context);
     final drawingLines = mapDrawingModel.restoreLines();
+    final padding = mapDrawingModel.width/2;
     return addOffset(
         drawingLines: drawingLines,
-        dy: (screenCoordinate.y.toDouble() / -pixelRatio) + height(drawingLines),
-        dx: (screenCoordinate.x.toDouble() / -pixelRatio) + width(drawingLines)/2,
+        dy: (screenCoordinate.y.toDouble() / -pixelRatio) + height(drawingLines) + padding*2,
+        dx: (screenCoordinate.x.toDouble() / -pixelRatio) + width(drawingLines)/2 + padding,
     );
   }
+
+  //TODO add popup when clear all markers
 
   static double getPixelRatio(BuildContext context) {
     return Platform.isAndroid

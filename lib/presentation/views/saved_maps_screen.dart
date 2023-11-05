@@ -29,7 +29,7 @@ class SavedMapsScreen extends StatelessWidget {
         builder: (context, box, widget) {
 
           final values = box.values.toList();
-          values.sort((a, b) => a.modified.compareTo(b.modified));
+          values.sort((a, b) => b.modified.compareTo(a.modified));
 
           return ListView.separated(
               itemBuilder: (ctx, index) {

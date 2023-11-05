@@ -47,6 +47,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
+  //TODO add google locations search feature
+  //TODO spinner
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
