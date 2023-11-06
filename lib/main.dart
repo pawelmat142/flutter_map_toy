@@ -34,7 +34,9 @@ void main() async {
         BlocProvider<MapCubit>(create: (_) => MapCubit()),
         BlocProvider<WizardCubit>(create: (_) => WizardCubit()),
         BlocProvider<DrawingCubit>(create: (_) => DrawingCubit(AppDrawing())),
-        BlocProvider<LocationSearchCubit>(create: (_) => LocationSearchCubit(LocationSearchCubit.googleMapsPlaces)),
+        BlocProvider<LocationSearchCubit>(create: (_) => LocationSearchCubit(
+          googleMapPlaces: LocationSearchCubit.googleMapsPlaces,
+        )),
       ],
 
   /// MAIN WIDGET
@@ -54,6 +56,7 @@ class _MyAppState extends State<MyApp> {
 
   //TODO add google locations search feature
   //TODO popup text input styling
+  //TODO
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

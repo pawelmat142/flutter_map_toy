@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map_toy/main.dart';
 import 'package:flutter_map_toy/models/location_search_state.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';
@@ -18,10 +19,13 @@ class LocationSearchScreen extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final cubit = BlocProvider.of<LocationSearchCubit>(context);
+    cubit.initialization(context);
+    cubit.startLocationSubscription(context);
 
     return WillPopScope(
       onWillPop: () async {
         cubit.cleanResults();
+        cubit.stopLocationSubscription();
         return true;
       },
       child: Scaffold(
@@ -30,17 +34,19 @@ class LocationSearchScreen extends StatelessWidget {
           title: const Text('Search location'),
         ),
 
-        body: BlocBuilder<LocationSearchCubit, LocationSearchState>(
+        body: BlocConsumer<LocationSearchCubit, LocationSearchState>(
+          listener: (ctx, state) => state.initializing ? Spinner.show(context) : Spinner.pop(context),
           builder: (ctx, state) {
 
+
             return ListView.separated(
-              itemCount: state.results.length + 1,
+              itemCount: state.places.length + 1,
               itemBuilder: (ctx, index) {
                 if (index == 0) {
                   return Searchbar(cubit, state);
                 } else {
-                  if (state.results.length > 1) {
-                    final PlacesSearchResult place = state.results[index-1];
+                  if (state.places.length > 1) {
+                    final PlacesSearchResult place = state.places[index-1];
                     return ListTile(
                       title: Text(place.name),
                       subtitle: place.formattedAddress is String ? Text(place.formattedAddress!) : null,
