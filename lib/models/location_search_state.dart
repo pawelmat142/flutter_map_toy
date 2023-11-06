@@ -104,6 +104,8 @@ class LocationSearchCubit extends Cubit<LocationSearchState> {
     ));
   }
 
+  //TODO add location subscription and to query
+  //TODO add dynamic language code
   search() {
     final input = state.text;
     if (input.isEmpty) return;

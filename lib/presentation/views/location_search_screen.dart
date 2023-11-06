@@ -43,7 +43,7 @@ class LocationSearchScreen extends StatelessWidget {
                     final PlacesSearchResult place = state.results[index-1];
                     return ListTile(
                       title: Text(place.name),
-                      subtitle: Text(place.formattedAddress ?? ''),
+                      subtitle: place.formattedAddress is String ? Text(place.formattedAddress!) : null,
                     );
                   }
 
@@ -62,5 +62,12 @@ class LocationSearchScreen extends StatelessWidget {
         )
       ),
     );
+  }
+
+  Widget? getPlaceTypes(PlacesSearchResult place) {
+    if (place.types.isEmpty) {
+      return null;
+    }
+    return Column(children: place.types.map((type) => Text(type)).toList());
   }
 }
