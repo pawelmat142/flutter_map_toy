@@ -7,7 +7,6 @@ abstract class AppTheme {
 
   static final ThemeData appLightTheme = ThemeData(
     scaffoldBackgroundColor: AppColor.primary,
-    backgroundColor: AppColor.primary,
     dialogBackgroundColor: AppColor.primary,
 
     primaryColor: AppColor.primary,
@@ -29,7 +28,31 @@ abstract class AppTheme {
 
     textTheme: const TextTheme(
       titleLarge: AppStyle.titleLargeTextStyle,
-      labelMedium: AppStyle.labelMediumTextStyle
+      labelMedium: AppStyle.labelMediumTextStyle,
+      titleMedium: AppStyle.textInput,
+    ),
+
+    inputDecorationTheme: const InputDecorationTheme(
+      focusColor: AppColor.secondary,
+      labelStyle: TextStyle(
+          color: AppColor.white30
+      ),
+      floatingLabelStyle: TextStyle(
+          color: AppColor.blue
+      ),
+      enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: AppColor.secondaryInactive)
+      ),
+      focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: AppColor.secondary)
+      ),
+      focusedErrorBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: AppColor.secondary)
+      ),
+    ),
+
+    textSelectionTheme: const TextSelectionThemeData(
+      cursorColor: AppColor.secondary
     ),
 
     dialogTheme: const DialogTheme(

@@ -7,6 +7,8 @@ class LocationService {
 
   final _location = Location();
 
+  Stream<LocationData> get onLocationChanged => _location.onLocationChanged;
+
   Future<CameraPosition> getMyInitialCameraPosition() async {
     final myLocation = await getMyLocation();
     return CameraPosition(

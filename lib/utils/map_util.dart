@@ -10,6 +10,8 @@ abstract class MapUtil {
 
   static const double earthRadius = 6371; // Earth's radius in kilometers
 
+  static const LatLng initialPosition = LatLng(54.3991806, 18.5571554);
+
   static CameraPosition getCameraPosition(LatLng point) {
     return CameraPosition(
       target: point,

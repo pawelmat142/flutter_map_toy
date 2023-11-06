@@ -3,6 +3,7 @@ import 'package:flutter_map_toy/presentation/components/controls/blue_button.dar
 import 'package:flutter_map_toy/presentation/components/controls/red_button.dart';
 import 'package:flutter_map_toy/presentation/components/new_map_button.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';
+import 'package:flutter_map_toy/presentation/views/location_search_screen.dart';
 import 'package:flutter_map_toy/presentation/views/saved_maps_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -25,17 +26,17 @@ class HomeScreen extends StatelessWidget {
           children: [
 
             const NewMapButton(),
-            AppStyle.verticalDefaultDistance,
 
+            AppStyle.verticalDefaultDistance,
             BlueButton('saved maps ', onPressed: () {
               //spinner
               Navigator.pushNamed(context, SavedMapsScreen.id);
             }),
-            AppStyle.verticalDefaultDistance,
 
-            RedButton('test', onPressed: () {
-            },),
             AppStyle.verticalDefaultDistance,
+            RedButton('find place', onPressed: () {
+              Navigator.pushNamed(context, LocationSearchScreen.id);
+            },),
 
           ],
         ),

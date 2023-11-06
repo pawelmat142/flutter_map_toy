@@ -39,4 +39,11 @@ abstract class AppStyle {
       letterSpacing: 1.1
   );
 
+  static const textInput = TextStyle(
+      fontSize: AppFontSize.medium,
+      fontWeight: FontWeight.w500,
+      color: AppColor.white,
+      letterSpacing: 1.1
+  );
+
 }
