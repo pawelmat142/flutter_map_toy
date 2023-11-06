@@ -9,7 +9,7 @@ import 'package:flutter_map_toy/presentation/dialogs/popups/app_popup.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
 import 'package:flutter_map_toy/presentation/views/home_screen.dart';
-import 'package:flutter_map_toy/presentation/views/location_search_screen.dart';
+import 'package:flutter_map_toy/presentation/views/location_search/location_search_screen.dart';
 import 'package:flutter_map_toy/presentation/views/saved_maps_screen.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';

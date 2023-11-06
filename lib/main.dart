@@ -9,7 +9,7 @@ import 'package:flutter_map_toy/models/map_cubit.dart';
 import 'package:flutter_map_toy/presentation/dialogs/app_drawing.dart';
 import 'package:flutter_map_toy/presentation/views/home_screen.dart';
 import 'package:flutter_map_toy/presentation/styles/app_theme.dart';
-import 'package:flutter_map_toy/presentation/views/location_search_screen.dart';
+import 'package:flutter_map_toy/presentation/views/location_search/location_search_screen.dart';
 import 'package:flutter_map_toy/presentation/views/map_screen/map_screen.dart';
 import 'package:flutter_map_toy/presentation/views/saved_maps_screen.dart';
 import 'package:flutter_map_toy/services/get_it.dart';
@@ -54,9 +54,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  //TODO add google locations search feature
   //TODO popup text input styling
-  //TODO
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

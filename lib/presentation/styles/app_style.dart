@@ -46,4 +46,19 @@ abstract class AppStyle {
       letterSpacing: 1.1
   );
 
+  static const listTileTitle = TextStyle(
+      fontSize: AppFontSize.medium,
+      fontWeight: FontWeight.w500,
+      color: AppColor.secondary,
+      letterSpacing: 1
+  );
+
+  static const listTileSubtitle = TextStyle(
+      fontSize: AppFontSize.small,
+      fontWeight: FontWeight.w300,
+      color: AppColor.white,
+      letterSpacing: 1
+  );
+
+
 }

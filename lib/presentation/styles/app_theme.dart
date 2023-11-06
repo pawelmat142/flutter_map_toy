@@ -30,12 +30,22 @@ abstract class AppTheme {
       titleLarge: AppStyle.titleLargeTextStyle,
       labelMedium: AppStyle.labelMediumTextStyle,
       titleMedium: AppStyle.textInput,
+      bodySmall: AppStyle.listTileSubtitle
+    ),
+
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: AppColor.secondary,
+      selectionColor: AppColor.secondary.withAlpha(150),
+      selectionHandleColor: AppColor.secondary.withAlpha(200)
     ),
 
     inputDecorationTheme: const InputDecorationTheme(
       focusColor: AppColor.secondary,
       labelStyle: TextStyle(
           color: AppColor.white30
+      ),
+      hintStyle: TextStyle(
+        color: AppColor.white30
       ),
       floatingLabelStyle: TextStyle(
           color: AppColor.blue
@@ -51,9 +61,7 @@ abstract class AppTheme {
       ),
     ),
 
-    textSelectionTheme: const TextSelectionThemeData(
-      cursorColor: AppColor.secondary
-    ),
+
 
     dialogTheme: const DialogTheme(
       titleTextStyle: AppStyle.titleLargeTextStyle,

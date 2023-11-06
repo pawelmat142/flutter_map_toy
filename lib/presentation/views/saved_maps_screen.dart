@@ -36,7 +36,7 @@ class SavedMapsScreen extends StatelessWidget {
                 var mapModel = values[index];
 
                 return ListTile(
-                  title: Text(mapModel.name),
+                  title: Text(mapModel.name, style: AppStyle.listTileTitle),
                   subtitle: Text(mapModel.modified.format),
                   onTap: () {
                     Navigator.pushNamed(context, MapScreen.id);

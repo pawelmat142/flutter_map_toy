@@ -135,6 +135,8 @@ class LocationSearchCubit extends Cubit<LocationSearchState> {
     emit(state.copyWith(text: text));
     if (state.text.length > 2) {
       search();
+    } else {
+      cleanResults();
     }
   }
 
@@ -145,15 +147,14 @@ class LocationSearchCubit extends Cubit<LocationSearchState> {
     ));
   }
 
-  //TODO style places list tiles
-  search() {
+  search({ bool byButton = false }) {
     if (state.locale == null) throw 'locale = null';
     final input = state.text;
     if (input.isEmpty) return;
 
     googleMapsPlaces.searchByText(input,
-      language: state.locale!.languageCode,
-      location: LocationUtil.locationFromPoint(state.localization)
+      language: byButton ? null : state.locale!.languageCode,
+      location: byButton ? null : LocationUtil.locationFromPoint(state.localization)
     ).then((PlacesSearchResponse response) {
       Log.log('PlacesSearchResponse status is ${response.status}', source: runtimeType.toString());
 

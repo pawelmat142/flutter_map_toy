@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/presentation/dialogs/app_modal.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
+import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 
 class ToolBarItem {
   ToolBarItem({
@@ -74,7 +75,7 @@ class Toolbar extends StatelessWidget {
   }
 
   ListTile _toolbarItemToTile(ToolBarItem item, BuildContext context) {
-    return ListTile(title: Text(item.menuLabel!.capitalize(), style: Theme.of(context).textTheme.labelMedium,),
+    return ListTile(title: Text(item.menuLabel!.capitalize(), style: AppStyle.listTileTitle),
         leading: Icon(item.icon, size: 32, color: AppColor.secondary),
         onTap: () {
           Navigator.pop(context);
