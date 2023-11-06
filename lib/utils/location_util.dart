@@ -10,4 +10,6 @@ abstract class LocationUtil {
       lng: point.longitude
   );
 
+  static LatLng pointFromLocation(Location location) => LatLng(location.lat, location.lng);
+
 }

@@ -56,4 +56,8 @@ extension Navi on Navigator {
     Navigator.pop(context, (Route route) => route.settings.name == screenId);
   }
 
+  static popUntilNamed(BuildContext context, String screenId) {
+    Navigator.popUntil(context, (Route route) => route.settings.name == screenId);
+  }
+
 }

@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/main.dart';
 import 'package:flutter_map_toy/models/location_search_state.dart';
+import 'package:flutter_map_toy/models/map_cubit.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 import 'package:flutter_map_toy/presentation/views/location_search/searchbar.dart';
+import 'package:flutter_map_toy/presentation/views/map_screen/map_screen.dart';
+import 'package:flutter_map_toy/utils/location_util.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 // ignore: depend_on_referenced_packages
 import 'package:google_maps_webservice/places.dart';
@@ -20,6 +25,8 @@ class LocationSearchScreen extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final cubit = BlocProvider.of<LocationSearchCubit>(context);
+    final mapCubit = BlocProvider.of<MapCubit>(context);
+
     cubit.initialization(context);
     cubit.startLocationSubscription(context);
 
@@ -58,10 +65,14 @@ class LocationSearchScreen extends StatelessWidget {
                         subtitle: place.formattedAddress is String ? Text(place.formattedAddress!) : null,
                         isThreeLine: true,
                         trailing: getPlaceIcon(place),
-                        // trailing: getPlaceTypes(place),
+                        onTap: () {
+                          if (place.geometry != null) {
+                            final point = LocationUtil.pointFromLocation(place.geometry!.location);
+                            navigateToMapsScreen(context, mapCubit, point);
+                          }
+                        },
                       );
                     }
-
                     return const SizedBox.shrink();
                   }
                 },
@@ -78,6 +89,17 @@ class LocationSearchScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  navigateToMapsScreen(BuildContext context, MapCubit mapCubit, LatLng point ) {
+    if (Navi.inStack(MapScreen.id)) {
+      Navi.popUntilNamed(context, MapScreen.id);
+      mapCubit.state.mapController?.animateCamera(CameraUpdate.newLatLng(point));
+    } else {
+      mapCubit.setInitialPosition(point: point).then((_) {
+        Navigator.pushNamed(context, MapScreen.id);
+      });
+    }
   }
 
   Widget? getPlaceIcon(PlacesSearchResult place) {

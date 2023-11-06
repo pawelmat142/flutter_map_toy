@@ -54,7 +54,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  //TODO popup text input styling
+  //TODO navigation issue map => find place => save map ??
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

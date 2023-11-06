@@ -31,9 +31,11 @@ class MapCubit extends Cubit<MapState> {
 
   MapCubit(): super(MapState(BlocState.loading, '', {}, {}, {}, '', MapType.satellite, false, null, null, null));
 
-  setInitialPosition() async {
+  Future<void> setInitialPosition({ LatLng? point }) async {
     Log.log('Set initial position', source: runtimeType.toString());
-    final initialPosition = await locationService.getMyInitialCameraPosition();
+    final initialPosition = point is LatLng
+      ? CameraPosition(target: point, zoom: MapUtil.kZoomInitial)
+      : await locationService.getMyInitialCameraPosition();
     emit(state.copyWith(
       state: BlocState.initializing,
       initialCameraPosition: initialPosition,
