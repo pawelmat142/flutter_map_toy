@@ -46,7 +46,7 @@ class MapCubit extends Cubit<MapState> {
     emit(state.copyWith(
       state: BlocState.loading,
       mapModelId: '',
-      markers: {},
+      markers: [],
       icons: {},
       drawings: {},
       selectedMarkerId: '',
@@ -139,16 +139,14 @@ class MapCubit extends Cubit<MapState> {
     };
   }
 
-  Future<Set<Marker>> _markersFromIcons(
+  Iterable<Future<Marker>> _markerFromIconFutures(
     Iterable<MapIconModel> icons,
     BuildContext context,
     double rescaleFactor,
-  ) async {
-    final futures = icons.map((mapIconModel) {
+  ) {
+    return icons.map((mapIconModel) {
       return IconUtil.getMarkerFromIcon(mapIconModel.rescale(rescaleFactor), context);
     });
-    final markers = await Future.wait(futures);
-    return markers.toSet();
   }
 
   updateIconMarker(BuildContext context) {
@@ -212,22 +210,29 @@ class MapCubit extends Cubit<MapState> {
     markers.removeWhere((marker) => marker.markerId.value == drawingModelId);
     drawings.removeWhere((drawing) => drawing.id == drawingModelId);
 
-    final mapDrawingModel = await DrawUtil.getModelFromDrawing(
+    DrawUtil.getModelFromDrawing(
       context: context,
       mapController: state.mapController!,
       drawingLines: drawingLines,
       drawingModelId: drawingModelId,
       markerInfo: markerInfo,
-    );
+    ).then((MapDrawingModel mapDrawingModel) {
 
-    drawings.add(mapDrawingModel.rescale(1/state.rescaleFactor));
-    emit(state.copyWith(
-      drawings: drawings,
-      // ignore: use_build_context_synchronously
-      markers: await _getAllMarkers(context, drawings: drawings),
-      drawingMode: false,
-      ctx: context,
-    ));
+      drawings.add(mapDrawingModel.rescale(1/state.rescaleFactor));
+      _getAllMarkers(
+          context,
+          drawings: drawings
+      ).then((List<Marker> markers) {
+        emit(state.copyWith(
+          drawings: drawings,
+          markers:  markers,
+          drawingMode: false,
+          ctx: context,
+        ));
+      });
+
+    });
+
   }
 
   editDrawing(BuildContext context) async {
@@ -244,44 +249,42 @@ class MapCubit extends Cubit<MapState> {
       markers: await _getAllMarkers(context, drawings: drawings)
     ));
 
+    final mapCenter = MapUtil.pointFromCoordinates(mapDrawingModel.coordinates);
     if (state.mapController == null) throw 'state.mapController == null';
-    final screenCoordinate = await state.mapController!
-        .getScreenCoordinate(MapUtil.pointFromCoordinates(mapDrawingModel.coordinates));
-
-    final drawingLines = DrawUtil.prepareDrawingOffsetToEdit(
-        mapDrawingModel: mapDrawingModel,
-        screenCoordinate: screenCoordinate,
-        context: context
-    );
-
-    drawingCubit.emitStateToEditDrawing(drawingLines, mapDrawingModel.id);
-    turnDrawingMode(context: context, on: true);
+    state.mapController!
+      .getScreenCoordinate(mapCenter)
+      .then((ScreenCoordinate screenCoordinate) {
+        final drawingLines = DrawUtil.prepareDrawingOffsetToEdit(
+            mapDrawingModel: mapDrawingModel,
+            screenCoordinate: screenCoordinate,
+            context: context
+        );
+        drawingCubit.emitStateToEditDrawing(drawingLines, mapDrawingModel.id);
+        turnDrawingMode(context: context, on: true);
+    });
   }
 
-  Future<Set<Marker>> _markersFromDrawings(
+  Iterable<Future<Marker>> _markerFromDrawingFutures(
       Iterable<MapDrawingModel> drawings,
       BuildContext context,
       double rescaleFactor
-    ) async {
-    final futures = drawings.map((mapDrawingModel) {
+    ) {
+    return drawings.map((mapDrawingModel) {
       return DrawUtil.getMarkerFromDrawingModel(mapDrawingModel.rescale(rescaleFactor), context);
     });
-    final markers = await Future.wait(futures);
-    return markers.toSet();
   }
 
 
   /// MARKERS MANAGEMENT
   ///
-  Future<Set<Marker>> _getAllMarkers(BuildContext context, {
+  Future<List<Marker>> _getAllMarkers(BuildContext context, {
     Iterable<MapIconModel>? icons,
     Iterable<MapDrawingModel>? drawings,
   }) async {
     final rescaleFactor = state.rescaleFactor;
-    return {
-      ...(await _markersFromIcons(icons ?? state.icons, context, rescaleFactor)),
-      ...(await _markersFromDrawings(drawings ?? state.drawings, context, rescaleFactor))
-    };
+    final markersFutures = _markerFromIconFutures(icons ?? state.icons, context, rescaleFactor);
+    final drawingsFutures = _markerFromDrawingFutures(drawings ?? state.drawings, context, rescaleFactor);
+    return Future.wait(markersFutures.toList() + drawingsFutures.toList());
   }
 
   cleanMarkers(BuildContext context) {
@@ -292,7 +295,7 @@ class MapCubit extends Cubit<MapState> {
         selectedMarkerId: '',
         icons: {},
         drawings: {},
-        markers: {},
+        markers: [],
     ))).then((value) {
       Log.log('Markers cleaned', source: state.runtimeType.toString());
     });

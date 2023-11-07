@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_widget.dart';
-import 'package:flutter_map_toy/main.dart';
 import 'package:flutter_map_toy/models/map_cubit.dart';
 import 'package:flutter_map_toy/models/map_model.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
+import 'package:flutter_map_toy/presentation/dialogs/spinner.dart';
 import 'package:flutter_map_toy/presentation/views/map_screen/map_toolbar.dart';
 import 'package:flutter_map_toy/services/log.dart';
 import 'package:flutter_map_toy/utils/timer_handler.dart';

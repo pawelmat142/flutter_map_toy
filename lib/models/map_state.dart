@@ -90,7 +90,7 @@ class MapState {
   MapState copyWith({
     BlocState? state,
     String? mapModelId,
-    Set<Marker>? markers,
+    List<Marker>? markers,
     Set<MapIconModel>? icons,
     Set<MapDrawingModel>? drawings,
     String? selectedMarkerId,
@@ -111,7 +111,7 @@ class MapState {
     return MapState(
       state ?? this.state,
       mapModelId ?? this.mapModelId,
-      markers ?? this.markers,
+      markers?.toSet() ?? this.markers,
       icons ?? this.icons,
       drawings ?? this.drawings,
       selectedMarkerId ?? this.selectedMarkerId,

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
-import 'package:flutter_map_toy/main.dart';
 import 'package:flutter_map_toy/models/location_search_state.dart';
 import 'package:flutter_map_toy/models/map_cubit.dart';
+import 'package:flutter_map_toy/presentation/dialogs/spinner.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';
 import 'package:flutter_map_toy/presentation/views/location_search/searchbar.dart';

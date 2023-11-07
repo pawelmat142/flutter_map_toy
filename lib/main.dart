@@ -7,6 +7,7 @@ import 'package:flutter_map_toy/global/wizard/wizard_state.dart';
 import 'package:flutter_map_toy/models/location_search_state.dart';
 import 'package:flutter_map_toy/models/map_cubit.dart';
 import 'package:flutter_map_toy/presentation/dialogs/app_drawing.dart';
+import 'package:flutter_map_toy/presentation/dialogs/spinner.dart';
 import 'package:flutter_map_toy/presentation/views/home_screen.dart';
 import 'package:flutter_map_toy/presentation/styles/app_theme.dart';
 import 'package:flutter_map_toy/presentation/views/location_search/location_search_screen.dart';
@@ -56,6 +57,9 @@ class _MyAppState extends State<MyApp> {
 
   //TODO navigation issue map => find place => save map ??
 
+  //TODO zindex markerów
+
+  //TODO find map bug
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -79,29 +83,3 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class Spinner extends StatelessWidget {
-
-  static const String id = 'spinner';
-
-  static show(BuildContext context) {
-    if (!Navi.inStack(id)) {
-      Navigator.pushNamed(context, id);
-    }
-  }
-
-  static pop(BuildContext context) {
-    if (Navi.inStack(id)) {
-      Navi.remove(context, id);
-    }
-  }
-
-  const Spinner({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: const Center(child: CircularProgressIndicator()),
-    );
-  }
-}

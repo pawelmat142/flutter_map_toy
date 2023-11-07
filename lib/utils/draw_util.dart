@@ -59,7 +59,8 @@ abstract class DrawUtil {
     required List<DrawingLine> drawingLines,
     required GoogleMapController mapController,
     String? drawingModelId,
-    MarkerInfo? markerInfo
+    MarkerInfo? markerInfo,
+    double? rescaleFactor,
   }) async {
       //adding padding to avoid cut line bcs of its width
       final padding = drawingLines.first.width/2;
@@ -94,7 +95,7 @@ abstract class DrawUtil {
         drawing.first.color.value,
         drawing.first.width,
         MapDrawingModel.storeLines(drawing)
-      );
+      ).rescale(rescaleFactor ?? 1);
   }
 
   static List<DrawingLine> prepareDrawingOffsetToEdit({
