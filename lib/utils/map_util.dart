@@ -46,13 +46,15 @@ abstract class MapUtil {
   }
 
   static void animateCameraToMapCenter(MapState state) {
-    if (state.markers.isEmpty) return;
-
     CameraUpdate cameraUpdate;
 
-    if (state.markers.length == 1) {
+    if (state.markers.isEmpty) {
+      cameraUpdate = CameraUpdate.newCameraPosition(state.initialCameraPosition!);
+
+    } else if (state.markers.length == 1) {
       cameraUpdate = CameraUpdate.newCameraPosition(CameraPosition(
           target: state.markers.first.position, zoom: kZoomInitial));
+
     } else {
       Set<double> latitudes = {};
       Set<double> longitudes = {};

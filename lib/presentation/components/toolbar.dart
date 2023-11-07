@@ -38,11 +38,10 @@ class Toolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      // currentIndex: onlyToolbarItems.indexWhere((toolbarItem) => toolbarItem.label == menuLabel),
       currentIndex: 0,
       elevation: 10,
       backgroundColor: AppColor.primaryDark,
-      selectedItemColor: AppColor.secondary,
+      selectedItemColor: AppColor.white,
       unselectedItemColor: AppColor.white80,
       selectedLabelStyle: AppStyle.listTileSubtitle,
       unselectedLabelStyle: AppStyle.listTileSubtitle,

@@ -41,17 +41,13 @@ class MapToolbar extends StatelessWidget {
 
   List<ToolBarItem> markerSelectedToolbar(BuildContext context, MapCubit cubit, MapState state) {
     return [
-
       ToolBarItem(
         label: 'back',
         barLabel: 'Back',
         icon: AppIcon.back,
         color: AppColor.blue,
-        onTap: () {
-          cubit.selectMarker('', context);
-        }
+        onTap: () => cubit.selectMarker('', context)
       ),
-
       if (state.isAnyIconSelected) ToolBarItem(
         label: 'edit_icon',
         barLabel: 'edit',
@@ -64,13 +60,9 @@ class MapToolbar extends StatelessWidget {
           barLabel: 'edit line',
           icon: AppIcon.editLine,
           color: AppColor.secondary,
-          onTap: () {
-            cubit.editDrawing(context);
-          }
+          onTap: () => cubit.editDrawing(context),
       ),
-
       MarkerInfoToolbarItem(context, cubit),
-
       ToolBarItem(
         label: 'remove',
         barLabel: 'remove',
@@ -131,7 +123,6 @@ class MapToolbar extends StatelessWidget {
 
   List<ToolBarItem> mapToolbar(BuildContext context, MapCubit cubit, MapState state) {
     return [
-
       ToolBarItem(
         label: 'add_point',
         barLabel: 'add point',
@@ -139,7 +130,6 @@ class MapToolbar extends StatelessWidget {
         icon: AppIcon.addPoint,
         onTap: () => cubit.addIconMarker(context),
       ),
-
       ToolBarItem(
         label: 'draw_line',
         barLabel: 'draw line',
@@ -147,21 +137,18 @@ class MapToolbar extends StatelessWidget {
         icon: AppIcon.drawLine,
         onTap: () => cubit.turnOnDrawingMode(context: context),
       ),
-
       ToolBarItem(
         label: 'save_map',
         barLabel: 'save',
         icon: AppIcon.save,
         onTap: () => cubit.onSaveMapModel(context),
       ),
-
       ToolBarItem(
         label: Toolbar.menuLabel,
         barLabel: 'menu',
         icon: AppIcon.menu,
         onTap: () {}
       ),
-
     ];
   }
 
@@ -212,6 +199,12 @@ class MapToolbar extends StatelessWidget {
         menuLabel: 'Save',
         icon: AppIcon.save,
         onTap: () => cubit.onSaveMapModel(context),
+      ),
+      ToolBarItem(
+        label: 'back',
+        menuLabel: 'Back',
+        icon: AppIcon.back,
+        onTap: () => Navigator.pop(context),
       ),
     ];
 

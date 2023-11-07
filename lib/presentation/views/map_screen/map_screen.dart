@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/drawing/drawing_widget.dart';
 import 'package:flutter_map_toy/models/map_cubit.dart';
-import 'package:flutter_map_toy/models/map_model.dart';
 import 'package:flutter_map_toy/models/map_state.dart';
 import 'package:flutter_map_toy/presentation/dialogs/spinner.dart';
 import 'package:flutter_map_toy/presentation/views/map_screen/map_toolbar.dart';
@@ -16,14 +15,6 @@ class MapScreen extends StatelessWidget {
   static final cameraMoveEndHandler = TimerHandler(milliseconds: 50);
 
   const MapScreen({ Key? key }) : super(key: key);
-
-  String _getAppBarTitle(MapState state) {
-    String? result;
-    if (state.mapModelId.isNotEmpty) {
-      result = MapModel.getById(state.mapModelId)?.name;
-    }
-    return result ?? 'New map';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +40,6 @@ class MapScreen extends StatelessWidget {
           return true;
         },
         child: Scaffold(
-
-          appBar: AppBar(title: Text(_getAppBarTitle(state)),),
 
           body: Stack(
             children: [
