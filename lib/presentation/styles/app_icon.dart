@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 abstract class AppIcon {
 
   static const defaultIcon = Icons.question_mark_rounded;
+  static const appIcon = Icons.map;
+
   static const menu = Icons.menu;
   static const confirm = Icons.done_outline_rounded;
   static const back = Icons.arrow_back_outlined;

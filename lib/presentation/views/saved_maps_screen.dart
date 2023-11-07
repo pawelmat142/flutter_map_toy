@@ -15,6 +15,7 @@ class SavedMapsScreen extends StatelessWidget {
 
   const SavedMapsScreen({Key? key}) : super(key: key);
 
+  //TODO display state info, not found / empty
   @override
   Widget build(BuildContext context) {
 

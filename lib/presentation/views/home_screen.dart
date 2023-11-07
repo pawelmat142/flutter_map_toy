@@ -20,24 +20,24 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
 
-      appBar: AppBar(title: const Text('Home')),
-
       body: Padding(
         padding: AppStyle.defaultPadding,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          // mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
 
-            const NewMapButton(),
+            Image.asset('assets/images/icon.png', scale: 2/3,),
 
+            const NewMapButton(),
             AppStyle.verticalDefaultDistance,
+
             BlueButton('Saved maps ', onPressed: () {
               //spinner
               Navigator.pushNamed(context, SavedMapsScreen.id);
             }),
-
             AppStyle.verticalDefaultDistance,
+
             RedButton('find place', onPressed: () {
               Navigator.pushNamed(context, LocationSearchScreen.id).then((point) {
                 if (point is LatLng) {
