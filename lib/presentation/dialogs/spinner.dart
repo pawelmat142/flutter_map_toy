@@ -23,9 +23,8 @@ class Spinner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(),
-      body: const Center(child: CircularProgressIndicator()),
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }

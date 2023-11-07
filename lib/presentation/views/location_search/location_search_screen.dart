@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/models/location_search_state.dart';
 import 'package:flutter_map_toy/models/map_cubit.dart';
+import 'package:flutter_map_toy/presentation/components/no_results.dart';
 import 'package:flutter_map_toy/presentation/dialogs/spinner.dart';
 import 'package:flutter_map_toy/presentation/styles/app_color.dart';
 import 'package:flutter_map_toy/presentation/styles/app_style.dart';
@@ -27,7 +28,9 @@ class LocationSearchScreen extends StatelessWidget {
     final cubit = BlocProvider.of<LocationSearchCubit>(context);
     final mapCubit = BlocProvider.of<MapCubit>(context);
 
-    cubit.initialization(context);
+    cubit.initialization(context).then((_) {
+      cubit.cleanResults();
+    });
     cubit.startLocationSubscription(context);
 
     return WillPopScope(
@@ -42,22 +45,26 @@ class LocationSearchScreen extends StatelessWidget {
         },
         child: Scaffold(
 
-          appBar: AppBar(
-            title: const Text('Find place'),
-          ),
+          appBar: AppBar(title: const Text('Find place')),
 
-          body: BlocConsumer<LocationSearchCubit, LocationSearchState>(
-            listener: (ctx, state) => state.initializing ? Spinner.show(context) : Spinner.pop(context),
+          body: BlocBuilder<LocationSearchCubit, LocationSearchState>(
             builder: (ctx, state) {
-
+              if (state.state == BlocState.initializing) {
+                return const Spinner();
+              }
 
               return ListView.separated(
                 itemCount: state.places.length + 1,
                 itemBuilder: (ctx, index) {
                   if (index == 0) {
-                    return Searchbar(cubit, state);
+                    return Column(
+                      children: [
+                        Searchbar(cubit, state),
+                        if (state.places.isEmpty) const NoResults(),
+                      ],
+                    );
                   } else {
-                    if (state.places.length > 1) {
+                    if (state.places.isNotEmpty) {
                       final PlacesSearchResult place = state.places[index-1];
                       place.icon;
                       return ListTile(
@@ -73,8 +80,8 @@ class LocationSearchScreen extends StatelessWidget {
                         },
                       );
                     }
-                    return const SizedBox.shrink();
                   }
+                  return null;
                 },
                 separatorBuilder: (ctx, index) {
                   if (index == 0) {

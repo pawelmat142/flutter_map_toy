@@ -21,14 +21,15 @@ class MapScreen extends StatelessWidget {
 
     final cubit = BlocProvider.of<MapCubit>(context);
 
-    return BlocConsumer<MapCubit, MapState>(
-      listener: (ctx, state) => state.initializing ? Spinner.show(context) : Spinner.pop(context),
+    return BlocBuilder<MapCubit, MapState>(
       builder: (ctx, state) {
       Log.log('Build MapState: ${state.state.toString()}', source: state.runtimeType.toString());
 
-      if (state.initialCameraPosition == null) {
-        cubit.setInitialPosition();
-        return const Center(child: CircularProgressIndicator());
+      if (state.state != BlocState.ready) {
+        if (state.initialCameraPosition == null) {
+          cubit.setInitialPosition();
+        }
+        return const Spinner();
       }
 
       Log.log('Markers: ${state.markers.length}', source: state.runtimeType.toString());
@@ -48,7 +49,7 @@ class MapScreen extends StatelessWidget {
                 mapType: state.mapType,
                 markers: state.markers,
                 onCameraMove: (position) => cubit.updateCameraPosition(position, context),
-                onMapCreated: (controller) => cubit.initMap(controller),
+                onMapCreated: cubit.initMap,
                 onTap: (point) => _onMapTap(point, cubit, state, context),
               ),
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -30,6 +31,7 @@ class MapState {
   GoogleMapController? mapController;
   CameraPosition? initialCameraPosition;
   CameraPosition? cameraPosition;
+  Completer<GoogleMapController> mapCompleter;
 
   bool get isAnyMarkerSelected => selectedMarkerId.isNotEmpty;
   bool get isAnyIconSelected => icons.any((point) => point.id == selectedMarkerId);
@@ -42,6 +44,7 @@ class MapState {
       : icons.firstWhere((point) => point.id == selectedMarkerId);
 
   Future<LatLng> get mapViewCenter async {
+    if (mapController == null) throw 'mapController == null';
     final visibleRegion = await mapController!.getVisibleRegion();
     return LatLng(
       (visibleRegion.northeast.latitude + visibleRegion.southwest.latitude) / 2,
@@ -85,6 +88,7 @@ class MapState {
     this.mapController,
     this.initialCameraPosition,
     this.cameraPosition,
+    this.mapCompleter,
   );
 
   MapState copyWith({
@@ -120,6 +124,7 @@ class MapState {
       mapController ?? this.mapController,
       initialCameraPosition ?? this.initialCameraPosition,
       cameraPosition ?? this.cameraPosition,
+      mapCompleter
     );
   }
 

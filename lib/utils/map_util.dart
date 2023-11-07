@@ -50,25 +50,17 @@ abstract class MapUtil {
 
     if (state.markers.isEmpty) {
       cameraUpdate = CameraUpdate.newCameraPosition(state.initialCameraPosition!);
-
     } else if (state.markers.length == 1) {
       cameraUpdate = CameraUpdate.newCameraPosition(CameraPosition(
-          target: state.markers.first.position, zoom: kZoomInitial));
+          target: state.markers.first.position, zoom: kZoomInitial)
+      );
 
     } else {
-      Set<double> latitudes = {};
-      Set<double> longitudes = {};
-      for (var marker in state.markers) {
-        longitudes.add(marker.position.longitude);
-        latitudes.add(marker.position.latitude);
-      }
-      final minY = longitudes.reduce(min);
-      final maxY = longitudes.reduce(max);
-      final minX = latitudes.reduce(min);
-      final maxX = latitudes.reduce(max);
+      final lats = state.markers.map((marker) => marker.position.latitude);
+      final lngs = state.markers.map((marker) => marker.position.longitude);
       final bounds = LatLngBounds(
-          southwest: LatLng(minX, minY),
-          northeast: LatLng(maxX, maxY)
+          southwest: LatLng(lats.reduce(min), lngs.reduce(min)),
+          northeast: LatLng(lats.reduce(max), lngs.reduce(max))
       );
       cameraUpdate = CameraUpdate.newLatLngBounds(bounds, 50);
     }

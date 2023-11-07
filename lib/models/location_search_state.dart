@@ -16,6 +16,7 @@ import 'package:uuid/uuid.dart';
 import 'package:google_maps_webservice/places.dart';
 
 enum BlocState {
+  empty,
   initializing,
   ready,
   searching,
@@ -100,16 +101,19 @@ class LocationSearchCubit extends Cubit<LocationSearchState> {
   StreamSubscription? subscription;
 
   initialization(BuildContext context) async {
-    if (state.locale == null) {
-      final Locale locale = Localizations.localeOf(context);
+    if (state.state != BlocState.ready) {
+      emit(state.copyWith(state: BlocState.initializing));
+
+      final Locale locale = state.locale ?? Localizations.localeOf(context);
 
       final localization = await locationService.getMyLocation();
 
       emit(state.copyWith(
         state: BlocState.ready,
         localization: pointFromLocationData(localization),
+        places: []
       )..locale = locale);
-
+      state.focusNode.requestFocus();
       Log.log('Location search state initialized!', source: runtimeType.toString());
     }
   }
@@ -144,6 +148,7 @@ class LocationSearchCubit extends Cubit<LocationSearchState> {
     emit(state.copyWith(
       places: [],
       predictions: [],
+      state: BlocState.empty,
     ));
   }
 

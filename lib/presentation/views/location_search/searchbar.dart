@@ -18,8 +18,6 @@ class Searchbar extends StatelessWidget {
           focusNode: state.focusNode,
           onChanged: cubit.write,
           onEditingComplete: () => cubit.search(byButton: true),
-          autofocus: true,
-          // autofocus: state.state != BlocState.initializing,
           textInputAction: TextInputAction.search,
           decoration: const InputDecoration(
             hintText: 'Search...'

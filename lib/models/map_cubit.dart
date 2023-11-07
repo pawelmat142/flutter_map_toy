@@ -29,7 +29,7 @@ class MapCubit extends Cubit<MapState> {
 
   final locationService = getIt.get<LocationService>();
 
-  MapCubit(): super(MapState(BlocState.loading, '', {}, {}, {}, '', MapType.satellite, false, null, null, null));
+  MapCubit(): super(MapState(BlocState.loading, '', {}, {}, {}, '', MapType.satellite, false, null, null, null, Completer<GoogleMapController>()));
 
   Future<void> setInitialPosition({ LatLng? point }) async {
     Log.log('Set initial position', source: runtimeType.toString());
@@ -37,9 +37,24 @@ class MapCubit extends Cubit<MapState> {
       ? CameraPosition(target: point, zoom: MapUtil.kZoomInitial)
       : await locationService.getMyInitialCameraPosition();
     emit(state.copyWith(
-      state: BlocState.initializing,
+      state: BlocState.ready,
       initialCameraPosition: initialPosition,
     ));
+  }
+
+  initMap(GoogleMapController controller) async {
+    final completer = Completer();
+    completer.complete(controller);
+    final $controller = await completer.future;
+    emit(state.copyWith(
+        state: BlocState.ready,
+        selectedMarkerId: '',
+        mapController: $controller
+    ));
+    Log.log('Map initialized', source: runtimeType.toString());
+    Future.delayed(Duration.zero, () {
+      MapUtil.animateCameraToMapCenter(state);
+    });
   }
 
   dispose(BuildContext context) {
@@ -53,21 +68,10 @@ class MapCubit extends Cubit<MapState> {
       drawingMode: false,
       ctx: context,
     )
-    ..initialCameraPosition = null);
+      ..initialCameraPosition = null
+      // ..mapController = null
+    );
     Log.log('Map disposed!', source: runtimeType.toString());
-  }
-
-  initMap(GoogleMapController controller) async {
-    final completer = Completer<GoogleMapController>();
-    completer.complete(controller);
-    controller = await completer.future;
-    emit(state.copyWith(
-      state: BlocState.ready,
-      mapController: controller,
-      selectedMarkerId: '',
-    ));
-    Log.log('Map initialized', source: runtimeType.toString());
-    MapUtil.animateCameraToMapCenter(state);
   }
 
   setType(MapType mapType) {
@@ -76,20 +80,32 @@ class MapCubit extends Cubit<MapState> {
   }
 
   loadStateFromModel(BuildContext context, MapModel mapModel) async {
-    final mapIcons = mapModel.icons.toSet();
-    final drawings = mapModel.drawings.toSet();
+    final mapIcons = mapModel.icons;
+    final drawings = mapModel.drawings;
+    final markers = await _getAllMarkers(context,
+        icons: mapIcons,
+        drawings: drawings
+    );
     emit(state.copyWith(
         state: BlocState.ready,
         mapModelId: mapModel.id,
-        drawings: drawings,
-        icons: mapIcons,
-        markers: await _getAllMarkers(context, icons: mapIcons, drawings: drawings),
+        drawings: drawings.toSet(),
+        icons: mapIcons.toSet(),
+        markers: markers,
         selectedMarkerId: '',
         initialCameraPosition: MapUtil.getCameraPosition(MapUtil.pointFromCoordinates(mapModel.mainCoordinates))
     ));
   }
 
   onSaveMapModel(BuildContext context) async {
+    if (state.markers.isEmpty) {
+      AppPopup(context)
+          .title('There are no marekrs')
+          .cancel(null)
+          .show();
+      return;
+    }
+
     final mapModelName = state.mapModelId.isEmpty
         ? await TextInputPopup(context)
             .title('Please provide map name')
@@ -124,7 +140,7 @@ class MapCubit extends Cubit<MapState> {
       .onComplete = (craft) async {
         if (craft.incomplete) return;
         final mapIconModel = IconUtil.mapIconPointFromCraft(craft,
-          point:  await state.mapViewCenter,
+          point: await state.mapViewCenter,
         );
         final mapIconModels = state.icons;
         mapIconModels.add(mapIconModel);

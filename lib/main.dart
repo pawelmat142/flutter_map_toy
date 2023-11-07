@@ -55,11 +55,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  //TODO navigation issue map => find place => save map ??
-  //TODO app icon and landing page - remove app bar from home
-
-  //TODO sobe bug with controller in map state when nav to maps from maps list
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

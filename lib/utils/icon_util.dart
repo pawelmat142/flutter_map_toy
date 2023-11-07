@@ -56,7 +56,7 @@ abstract class IconUtil {
         infoWindow: getInfoWindow(mapIconModel),
         draggable: true,
         consumeTapEvents: true,
-        zIndex: 10,
+        zIndex: 100,
         onDragEnd: (point) {
           cubit.replaceMarker(context, point, markerId: markerId.value);
         },

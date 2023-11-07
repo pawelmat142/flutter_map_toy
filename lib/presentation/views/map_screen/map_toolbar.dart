@@ -112,12 +112,6 @@ class MapToolbar extends StatelessWidget {
         color: drawingState.editMode ? AppColor.secondary : Colors.white,
         onTap: () => drawingCubit.selectWidth(context)
       ),
-      ToolBarItem(
-          label: 'clean_map',
-          menuLabel: 'clean all markers',
-          icon: AppIcon.cleanPoint,
-          onTap: () => cubit.cleanMarkers(context)
-      ),
     ];
   }
 
@@ -199,6 +193,12 @@ class MapToolbar extends StatelessWidget {
         menuLabel: 'Save',
         icon: AppIcon.save,
         onTap: () => cubit.onSaveMapModel(context),
+      ),
+      ToolBarItem(
+          label: 'clean_map',
+          menuLabel: 'clean all markers',
+          icon: AppIcon.cleanPoint,
+          onTap: () => cubit.cleanMarkers(context)
       ),
       ToolBarItem(
         label: 'back',

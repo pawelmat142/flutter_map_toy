@@ -25,6 +25,13 @@ abstract class AppStyle {
       letterSpacing: 1.3
   );
 
+  static const midWhite30 = TextStyle(
+      fontSize: AppFontSize.medium,
+      fontWeight: FontWeight.w500,
+      color: AppColor.white30,
+      letterSpacing: 1.2
+  );
+
   static const labelMediumTextStyle = TextStyle(
       fontSize: AppFontSize.medium,
       fontWeight: FontWeight.w500,
