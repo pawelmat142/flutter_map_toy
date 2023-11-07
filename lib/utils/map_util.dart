@@ -46,7 +46,7 @@ abstract class MapUtil {
   }
 
   static void animateCameraToMapCenter(MapState state) {
-    if (state.mapModelId.isEmpty || state.markers.isEmpty) return;
+    if (state.markers.isEmpty) return;
 
     CameraUpdate cameraUpdate;
 

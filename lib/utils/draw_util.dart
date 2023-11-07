@@ -27,6 +27,7 @@ abstract class DrawUtil {
       flat: true,
       draggable: false,
       consumeTapEvents: true,
+      zIndex: 100,
       onTap: () {
         cubit.state.mapController?.showMarkerInfoWindow(markerId);
         cubit.selectMarker(markerId.value, context);

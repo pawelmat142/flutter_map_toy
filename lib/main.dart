@@ -57,9 +57,6 @@ class _MyAppState extends State<MyApp> {
 
   //TODO navigation issue map => find place => save map ??
 
-  //TODO zindex markerów
-
-  //TODO find map bug
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

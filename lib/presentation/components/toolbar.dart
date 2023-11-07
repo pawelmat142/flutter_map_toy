@@ -28,19 +28,24 @@ class Toolbar extends StatelessWidget {
   static const String menuLabel = 'menu';
 
   final List<ToolBarItem> toolbarItems;
+  final List<ToolBarItem>? menuItems;
 
   const Toolbar({
     required this.toolbarItems,
+    this.menuItems,
     Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      currentIndex: onlyToolbarItems.indexWhere((toolbarItem) => toolbarItem.label == menuLabel),
+      // currentIndex: onlyToolbarItems.indexWhere((toolbarItem) => toolbarItem.label == menuLabel),
+      currentIndex: 0,
       elevation: 10,
       backgroundColor: AppColor.primaryDark,
       selectedItemColor: AppColor.secondary,
       unselectedItemColor: AppColor.white80,
+      selectedLabelStyle: AppStyle.listTileSubtitle,
+      unselectedLabelStyle: AppStyle.listTileSubtitle,
       showUnselectedLabels: true,
       type: BottomNavigationBarType.fixed,
       onTap: (i) => _onItemTap(i, context),
@@ -68,14 +73,16 @@ class Toolbar extends StatelessWidget {
       .toList();
 
   _onToolbarMenu(BuildContext context) {
-    AppModal.show(context, showBack: false, children: toolbarItems
-        .where((i) => i.menuLabel != null)
-        .map((i) => _toolbarItemToTile(i, context))
-        .toList());
+    AppModal.show(context, showBack: false, children: menuItems
+        ?.map((i) => _toolbarItemToTile(i, context))
+        .toList() ?? []);
   }
 
   ListTile _toolbarItemToTile(ToolBarItem item, BuildContext context) {
-    return ListTile(title: Text(item.menuLabel!.capitalize(), style: AppStyle.listTileTitle),
+    return ListTile(
+        title: Text(item.menuLabel!.capitalize(),
+          style: AppStyle.listTileTitle.copyWith(color: AppColor.white)
+        ),
         leading: Icon(item.icon, size: 32, color: AppColor.secondary),
         onTap: () {
           Navigator.pop(context);

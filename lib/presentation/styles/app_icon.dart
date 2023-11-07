@@ -5,9 +5,10 @@ abstract class AppIcon {
   static const defaultIcon = Icons.question_mark_rounded;
   static const menu = Icons.menu;
   static const confirm = Icons.done_outline_rounded;
-  static const cancel = Icons.cancel;
+  static const back = Icons.arrow_back_outlined;
   static const delete = Icons.delete_outline_rounded;
   static const search = Icons.search;
+  static const target = Icons.location_searching;
   static const savedMaps = Icons.save_alt_rounded;
   static const nameMarker = Icons.label_important_rounded;
 

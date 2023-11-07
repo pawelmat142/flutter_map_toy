@@ -372,8 +372,8 @@ class MapCubit extends Cubit<MapState> {
       state.mapController?.getVisibleRegion().then((visibleRegion) {
         final markerVisible = visibleRegion.contains(state.selectedMarker!.position);
         if (!markerVisible) {
-          selectMarker('', context);
           final selectedMarker = state.selectedMarker;
+          selectMarker('', context);
           if (selectedMarker is Marker) {
             state.mapController?.hideMarkerInfoWindow(selectedMarker.markerId);
           }
