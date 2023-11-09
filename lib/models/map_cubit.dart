@@ -20,6 +20,7 @@ import 'package:flutter_map_toy/services/log.dart';
 import 'package:flutter_map_toy/utils/draw_util.dart';
 import 'package:flutter_map_toy/utils/icon_util.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
+import 'package:flutter_map_toy/utils/time.dart';
 import 'package:flutter_map_toy/utils/timer_handler.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -29,7 +30,7 @@ class MapCubit extends Cubit<MapState> {
 
   final locationService = getIt.get<LocationService>();
 
-  MapCubit(): super(MapState(BlocState.loading, '', {}, {}, {}, '', MapType.satellite, false, null, null, null, Completer<GoogleMapController>()));
+  MapCubit(): super(MapState(BlocState.loading, '', {}, {}, {}, '', MapType.satellite, false, null, null, null));
 
   Future<void> setInitialPosition({ LatLng? point }) async {
     Log.log('Set initial position', source: runtimeType.toString());
@@ -42,19 +43,21 @@ class MapCubit extends Cubit<MapState> {
     ));
   }
 
+  final completer = Completer<GoogleMapController>();
+
   initMap(GoogleMapController controller) async {
-    final completer = Completer();
-    completer.complete(controller);
-    final $controller = await completer.future;
+    if (!completer.isCompleted) {
+      completer.complete(controller);
+      controller = await completer.future;
+    }
     emit(state.copyWith(
-        state: BlocState.ready,
-        selectedMarkerId: '',
-        mapController: $controller
+      state: BlocState.ready,
+      selectedMarkerId: '',
+      mapController: controller
     ));
     Log.log('Map initialized', source: runtimeType.toString());
-    Future.delayed(Duration.zero, () {
-      MapUtil.animateCameraToMapCenter(state);
-    });
+    await Time.wait(500);
+    MapUtil.animateCameraToMapCenter(state);
   }
 
   dispose(BuildContext context) {
@@ -69,7 +72,6 @@ class MapCubit extends Cubit<MapState> {
       ctx: context,
     )
       ..initialCameraPosition = null
-      // ..mapController = null
     );
     Log.log('Map disposed!', source: runtimeType.toString());
   }

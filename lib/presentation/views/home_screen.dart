@@ -23,7 +23,6 @@ class HomeScreen extends StatelessWidget {
       body: Padding(
         padding: AppStyle.defaultPadding,
         child: Column(
-          // mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
 

@@ -31,7 +31,6 @@ class MapState {
   GoogleMapController? mapController;
   CameraPosition? initialCameraPosition;
   CameraPosition? cameraPosition;
-  Completer<GoogleMapController> mapCompleter;
 
   bool get isAnyMarkerSelected => selectedMarkerId.isNotEmpty;
   bool get isAnyIconSelected => icons.any((point) => point.id == selectedMarkerId);
@@ -88,7 +87,6 @@ class MapState {
     this.mapController,
     this.initialCameraPosition,
     this.cameraPosition,
-    this.mapCompleter,
   );
 
   MapState copyWith({
@@ -123,8 +121,7 @@ class MapState {
       drawingMode ?? this.drawingMode,
       mapController ?? this.mapController,
       initialCameraPosition ?? this.initialCameraPosition,
-      cameraPosition ?? this.cameraPosition,
-      mapCompleter
+      cameraPosition ?? this.cameraPosition
     );
   }
 

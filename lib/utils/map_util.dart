@@ -45,7 +45,7 @@ abstract class MapUtil {
     return distanceBetweenPoints(viewPort.southwest, viewPort.northeast);
   }
 
-  static void animateCameraToMapCenter(MapState state) {
+  static animateCameraToMapCenter(MapState state) {
     CameraUpdate cameraUpdate;
 
     if (state.markers.isEmpty) {
@@ -54,7 +54,6 @@ abstract class MapUtil {
       cameraUpdate = CameraUpdate.newCameraPosition(CameraPosition(
           target: state.markers.first.position, zoom: kZoomInitial)
       );
-
     } else {
       final lats = state.markers.map((marker) => marker.position.latitude);
       final lngs = state.markers.map((marker) => marker.position.longitude);
@@ -62,7 +61,7 @@ abstract class MapUtil {
           southwest: LatLng(lats.reduce(min), lngs.reduce(min)),
           northeast: LatLng(lats.reduce(max), lngs.reduce(max))
       );
-      cameraUpdate = CameraUpdate.newLatLngBounds(bounds, 50);
+      cameraUpdate = CameraUpdate.newLatLngBounds(bounds, 150);
     }
     state.mapController?.animateCamera(cameraUpdate);
   }
