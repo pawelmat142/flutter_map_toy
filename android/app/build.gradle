@@ -52,12 +52,12 @@ android {
 //        compileSdkVersion localProperties.getProperty('flutter.compileSdkVersion').toInteger()
 //        versionCode flutterVersionCode.toInteger()
 
-        minSdkVersion 20
-        targetSdkVersion 33
-        compileSdkVersion 33
+        minSdkVersion 21
+        targetSdkVersion 30
+        compileSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
-
+        multiDexEnabled true
     }
 
     buildTypes {
@@ -75,4 +75,7 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "com.google.android.material:material:$material_version"
+    implementation "com.google.android.gms:play-services:9.2.1"
+    implementation 'androidx.multidex:multidex:2.0.1'
 }
