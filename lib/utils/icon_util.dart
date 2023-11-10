@@ -4,6 +4,7 @@ import 'package:flutter_map_toy/global/extensions.dart';
 import 'package:flutter_map_toy/models/map_cubit.dart';
 import 'package:flutter_map_toy/models/map_icon_model.dart';
 import 'package:flutter_map_toy/presentation/dialogs/icon_craft.dart';
+import 'package:flutter_map_toy/presentation/styles/app_icon.dart';
 import 'package:flutter_map_toy/services/log.dart';
 import 'package:flutter_map_toy/utils/map_util.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -20,8 +21,11 @@ abstract class IconUtil {
     return craft;
   }
 
-  static IconData _iconDataFromMapIconPoint(MapIconModel mapIconPoint) {
-    return IconData(mapIconPoint.iconDataPoint, fontFamily: 'MaterialIcons');
+  static IconData _iconDataFromMapIconPoint(MapIconModel mapIconModel) {
+    //SOLVES build error:
+    // This application cannot tree shake icons fonts. It has non-constant instances of IconData at the following locations:
+    return AppIcon.mapFlutterIcons.firstWhere((mapIcon) => mapIcon.codePoint == mapIconModel.iconDataPoint);
+    // return IconData(mapIconModel.iconDataPoint, fontFamily: 'MaterialIcons');
   }
 
   static MapIconModel mapIconPointFromCraft(IconCraft craft, {
