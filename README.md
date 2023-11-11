@@ -8,6 +8,13 @@ The drawing process involves generating Google Maps markers of two types. The fi
 
 Currently trying to release app on Google Play. After that I will try to release ios version on Apple App Store.
 
-APK app file may be downloaded here https://drive.google.com/drive/folders/1OpUzcEuO5Mr3DBd4977ORzwrv-EduInr?usp=drive_link
+APK app file may be downloaded [here](https://drive.google.com/drive/folders/1OpUzcEuO5Mr3DBd4977ORzwrv-EduInr?usp=drive_link).
+ 
+ 
+## Technologies
+* Flutter
+* Google Maps API
+* HIVE
+* BLoC
 
 
