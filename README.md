@@ -17,7 +17,5 @@ APK app file may be downloaded [here](https://drive.google.com/drive/folders/1Op
 * HIVE
 * BLoC
 
-
-![screen_1](https://github.com/pawelmat142/flutter_map_toy/assets/98407450/726270fd-0259-48c2-989c-e3d2bcc37484)
-
-![screen_2](https://github.com/pawelmat142/flutter_map_toy/assets/98407450/920c7671-f01f-4389-bbe3-f872309d082b)
+![screen_1_small](https://github.com/pawelmat142/flutter_map_toy/assets/98407450/b0c88255-1eab-4833-b58c-a2dea643f9ec)
+![screen_2_small](https://github.com/pawelmat142/flutter_map_toy/assets/98407450/80a0be96-9471-4cba-908f-9aa6a34e66ca)
