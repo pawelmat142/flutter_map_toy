@@ -17,6 +17,7 @@ APK app file may be downloaded [here](https://drive.google.com/drive/folders/1Op
 * HIVE
 * BLoC
 
+</br>
 * ## Todo
 * bigger icon markers
 * smoothing drawing line
