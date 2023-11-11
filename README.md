@@ -2,17 +2,12 @@
 
 Application for drawing maps of places (eg event diagram) powered by Google maps
 
-## Getting Started
+An application based on Google Maps, created for educational purposes, portfolio and skills presentation. Its functionality includes drawing simple maps, such as outdoor event layouts. 
 
-This project is a starting point for a Flutter application.
+The drawing process involves generating Google Maps markers of two types. The first type consists of icons with options to choose the shape, color, and size. The second type involves drawing lines using Canvas, with the ability to select the color and line width. All markers can be labeled with short text. The created maps can be saved in a local database. Additionally, the application features a location search function based on the Google API.
 
-A few resources to get you started if this is your first Flutter project:
+Currently trying to release app on Google Play. After that I will try to release ios version on Apple App Store.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+APK app file may be downloaded here https://drive.google.com/drive/folders/1OpUzcEuO5Mr3DBd4977ORzwrv-EduInr?usp=drive_link
 
 
