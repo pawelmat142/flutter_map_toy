@@ -18,3 +18,6 @@ APK app file may be downloaded [here](https://drive.google.com/drive/folders/1Op
 * BLoC
 
 
+![screen_1](https://github.com/pawelmat142/flutter_map_toy/assets/98407450/726270fd-0259-48c2-989c-e3d2bcc37484)
+
+![screen_2](https://github.com/pawelmat142/flutter_map_toy/assets/98407450/920c7671-f01f-4389-bbe3-f872309d082b)
