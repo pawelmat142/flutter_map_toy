@@ -16,7 +16,8 @@ APK app file may be downloaded [here](https://drive.google.com/drive/folders/1Op
 * BLoC
 
 </br>
-* ## Todo
+
+## Todo
 * bigger icon markers
 * smoothing drawing line
 * Google Play release
